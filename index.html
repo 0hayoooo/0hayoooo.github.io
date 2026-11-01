@@ -82,6 +82,8 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
 .sausage.happy .s-head{animation:headtilt .5s ease-in-out}
 @keyframes headtilt{40%{transform:rotate(-6deg)}}
 @media (max-width:620px){.pet #petBtn.sausage{width:100%;flex:1 1 100%}}
+.pet-hint{flex:1 1 100%;margin:0;font-size:14px;line-height:1.45;color:var(--muted)}
+.pet-hint::before{content:"ฅ ";color:var(--pink)}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -563,6 +565,7 @@ footer a{color:var(--pink);text-decoration:none}
           <span class="s-cap">Погладить котика ฅ</span>
         </button>
         <output id="petOut" for="petBtn" aria-live="polite">поглажено: <b>0</b></output>
+        <p class="pet-hint">Каждые 100 поглаживаний котика на стриме вылезает алерт с твоим ником.</p>
       </div>
       <input type="hidden" id="petNick">
     </div>
