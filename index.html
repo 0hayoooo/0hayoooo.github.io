@@ -401,35 +401,8 @@ footer a{color:var(--pink);text-decoration:none}
       <h2 id="top-h">Топ моих любимых <em>мурок</em></h2>
       <p>Спасибо каждой мурке за поддержку <span class="kaomoji">ฅ^•ﻌ•^ฅ</span></p>
     </div>
-    <ol class="podium">
-      <li class="p1"><span class="rk">#1</span><b>reiz</b><span class="am">47 500 ₽</span></li>
-      <li class="p2"><span class="rk">#2</span><b>taizaichik</b><span class="am">23 331 ₽</span></li>
-      <li class="p3"><span class="rk">#3</span><b>ximik1805</b><span class="am">8 872 ₽ + скины (+14 200 ₽)</span></li>
-    </ol>
-    <ol class="board" start="4">
-      <li><b>netfil000</b><span>16 666 ₽</span></li>
-      <li><b>fed</b><span>12 201 ₽</span></li>
-      <li><b>Holigop</b><span>10 938 ₽</span></li>
-      <li><b>vyre757</b><span>108 € (10 667 ₽)</span></li>
-      <li><b>naxlebnuk1</b><span>10 000 ₽</span></li>
-      <li><b>happy_lout</b><span>8 000 ₽</span></li>
-      <li><b>Корасик</b><span>6 700 ₽</span></li>
-      <li><b>mronyn4</b><span>6 200 ₽</span></li>
-      <li><b>one4xtra</b><span>6 000 ₽</span></li>
-      <li><b>tesLik</b><span>1 300 ₽ + скины (+4 000 ₽)</span></li>
-      <li><b>simonghostriley14111111</b><span>5 000 ₽</span></li>
-      <li><b>zOk</b><span>4 353 ₽</span></li>
-      <li><b>KoenixQ</b><span>4 001 ₽</span></li>
-      <li><b>nebes5885</b><span>3 300 ₽</span></li>
-      <li><b>smertnesushiy</b><span>3 187 ₽</span></li>
-      <li><b>ShoteGames</b><span>2 739 ₽</span></li>
-      <li><b>bosnq</b><span>2 500 ₽</span></li>
-      <li><b>AL1vieee</b><span>2 400 ₽</span></li>
-      <li><b>aquarimen5</b><span>2 200 ₽</span></li>
-      <li><b>Pirrrrate</b><span>2 000 ₽</span></li>
-      <li><b>Fire Gaming</b><span>1 530 ₽</span></li>
-      <li><b>JI JI</b><span>1 500 ₽</span></li>
-    </ol>
+    <ol class="podium" id="podium"></ol>
+    <ol class="board" id="board" start="4"></ol>
   </section>
 
   <!-- ABOUT -->
@@ -558,6 +531,98 @@ footer a{color:var(--pink);text-decoration:none}
 </main>
 
 <script>
+/* ============================================================
+   ТОП ДОНАТЕРОВ — МЕНЯТЬ ТУТ
+   Одна строка = один донатер: ["ник", "сумма"],
+   Порядок строк = место в топе (первые три попадут на пьедестал).
+   Не забывай запятую в конце каждой строки и кавычки вокруг текста.
+   ============================================================ */
+/* ССЫЛКА НА GOOGLE ТАБЛИЦУ (Файл → Поделиться → Опубликовать в интернете → CSV).
+   Пока ссылки нет, оставь пустые кавычки "" — тогда сайт берёт список ниже. */
+var ТАБЛИЦА = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSw1U4NvT0kVTGy9TSoP1FvCS6uAqwRSejcU-LY5nSwHhIa2PAw0QYqk6OKdLl1ITw9Z82OJDRO9saJ/pub?gid=464919870&single=true&output=csv";
+
+/* Запасной список: показывается, пока таблица не подключена или не загрузилась. */
+var ТОП = [
+  ["reiz", "47 500 ₽"],
+  ["taizaichik", "23 331 ₽"],
+  ["ximik1805", "8 872 ₽ + скины (+14 200 ₽)"],
+  ["netfil0", "16 666 ₽"],
+  ["fed", "12 201 ₽"],
+  ["Holigop", "10 938 ₽"],
+  ["vyre757", "108 € (10 667 ₽)"],
+  ["naxlebnuk1", "10 000 ₽"],
+  ["happy_lout", "8 000 ₽"],
+  ["Корасик", "6 700 ₽"],
+  ["mronyn4", "6 200 ₽"],
+  ["one4xtra", "6 000 ₽"],
+  ["tesLik", "1 300 ₽ + скины (+4 000 ₽)"],
+  ["simonghostriley14111111", "5 000 ₽"],
+  ["zOk", "4 353 ₽"],
+  ["KoenixQ", "4 001 ₽"],
+  ["nebes5885", "3 300 ₽"],
+  ["smertnesushiy", "3 187 ₽"],
+  ["ShoteGames", "2 739 ₽"],
+  ["bosnq", "2 500 ₽"],
+  ["AL1vieee", "2 400 ₽"],
+  ["aquarimen5", "2 200 ₽"],
+  ["Pirrrrate", "2 000 ₽"],
+  ["Fire Gaming", "1 530 ₽"],
+  ["JI JI", "1 500 ₽"],
+];
+/* ===================== дальше ничего не трогать ===================== */
+(function(){
+  var pod=document.getElementById('podium'), brd=document.getElementById('board');
+  if(!pod||!brd) return;
+  function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;}
+  function render(list){
+    pod.textContent='';brd.textContent='';var i=0;
+    list.forEach(function(row){
+      var nick=String(row[0]||'').trim(), sum=String(row[1]||'').trim();
+      if(!nick) return;
+      if(i<3){
+        var li=el('li','p'+(i+1));
+        li.appendChild(el('span','rk','#'+(i+1)));
+        li.appendChild(el('b',null,nick));
+        li.appendChild(el('span','am',sum));
+        pod.appendChild(li);
+      }else{
+        var r=el('li');
+        r.appendChild(el('b',null,nick));
+        r.appendChild(el('span',null,sum));
+        brd.appendChild(r);
+      }
+      i++;
+    });
+    brd.hidden=!brd.children.length;
+  }
+  function parseCSV(t){
+    var rows=[],row=[],f='',q=false;
+    for(var i=0;i<t.length;i++){
+      var c=t[i];
+      if(q){ if(c==='"'){ if(t[i+1]==='"'){f+='"';i++;} else q=false; } else f+=c; }
+      else if(c==='"') q=true;
+      else if(c===','){row.push(f);f='';}
+      else if(c==='\n'){row.push(f);rows.push(row);row=[];f='';}
+      else if(c!=='\r') f+=c;
+    }
+    if(f!==''||row.length){row.push(f);rows.push(row);}
+    return rows;
+  }
+  render(ТОП);
+  if(!ТАБЛИЦА) return;
+  fetch(ТАБЛИЦА+(ТАБЛИЦА.indexOf('?')<0?'?':'&')+'t='+Date.now(),{cache:'no-store'})
+    .then(function(r){if(!r.ok)throw 0;return r.text();})
+    .then(function(t){
+      var rows=parseCSV(t).filter(function(r){return r[0]&&r[0].trim();});
+      if(rows.length&&/ник|nick/i.test(rows[0][0]))rows.shift();
+      if(rows.length)render(rows);
+    })
+    .catch(function(){});
+})();
+</script>
+
+
+<script>
 (function(){
   var CH='0hayoooo', badge=document.getElementById('live'), label=badge.querySelector('b'), title=document.getElementById('streamTitle');
   function set(state,text){badge.className='live'+(state?' is-'+state:'');label.textContent=text;}
@@ -580,7 +645,7 @@ document.querySelectorAll('a[href="#donate"]').forEach(function(a){
     e.preventDefault();
     var smooth=!window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var r=t.getBoundingClientRect();
-    var top=r.top+window.scrollY-(window.innerHeight-r.height)/2+200;
+    var top=r.top+window.scrollY-(window.innerHeight-r.height)/2-100;
     window.scrollTo({top:Math.max(0,top),behavior:smooth?'smooth':'auto'});
   });
 });
