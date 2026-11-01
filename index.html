@@ -492,6 +492,51 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
 @keyframes goalpaint{0%{width:0;opacity:1}55%{width:100%;opacity:1}80%{width:100%;opacity:1}100%{width:100%;opacity:0}}
 @media (max-width:620px){.goal-bar{height:15px}}
 @media (prefers-reduced-motion:reduce){.goal-bar i::before{animation:none;width:0}}
+
+/* ===== мой прицел ===== */
+.xh{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:26px;align-items:center;padding:22px;border-radius:22px;background:var(--surface);border:1px solid var(--line)}
+.xh-view{position:relative;aspect-ratio:1;max-width:100%;border-radius:18px;display:grid;place-items:center;overflow:hidden;
+  background:radial-gradient(circle at 50% 45%,rgba(255,255,255,.12),transparent 60%),linear-gradient(180deg,#cbbfa5 0%,#b3a68b 55%,#9b8f76 100%);
+  border:1.5px solid var(--pink);box-shadow:0 0 22px rgba(255,62,165,.3)}
+.xh-view svg{width:40%;height:auto;shape-rendering:crispEdges;filter:drop-shadow(0 0 6px rgba(196,62,198,.75))}
+.xh-view .xh-real{position:absolute;right:16px;bottom:16px;width:8px;height:8px;filter:none}
+.xh-real-cap{position:absolute;right:30px;bottom:12px;font:700 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:rgba(20,10,30,.7)}
+.xh-tag{position:absolute;left:12px;top:12px;font:700 11px/1 var(--mono);letter-spacing:.08em;color:#fff;background:rgba(11,7,22,.75);border:1px solid var(--pink);border-radius:8px;padding:5px 7px}
+.xh-info{display:grid;gap:14px;min-width:0}
+.xh-label{font:700 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.xh-code{display:flex;align-items:center;gap:10px;min-width:0;padding:10px 10px 10px 14px;border-radius:14px;background:var(--bg);border:1.5px solid rgba(196,62,198,.6);box-shadow:0 0 16px rgba(196,62,198,.25)}
+.xh-code code{flex:1;min-width:0;font:600 15px/1.45 var(--mono);color:var(--fg);overflow-wrap:anywhere;user-select:all}
+.xh-code button{flex:none;font:800 14px/1 var(--body);color:#1a0010;background:var(--pink);border:0;border-radius:10px;padding:12px 16px;cursor:pointer;box-shadow:0 0 16px rgba(255,62,165,.5)}
+.xh-code button:hover{filter:brightness(1.1)}
+.xh-steps{margin:0;padding-left:20px;display:grid;gap:4px;color:var(--muted);font-size:14.5px}
+.xh-steps b{color:var(--fg);font-weight:700}
+@media (max-width:620px){
+  .xh{grid-template-columns:minmax(0,1fr);padding:16px}
+  .xh-view{max-width:240px;width:100%;margin-inline:auto}
+  .xh-code{flex-wrap:wrap}
+  .xh-code button{flex:1 1 100%}
+}
+
+/* прицел: точный масштаб и список настроек */
+.xh-view svg{width:96px;shape-rendering:crispEdges;filter:drop-shadow(0 0 6px rgba(255,0,255,.7))}
+.xh-view .xh-real{width:6px;height:6px;right:18px;bottom:17px}
+.xh-set{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.xh-set li{display:grid;gap:2px;padding:8px 10px;border-radius:10px;background:var(--bg);border:1px solid var(--line);min-width:0}
+.xh-set span{font:700 10px/1.2 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.xh-set b{display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px;overflow-wrap:anywhere}
+.xh-sw{flex:none;width:12px;height:12px;border-radius:3px;border:1px solid rgba(255,255,255,.35)}
+@media (max-width:620px){.xh-set{grid-template-columns:repeat(2,minmax(0,1fr))}.xh-set li:last-child{grid-column:1/-1}}
+
+/* прицел: только картинка и кнопка */
+.xh{grid-template-columns:minmax(0,260px);justify-content:center;justify-items:center;gap:16px;width:fit-content;max-width:100%;margin-inline:auto;padding:20px}
+.xh-view{width:260px}
+.xh-copy{width:100%;font:800 16px/1 var(--body);color:#1a0010;background:var(--pink);border:0;border-radius:12px;padding:15px 18px;cursor:pointer;box-shadow:0 0 18px rgba(255,62,165,.55);transition:filter .2s}
+.xh-copy:hover{filter:brightness(1.1)}
+.xh-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+@media (max-width:620px){.xh{width:100%;padding:16px}.xh-view{width:100%;max-width:260px}}
+
+.copy-show.xh-hidden,.xh-hidden.copy-show{position:static;width:100%;height:auto;overflow:visible;clip:auto;clip-path:none;white-space:normal;overflow-wrap:anywhere;
+  display:block;font:600 14px/1.45 var(--mono);color:var(--fg);padding:10px 12px;border:1px dashed var(--pink);border-radius:10px;background:var(--bg);user-select:all;text-align:center}
 </style>
 </head>
 <body>
@@ -712,6 +757,29 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
         <dt>Новости</dt><dd><a href="https://t.me/+QWcnmKqeBA1iMTIy" target="_blank" rel="noopener" style="color:var(--cyan);text-decoration:none">эй, а ну ка подпишись на мою тг-шечку, а то сделаю кусь</a></dd>
         <dt>Донат</dt><dd>DonationAlerts · Donatty · CloudTips · Т-Банк</dd>
       </dl>
+    </div>
+  </section>
+
+  <!-- CROSSHAIR -->
+  <section aria-labelledby="xh-h">
+    <div class="sec-head">
+      <h2 id="xh-h">Мой <em>прицел</em></h2>
+    </div>
+    <div class="xh">
+      <div class="xh-view" role="img" aria-label="Прицел 0hayoooo: маленький розовый плюс с зазором в центре и чёрной обводкой">
+        <span class="xh-tag">×16</span>
+        <svg viewBox="-3 -3 6 6" aria-hidden="true">
+          <g fill="#000"><rect x="0" y="-1" width="3" height="2"/><rect x="-3" y="-1" width="3" height="2"/><rect x="-1" y="0" width="2" height="3"/><rect x="-1" y="-3" width="2" height="3"/></g>
+          <g fill="#ff00ff"><rect x="0.5" y="-0.5" width="2" height="1"/><rect x="-2.5" y="-0.5" width="2" height="1"/><rect x="-0.5" y="0.5" width="1" height="2"/><rect x="-0.5" y="-2.5" width="1" height="2"/></g>
+        </svg>
+        <svg class="xh-real" viewBox="-3 -3 6 6" aria-hidden="true">
+          <g fill="#000"><rect x="0" y="-1" width="3" height="2"/><rect x="-3" y="-1" width="3" height="2"/><rect x="-1" y="0" width="2" height="3"/><rect x="-1" y="-3" width="2" height="3"/></g>
+          <g fill="#ff00ff"><rect x="0.5" y="-0.5" width="2" height="1"/><rect x="-2.5" y="-0.5" width="2" height="1"/><rect x="-0.5" y="0.5" width="1" height="2"/><rect x="-0.5" y="-2.5" width="1" height="2"/></g>
+        </svg>
+        <span class="xh-real-cap">в игре</span>
+      </div>
+      <button type="button" class="xh-copy" data-copy="c-xhair">Скопировать</button>
+      <code id="c-xhair" class="xh-hidden">CSUJqvNPJhxbUD8hr6iXP3pWn54ZX8WGwZvywPuZRcs3BY</code>
     </div>
   </section>
 
@@ -959,11 +1027,32 @@ document.querySelectorAll('a[href="#donate"]').forEach(function(a){
   });
 });
 document.querySelectorAll('[data-copy]').forEach(function(b){
+  var label=b.textContent;
   b.addEventListener('click',function(){
-    var el=document.getElementById(b.dataset.copy), t=el.textContent;
-    function sel(){var r=document.createRange();r.selectNodeContents(el);var s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='Выделено';}
-    try{navigator.clipboard.writeText(t).then(function(){b.textContent='Скопировано'},sel)}catch(e){sel()}
-    setTimeout(function(){b.textContent='Копировать'},1800);
+    var el=document.getElementById(b.dataset.copy), t=(el.textContent||'').trim();
+    function done(ok){
+      b.textContent=ok?'Скопировано ✓':'Выделено, нажми Ctrl+C';
+      clearTimeout(b._t); b._t=setTimeout(function(){b.textContent=label;},ok?2000:4000);
+    }
+    function show(){ /* последний вариант: показать код и выделить его */
+      el.classList.add('copy-show');
+      try{var r=document.createRange();r.selectNodeContents(el);var sl=getSelection();sl.removeAllRanges();sl.addRange(r);}catch(e){}
+      done(false);
+    }
+    /* 1) классический способ — срабатывает сразу по нажатию */
+    var ok=false;
+    try{
+      var ta=document.createElement('textarea'); ta.value=t; ta.setAttribute('readonly','');
+      ta.style.cssText='position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;';
+      document.body.appendChild(ta); ta.focus(); ta.select(); ta.setSelectionRange(0,t.length);
+      ok=document.execCommand('copy'); document.body.removeChild(ta);
+    }catch(e){}
+    if(ok){done(true);return;}
+    /* 2) современный способ */
+    try{
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){done(true);},show);return;}
+    }catch(e){}
+    show();
   });
 });
 (function(){
