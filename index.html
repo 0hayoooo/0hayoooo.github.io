@@ -764,8 +764,9 @@ document.querySelectorAll('[data-copy]').forEach(function(b){
 });
 (function(){
   var btn=document.getElementById('petBtn'), out=document.getElementById('petOut');
-  var n=0;
-  try{ n=parseInt(localStorage.getItem('pets')||'0',10)||0 }catch(e){}
+  var n=0, nickIn=null;
+  function petKey(){return 'pets:'+((nickIn&&nickIn.value)||'').toLowerCase();}
+  function loadCount(){var v=0;try{v=parseInt(localStorage.getItem(petKey())||'0',10)||0;}catch(e){} n=v; render();}
   var RM=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var PINK='#ff3ea5',CYAN='#2cf1ff',YEL='#ffd23f',GRN='#3dff8a',RED='#ff4d5e',VIO='#b06bff';
   var STEPS=[10,20,50,100,200,300,400,500,1000,2000];
@@ -789,7 +790,7 @@ document.querySelectorAll('[data-copy]').forEach(function(b){
     ['мурчание достигло скорости звука','shake']
   ];
   function next(k){for(var i=0;i<STEPS.length;i++)if(STEPS[i]>k)return STEPS[i];return (Math.floor(k/1000)+1)*1000;}
-  function render(){var nx=next(n);out.innerHTML='поглажено: <b>'+n+'</b> <small>· до награды '+(nx-n)+'</small>';}
+  function render(){var nx=next(n),who=(nickIn&&nickIn.value)?nickIn.value:'гость';out.innerHTML='';out.appendChild(document.createTextNode('поглажено ('+who+'): '));var b=document.createElement('b');b.textContent=n;out.appendChild(b);var sm=document.createElement('small');sm.textContent=' · до награды '+(nx-n);out.appendChild(sm);}
   render();
 
   /* particles */
@@ -846,7 +847,7 @@ document.querySelectorAll('[data-copy]').forEach(function(b){
 
   btn.addEventListener('click',function(){
     n++;render();
-    try{localStorage.setItem('pets',String(n));}catch(e){}
+    try{localStorage.setItem(petKey(),String(n));}catch(e){}
     if(!RM){var b=bc();burst(b[0],b[1],['ฅ','♡','✦'],[PINK,CYAN,YEL],5,4);}
     milestone(n);
     if(n>=100&&n%100===0) sendAlert(n);
@@ -854,8 +855,11 @@ document.querySelectorAll('[data-copy]').forEach(function(b){
 
   /* алерт на стрим (через ntfy.sh) */
   var TOPIC='0hayoooo-murk-f3c841f12959';
-  var nickIn=document.getElementById('petNick');
+  nickIn=document.getElementById('petNick');
   try{nickIn.value=localStorage.getItem('petNick')||'';}catch(e){}
+  /* перенос старого общего счётчика на текущий ник */
+  try{var old=localStorage.getItem('pets');if(old!==null){if(localStorage.getItem(petKey())===null)localStorage.setItem(petKey(),old);localStorage.removeItem('pets');}}catch(e){}
+  loadCount();
   nickIn.addEventListener('input',function(){
     nickIn.value=nickIn.value.replace(/[^A-Za-z0-9_]/g,'').slice(0,25);
     try{localStorage.setItem('petNick',nickIn.value);}catch(e){}
@@ -888,7 +892,7 @@ document.querySelectorAll('[data-copy]').forEach(function(b){
       if(!inp.value&&!editing){err.textContent='Впиши ник или нажми «Пропустить»';inp.focus();return;}
       nickIn.value=inp.value;
       try{localStorage.setItem('petNick',inp.value);}catch(x){}
-      paint(); close();
+      loadCount(); paint(); close();
     });
     skip.addEventListener('click',function(){
       if(!editing){try{sessionStorage.setItem('helloSkip','1');}catch(x){}}
