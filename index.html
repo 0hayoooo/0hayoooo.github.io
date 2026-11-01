@@ -85,6 +85,27 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
 .pet-hint{flex:1 1 100%;margin:4px 0 0;padding:14px 18px;border-radius:16px;font:700 clamp(16px,2.2vw,19px)/1.45 var(--body);color:var(--fg);background:rgba(44,241,255,.08);border:1.5px solid var(--cyan);box-shadow:0 0 22px rgba(44,241,255,.22),inset 0 0 18px rgba(44,241,255,.08)}
 .pet-hint::before{content:"ฅ ";color:var(--pink);text-shadow:0 0 8px var(--pink)}
 .pet-hint b{color:var(--yellow);text-shadow:0 0 10px rgba(255,210,63,.5)}
+
+/* ===== топ-3 донатеров пирамидой (пьедестал) ===== */
+.podium{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-areas:"p2 p1 p3";align-items:end;gap:14px;margin-bottom:18px}
+.podium li{position:relative;justify-content:flex-end;align-items:center;text-align:center;gap:8px;padding:20px 14px 22px}
+.podium .p1{grid-area:p1;min-height:240px;padding-top:54px;background:linear-gradient(180deg,rgba(255,210,63,.12),var(--surface) 70%)}
+.podium .p2{grid-area:p2;min-height:195px;background:linear-gradient(180deg,rgba(255,62,165,.12),var(--surface) 70%)}
+.podium .p3{grid-area:p3;min-height:160px;background:linear-gradient(180deg,rgba(44,241,255,.10),var(--surface) 70%)}
+.podium .rk{font:400 34px/1 var(--display);letter-spacing:0;text-shadow:0 0 14px color-mix(in srgb,var(--c) 70%,transparent)}
+.podium .p1 .rk{font-size:46px}
+.podium .p1 b{font-size:clamp(22px,2.6vw,28px)}
+.podium .p1::before{content:"\265B";position:absolute;top:12px;left:50%;transform:translateX(-50%);font-size:30px;line-height:1;color:var(--yellow);text-shadow:0 0 12px var(--yellow),0 0 26px rgba(255,210,63,.6)}
+@media (max-width:620px){
+  .podium{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"p1 p1" "p2 p3";align-items:end}
+  .podium .p1{min-height:0;padding-top:50px}
+  .podium .p2{min-height:150px}
+  .podium .p3{min-height:128px}
+  .podium .rk{font-size:28px}
+  .podium .p1 .rk{font-size:38px}
+  .podium b{font-size:17px}
+  .podium .am{font-size:12.5px}
+}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
