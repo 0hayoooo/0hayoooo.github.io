@@ -107,6 +107,22 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
   .podium .am{font-size:12.5px}
 }
 .livebox .live:not(.is-on) small{display:none}
+
+/* топ-3: содержимое по центру, крупнее */
+.podium li{justify-content:center}
+.podium .rk{font-size:46px}
+.podium .p1 .rk{font-size:56px}
+.podium b{font-size:clamp(22px,2.4vw,27px)}
+.podium .p1 b{font-size:clamp(26px,3vw,32px)}
+.podium .am{font-size:16px}
+.podium .p1 .am{font-size:17px}
+@media (max-width:620px){
+  .podium .rk{font-size:36px}
+  .podium .p1 .rk{font-size:46px}
+  .podium b{font-size:19px}
+  .podium .p1 b{font-size:24px}
+  .podium .am{font-size:13.5px}
+}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -241,7 +257,7 @@ h2 em{font-style:normal;color:var(--cyan);text-shadow:0 0 14px rgba(44,241,255,.
 .podium .am{font:500 14px/1.4 var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
 .board{margin:0;padding:0;list-style:none;counter-reset:r 3;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:24px;border-top:1px solid var(--line)}
 .board li{counter-increment:r;display:grid;grid-template-columns:2.4em minmax(0,1fr) auto;gap:10px;align-items:baseline;padding:10px 4px;border-bottom:1px dashed var(--line)}
-.board li::before{content:"#" counter(r);font:700 12px/1 var(--mono);color:var(--muted)}
+.board li::before{content:"№" counter(r);font:700 12px/1 var(--mono);color:var(--muted)}
 .board b{font-weight:600;overflow-wrap:anywhere}
 .board span{font:500 13px/1.4 var(--mono);color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
 @media (max-width:620px){.podium{grid-template-columns:minmax(0,1fr)}.board{grid-template-columns:minmax(0,1fr)}}
@@ -757,7 +773,7 @@ var ТОП = [
       if(!nick) return;
       if(i<3){
         var li=el('li','p'+(i+1));
-        li.appendChild(el('span','rk','#'+(i+1)));
+        li.appendChild(el('span','rk','№'+(i+1)));
         li.appendChild(el('b',null,nick));
         li.appendChild(el('span','am',sum));
         pod.appendChild(li);
