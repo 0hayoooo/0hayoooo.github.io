@@ -123,6 +123,12 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
   .podium .p1 b{font-size:24px}
   .podium .am{font-size:13.5px}
 }
+
+/* верхняя панель без сплошной полосы: только плавающие плашки */
+.topbar{background:transparent;border-bottom:0;pointer-events:none}
+.topbar > *{pointer-events:auto}
+.topbar .profile,.topbar .livebox{box-shadow:0 6px 22px rgba(0,0,0,.55)}
+.topbar .livebox:has(.is-on){box-shadow:0 6px 22px rgba(0,0,0,.55),0 0 16px rgba(61,255,138,.25)}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
