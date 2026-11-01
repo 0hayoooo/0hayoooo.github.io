@@ -463,6 +463,35 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
 .goal-cta a:hover{color:#fff;text-decoration-color:var(--yellow)}
 .goal-left{font:500 13px/1.4 var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
 @media (max-width:620px){.goal{padding:18px 16px}.goal-bar{height:16px}}
+
+/* ===== бегущая строка: ярче + розовая неоновая волна по всей полосе ===== */
+.ticker{position:relative;isolation:isolate;background:rgba(11,7,22,.92);border-block:1.5px solid var(--pink);
+  box-shadow:0 0 14px rgba(255,62,165,.55),inset 0 0 18px rgba(255,62,165,.18)}
+.ticker-track{position:relative;z-index:1;font-size:17px;padding-block:14px;color:#fff;
+  text-shadow:0 0 6px rgba(255,62,165,.9),0 0 16px rgba(255,62,165,.55)}
+.ticker-track i{color:var(--cyan);text-shadow:0 0 8px var(--cyan)}
+.ticker::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,62,165,0) 30%,rgba(255,62,165,.55) 46%,rgba(255,150,210,.85) 50%,rgba(255,62,165,.55) 54%,rgba(255,62,165,0) 70%,transparent 100%);
+  background-size:60% 100%;background-repeat:no-repeat;background-position:-160% 0;
+  animation:tickerwave 3.2s cubic-bezier(.45,0,.55,1) infinite}
+.ticker::after{content:"";position:absolute;left:0;right:0;height:2px;top:-1.5px;z-index:2;pointer-events:none;
+  background:linear-gradient(90deg,transparent,#ffd0ea,transparent);background-size:30% 100%;background-repeat:no-repeat;background-position:-40% 0;
+  filter:drop-shadow(0 0 6px var(--pink));animation:tickerwave2 3.2s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes tickerwave{from{background-position:-160% 0}to{background-position:260% 0}}
+@keyframes tickerwave2{from{background-position:-50% 0}to{background-position:150% 0}}
+@media (max-width:620px){.ticker-track{font-size:15px;padding-block:12px}}
+@media (prefers-reduced-motion:reduce){.ticker::before,.ticker::after{animation:none;opacity:0}}
+
+/* ===== полоска мурканутых: голубая, розовая волна закрашивает её до текущей отметки ===== */
+.goal-bar{height:18px;border:1px solid rgba(44,241,255,.45);box-shadow:0 0 10px rgba(44,241,255,.25)}
+.goal-bar i{background:linear-gradient(90deg,#16c9f0,var(--cyan));box-shadow:0 0 12px rgba(44,241,255,.7);animation:none}
+.goal-bar i::after{display:none}
+.goal-bar i::before{content:"";position:absolute;left:0;top:0;bottom:0;width:0;border-radius:inherit;
+  background:linear-gradient(90deg,var(--pink) 0%,#ff5cb8 82%,#ffd0ea 96%,rgba(255,208,234,0) 100%);
+  box-shadow:0 0 14px rgba(255,62,165,.8);animation:goalpaint 3.6s cubic-bezier(.4,0,.2,1) infinite}
+@keyframes goalpaint{0%{width:0;opacity:1}55%{width:100%;opacity:1}80%{width:100%;opacity:1}100%{width:100%;opacity:0}}
+@media (max-width:620px){.goal-bar{height:15px}}
+@media (prefers-reduced-motion:reduce){.goal-bar i::before{animation:none;width:0}}
 </style>
 </head>
 <body>
