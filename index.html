@@ -459,7 +459,7 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
   <form class="hello-card" id="helloForm">
     <div class="hello-cat" aria-hidden="true">ฅ^•ﻌ•^ฅ</div>
     <h2 id="helloH">Укажите ваш Twitch ник</h2>
-    <p>Каждые 100 поглаживаний котика на стриме вылезает алерт с твоим ником.</p>
+    <p>Каждые 500 поглаживаний котика на стриме вылезает алерт с твоим ником.</p>
     <input id="helloNick" type="text" maxlength="25" autocomplete="off" spellcheck="false" placeholder="например, reiz" aria-label="Twitch ник">
     <small id="helloErr" aria-live="polite"></small>
     <div class="hello-btns">
@@ -610,7 +610,7 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
           <span class="s-cap">Погладить котика ฅ</span>
         </button>
         <output id="petOut" for="petBtn" aria-live="polite">поглажено: <b>0</b></output>
-        <p class="pet-hint">Каждые <b>100</b> поглаживаний котика на стриме вылезает <b>алерт с твоим ником</b>.</p>
+        <p class="pet-hint">Каждые <b>500</b> поглаживаний котика на стриме вылезает <b>алерт с твоим ником</b>.</p>
       </div>
       <input type="hidden" id="petNick">
     </div>
@@ -945,7 +945,7 @@ document.querySelectorAll('[data-copy]').forEach(function(b){
     try{localStorage.setItem(petKey(),String(n));}catch(e){}
     if(!RM){var b=bc();burst(b[0],b[1],['ฅ','♡','✦'],[PINK,CYAN,YEL],5,4);}
     milestone(n);
-    if(n>=100&&n%100===0) sendAlert(n);
+    if(n>=500&&n%500===0) sendAlert(n);
   });
 
   /* алерт на стрим (через ntfy.sh) */

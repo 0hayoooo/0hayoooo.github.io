@@ -43,12 +43,11 @@ html,body{margin:0;background:transparent!important;overflow:hidden;height:100%}
 (function(){
   var TOPIC='0hayoooo-murk-f3c841f12959';
   var params=new URLSearchParams(location.search);
-  var MUTE=params.has('mute'), TEST=params.has('test');
+  var MUTE=params.has('mute'), TEST=params.has('test'), SOUND=(params.get('sound')||'').toLowerCase();
   var stage=document.getElementById('stage');
   var queue=[], busy=false, seen={};
 
   var SPECIAL={
-    100:'первая сотка! котик заметил',
     500:'ACE по поглаживаниям',
     1000:'МУР-ЛЕГЕНДА чата',
     2000:'GLOBAL МУР',
@@ -67,19 +66,74 @@ html,body{margin:0;background:transparent!important;overflow:hidden;height:100%}
     '<ellipse class="f-pink" cx="72" cy="176" rx="12" ry="7" opacity=".55"/><ellipse class="f-pink" cx="168" cy="176" rx="12" ry="7" opacity=".55"/>'+
     '</svg>';
 
-  function chime(){
-    if(MUTE) return;
-    try{
-      var A=window.AudioContext||window.webkitAudioContext; if(!A) return;
-      var ac=new A(), t=ac.currentTime;
-      [[880,0],[1175,.12],[1568,.24]].forEach(function(nt){
-        var o=ac.createOscillator(), g=ac.createGain();
-        o.type='triangle'; o.frequency.value=nt[0];
-        g.gain.setValueAtTime(0,t+nt[1]); g.gain.linearRampToValueAtTime(.18,t+nt[1]+.02); g.gain.exponentialRampToValueAtTime(.001,t+nt[1]+.5);
-        o.connect(g); g.connect(ac.destination); o.start(t+nt[1]); o.stop(t+nt[1]+.55);
+  /* ===== звуки алерта: синтезируются прямо в браузере, файлы не нужны ===== */
+  var AC=null;
+  function ctx(){var A=window.AudioContext||window.webkitAudioContext;if(!A)return null;if(!AC)AC=new A();if(AC.state==='suspended')AC.resume();return AC;}
+  function tone(ac,o){ /* o: {type,f,f2,t,dur,vol,att} */
+    var osc=ac.createOscillator(), g=ac.createGain(), t=ac.currentTime+(o.t||0), d=o.dur||.4;
+    osc.type=o.type||'sine'; osc.frequency.setValueAtTime(o.f,t);
+    if(o.f2) osc.frequency.exponentialRampToValueAtTime(o.f2,t+d*.9);
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(o.vol||.18,t+(o.att||.015)); g.gain.exponentialRampToValueAtTime(.0005,t+d);
+    osc.connect(g); g.connect(o.out||ac.destination); osc.start(t); osc.stop(t+d+.05);
+  }
+  var SFX={
+    /* мяу: тянущийся звук с изгибом высоты через фильтр */
+    meow:function(ac){
+      var t=ac.currentTime, o=ac.createOscillator(), f=ac.createBiquadFilter(), g=ac.createGain();
+      o.type='sawtooth'; f.type='bandpass'; f.Q.value=6;
+      o.frequency.setValueAtTime(420,t); o.frequency.linearRampToValueAtTime(820,t+.22); o.frequency.linearRampToValueAtTime(560,t+.6);
+      f.frequency.setValueAtTime(900,t); f.frequency.linearRampToValueAtTime(2200,t+.2); f.frequency.linearRampToValueAtTime(1100,t+.6);
+      g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.35,t+.06); g.gain.linearRampToValueAtTime(.25,t+.4); g.gain.exponentialRampToValueAtTime(.001,t+.68);
+      o.connect(f); f.connect(g); g.connect(ac.destination); o.start(t); o.stop(t+.72);
+    },
+    /* мурчание: низкий гул, пульсирующий как кошачье мурлыканье */
+    purr:function(ac){
+      var t=ac.currentTime, o=ac.createOscillator(), f=ac.createBiquadFilter(), g=ac.createGain(), lfo=ac.createOscillator(), lg=ac.createGain();
+      o.type='sawtooth'; o.frequency.value=70; f.type='lowpass'; f.frequency.value=380;
+      lfo.frequency.value=24; lg.gain.value=.16; lfo.connect(lg); lg.connect(g.gain);
+      g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.2,t+.15); g.gain.setValueAtTime(.2,t+1.1); g.gain.linearRampToValueAtTime(0,t+1.5);
+      o.connect(f); f.connect(g); g.connect(ac.destination); o.start(t); lfo.start(t); o.stop(t+1.55); lfo.stop(t+1.55);
+      tone(ac,{type:'triangle',f:1568,t:1.0,dur:.35,vol:.08});
+    },
+    /* колокольчики: три светлые ноты вверх */
+    bells:function(ac){
+      [[880,0],[1175,.12],[1568,.24]].forEach(function(n){tone(ac,{type:'triangle',f:n[0],t:n[1],dur:.55,vol:.18});tone(ac,{type:'sine',f:n[0]*2,t:n[1],dur:.3,vol:.05});});
+    },
+    /* монетка: аркадный «дзынь-дзынь» */
+    coin:function(ac){
+      tone(ac,{type:'square',f:988,t:0,dur:.09,vol:.1,att:.005});
+      tone(ac,{type:'square',f:1319,t:.08,dur:.45,vol:.1,att:.005});
+    },
+    /* хедшот: звонкий металлический «пиу-дзынь» */
+    ping:function(ac){
+      tone(ac,{type:'sine',f:2400,f2:1800,t:0,dur:.5,vol:.16,att:.003});
+      tone(ac,{type:'sine',f:3600,f2:2700,t:0,dur:.3,vol:.06,att:.003});
+      tone(ac,{type:'triangle',f:180,f2:60,t:0,dur:.18,vol:.18,att:.003});
+    },
+    /* лапки: быстрые «туки-туки» как шаги котика */
+    paws:function(ac){
+      [0,.11,.22,.33].forEach(function(dt,i){tone(ac,{type:'triangle',f:i%2?520:660,f2:i%2?380:480,t:dt,dur:.1,vol:.2,att:.003});});
+      tone(ac,{type:'sine',f:1320,t:.48,dur:.4,vol:.1});
+    },
+    /* фанфары: для каждой тысячи */
+    fanfare:function(ac){
+      [[523,0,.18],[659,.16,.18],[784,.32,.18],[1047,.48,.7]].forEach(function(n){
+        tone(ac,{type:'sawtooth',f:n[0],t:n[1],dur:n[2]+.1,vol:.07});
+        tone(ac,{type:'triangle',f:n[0],t:n[1],dur:n[2]+.15,vol:.14});
       });
-      setTimeout(function(){ac.close&&ac.close();},1500);
-    }catch(e){}
+      setTimeout(function(){try{SFX.meow(ctx());}catch(e){}},1300);
+    }
+  };
+  var REGULAR=['meow','purr','bells','coin','ping','paws'], lastSfx='';
+  function pickSound(n){
+    if(SOUND&&SFX[SOUND]) return SOUND;
+    if(n%1000===0) return 'fanfare';
+    var pool=REGULAR.filter(function(x){return x!==lastSfx;});
+    return pool[Math.floor(Math.random()*pool.length)];
+  }
+  function chime(n){
+    if(MUTE) return;
+    try{ var ac=ctx(); if(!ac) return; var name=pickSound(n); lastSfx=name; SFX[name](ac); }catch(e){}
   }
 
   function show(a){
@@ -88,14 +142,14 @@ html,body{margin:0;background:transparent!important;overflow:hidden;height:100%}
     el.innerHTML=CAT+'<div><div class="who"></div><div class="what">погладил(а) котика <b></b> раз</div><div class="line"></div></div>';
     el.querySelector('.who').textContent=a.nick||'Анонимная мурка';
     el.querySelector('.what b').textContent=a.n.toLocaleString('ru-RU');
-    el.querySelector('.line').textContent=SPECIAL[a.n]||LINES[(a.n/100)%LINES.length];
+    el.querySelector('.line').textContent=SPECIAL[a.n]||LINES[(a.n/500)%LINES.length];
     for(var i=0;i<10;i++){
       var p=document.createElement('span'); p.className='paw'; p.textContent=i%3?'ฅ':'♡';
       p.style.left=(8+i*9)+'%'; p.style.top='70%'; p.style.animationDelay=(.3+i*.12)+'s';
       p.style.setProperty('--dx',((i%2?1:-1)*(10+i*3))+'px');
       el.appendChild(p);
     }
-    stage.appendChild(el); chime();
+    stage.appendChild(el); chime(a.n);
     setTimeout(function(){el.remove(); busy=false; setTimeout(next,600);},7100);
   }
   function next(){ if(!busy&&queue.length) show(queue.shift()); }
@@ -104,7 +158,7 @@ html,body{margin:0;background:transparent!important;overflow:hidden;height:100%}
     var d; try{d=JSON.parse(raw);}catch(e){return;}
     if(!d||typeof d!=='object') return;
     var n=Number(d.n);
-    if(!Number.isInteger(n)||n<100||n>10000000||n%100!==0) return;
+    if(!Number.isInteger(n)||n<500||n>10000000||n%500!==0) return;
     var nick=String(d.nick||'').replace(/[^A-Za-z0-9_]/g,'').slice(0,25);
     var key=nick.toLowerCase()+':'+n;
     if(seen[key]) return; seen[key]=1;
@@ -119,7 +173,7 @@ html,body{margin:0;background:transparent!important;overflow:hidden;height:100%}
   connect();
 
   if(TEST){
-    var demo=[{nick:'reiz',n:100},{nick:'',n:500},{nick:'taizaichik',n:1000}], k=0;
+    var demo=[{nick:'reiz',n:500},{nick:'',n:1500},{nick:'taizaichik',n:1000},{nick:'ximik1805',n:2500},{nick:'netfil0',n:3500}], k=0;
     function tick(){ var d=demo[k++%demo.length]; queue.push({nick:d.nick,n:d.n}); next(); }
     tick(); setInterval(tick,10000);
   }
