@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Алерт поглаживаний · 0hayoooo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&family=Manrope:wght@600;800&family=JetBrains+Mono:wght@700&display=swap">
+<style>
+/* OBS browser source overlay: transparent page, one neon alert card that pops in at the top centre. */
+:root{
+  --bg:#0b0716; --surface:rgba(20,13,37,.94); --line:#2b2048; --fg:#f3ecff; --muted:#c9bde6;
+  --pink:#ff3ea5; --cyan:#2cf1ff; --yellow:#ffd23f;
+  --display:"Russo One","Arial Black",sans-serif; --body:"Manrope",system-ui,sans-serif; --mono:"JetBrains Mono",monospace;
+}
+html,body{margin:0;background:transparent!important;overflow:hidden;height:100%}
+.stage{position:fixed;inset:0;display:flex;justify-content:center;align-items:flex-start;padding-top:24px;pointer-events:none}
+.alert{position:relative;display:grid;grid-template-columns:120px auto;gap:20px;align-items:center;padding:20px 30px 20px 22px;border-radius:24px;
+  background:var(--surface);border:2px solid var(--pink);color:var(--fg);font-family:var(--body);
+  box-shadow:0 0 0 1px rgba(255,62,165,.4),0 0 40px rgba(255,62,165,.55),0 0 90px rgba(44,241,255,.25);
+  animation:in .7s cubic-bezier(.2,1.5,.4,1) both, out .6s ease-in forwards; animation-delay:0s, 6.4s; max-width:92vw}
+.alert svg{width:120px;height:120px;overflow:visible;animation:bob 1.2s ease-in-out infinite}
+.who{font:400 clamp(26px,5vw,44px)/1.05 var(--display);text-shadow:0 0 8px var(--pink),0 0 24px rgba(255,62,165,.8);overflow-wrap:anywhere}
+.what{margin-top:8px;font:800 clamp(17px,2.6vw,24px)/1.25 var(--body)}
+.what b{font-family:var(--mono);color:var(--yellow);text-shadow:0 0 12px rgba(255,210,63,.7)}
+.line{margin-top:6px;font:700 clamp(13px,1.8vw,17px)/1.3 var(--mono);color:var(--cyan)}
+.n-pink{fill:none;stroke:var(--pink);filter:drop-shadow(0 0 4px var(--pink)) drop-shadow(0 0 10px rgba(255,62,165,.6))}
+.n-cyan{fill:none;stroke:var(--cyan);filter:drop-shadow(0 0 4px var(--cyan))}
+.f-cyan{fill:var(--cyan);filter:drop-shadow(0 0 6px var(--cyan))}
+.f-pink{fill:var(--pink);filter:drop-shadow(0 0 6px var(--pink))}
+.f-bg{fill:var(--bg)}
+.paw{position:absolute;font:700 26px/1 var(--mono);color:var(--pink);text-shadow:0 0 10px var(--pink);opacity:0;animation:float 1.8s ease-out forwards}
+.paw:nth-child(even){color:var(--cyan);text-shadow:0 0 10px var(--cyan)}
+@keyframes in{from{opacity:0;transform:translateY(-60px) scale(.7)}to{opacity:1;transform:none}}
+@keyframes out{to{opacity:0;transform:translateY(-30px) scale(.95)}}
+@keyframes bob{50%{transform:translateY(-6px) rotate(-3deg)}}
+@keyframes float{0%{opacity:0;transform:translate(0,0) scale(.6)}20%{opacity:1}100%{opacity:0;transform:translate(var(--dx),-90px) scale(1.2)}}
+</style>
+</head>
+<body>
+<div class="stage" id="stage" aria-live="polite"></div>
+
+<script>
+(function(){
+  var TOPIC='0hayoooo-murk-f3c841f12959';
+  var params=new URLSearchParams(location.search);
+  var MUTE=params.has('mute'), TEST=params.has('test');
+  var stage=document.getElementById('stage');
+  var queue=[], busy=false, seen={};
+
+  var SPECIAL={
+    100:'первая сотка! котик заметил',
+    500:'ACE по поглаживаниям',
+    1000:'МУР-ЛЕГЕНДА чата',
+    2000:'GLOBAL МУР',
+    5000:'котик официально принадлежит тебе',
+    10000:'это уже не поглаживания, это образ жизни'
+  };
+  var LINES=['котик мурчит на весь сервер','кусь отменяется, сегодня только мур','лапки одобряют технику','аим по ушкам: 100%','чат, учитесь','мурчание достигло скорости звука','котик растаял','FACEIT 10 lvl по мурчанию'];
+
+  var CAT='<svg viewBox="0 0 240 240" aria-hidden="true">'+
+    '<path class="f-bg" d="M44 150 L58 50 L104 96 Q120 90 136 96 L182 50 L196 150 Q196 214 120 216 Q44 214 44 150 Z"/>'+
+    '<path class="n-pink" stroke-width="7" stroke-linejoin="round" d="M44 150 L58 50 L104 96 Q120 90 136 96 L182 50 L196 150 Q196 214 120 216 Q44 214 44 150 Z"/>'+
+    '<path class="n-cyan" stroke-width="7" stroke-linecap="round" d="M34 150 Q34 22 120 22 Q206 22 206 150"/>'+
+    '<path class="n-pink" stroke-width="5" stroke-linecap="round" d="M80 150 Q94 138 108 150 M132 150 Q146 138 160 150"/>'+
+    '<path class="f-pink" d="M112 168 L128 168 L120 177 Z"/>'+
+    '<path class="n-pink" stroke-width="4" stroke-linecap="round" d="M120 177 Q112 188 103 181 M120 177 Q128 188 137 181"/>'+
+    '<ellipse class="f-pink" cx="72" cy="176" rx="12" ry="7" opacity=".55"/><ellipse class="f-pink" cx="168" cy="176" rx="12" ry="7" opacity=".55"/>'+
+    '</svg>';
+
+  function chime(){
+    if(MUTE) return;
+    try{
+      var A=window.AudioContext||window.webkitAudioContext; if(!A) return;
+      var ac=new A(), t=ac.currentTime;
+      [[880,0],[1175,.12],[1568,.24]].forEach(function(nt){
+        var o=ac.createOscillator(), g=ac.createGain();
+        o.type='triangle'; o.frequency.value=nt[0];
+        g.gain.setValueAtTime(0,t+nt[1]); g.gain.linearRampToValueAtTime(.18,t+nt[1]+.02); g.gain.exponentialRampToValueAtTime(.001,t+nt[1]+.5);
+        o.connect(g); g.connect(ac.destination); o.start(t+nt[1]); o.stop(t+nt[1]+.55);
+      });
+      setTimeout(function(){ac.close&&ac.close();},1500);
+    }catch(e){}
+  }
+
+  function show(a){
+    busy=true;
+    var el=document.createElement('div'); el.className='alert';
+    el.innerHTML=CAT+'<div><div class="who"></div><div class="what">погладил(а) котика <b></b> раз</div><div class="line"></div></div>';
+    el.querySelector('.who').textContent=a.nick||'Анонимная мурка';
+    el.querySelector('.what b').textContent=a.n.toLocaleString('ru-RU');
+    el.querySelector('.line').textContent=SPECIAL[a.n]||LINES[(a.n/100)%LINES.length];
+    for(var i=0;i<10;i++){
+      var p=document.createElement('span'); p.className='paw'; p.textContent=i%3?'ฅ':'♡';
+      p.style.left=(8+i*9)+'%'; p.style.top='70%'; p.style.animationDelay=(.3+i*.12)+'s';
+      p.style.setProperty('--dx',((i%2?1:-1)*(10+i*3))+'px');
+      el.appendChild(p);
+    }
+    stage.appendChild(el); chime();
+    setTimeout(function(){el.remove(); busy=false; setTimeout(next,600);},7100);
+  }
+  function next(){ if(!busy&&queue.length) show(queue.shift()); }
+
+  function accept(raw){
+    var d; try{d=JSON.parse(raw);}catch(e){return;}
+    if(!d||typeof d!=='object') return;
+    var n=Number(d.n);
+    if(!Number.isInteger(n)||n<100||n>10000000||n%100!==0) return;
+    var nick=String(d.nick||'').replace(/[^A-Za-z0-9_]/g,'').slice(0,25);
+    var key=nick.toLowerCase()+':'+n;
+    if(seen[key]) return; seen[key]=1;
+    if(queue.length>=5) return;
+    queue.push({nick:nick,n:n}); next();
+  }
+
+  function connect(){
+    var es=new EventSource('https://ntfy.sh/'+TOPIC+'/sse');
+    es.onmessage=function(e){ try{var m=JSON.parse(e.data); if(m.event==='message') accept(m.message);}catch(x){} };
+  }
+  connect();
+
+  if(TEST){
+    var demo=[{nick:'reiz',n:100},{nick:'',n:500},{nick:'taizaichik',n:1000}], k=0;
+    function tick(){ var d=demo[k++%demo.length]; queue.push({nick:d.nick,n:d.n}); next(); }
+    tick(); setInterval(tick,10000);
+  }
+})();
+</script>
+</body>
+</html>

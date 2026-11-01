@@ -9,7 +9,60 @@
 <meta property="og:description" content="Кошка-девушка играет в CS2 и болтает с чатиком ฅ^•ﻌ•^ฅ">
 <meta name="theme-color" content="#0b0716">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0716'/%3E%3Cg fill='%23ff3ea5'%3E%3Cellipse cx='32' cy='40' rx='12' ry='10'/%3E%3Ccircle cx='17' cy='26' r='5'/%3E%3Ccircle cx='26' cy='18' r='5'/%3E%3Ccircle cx='38' cy='18' r='5'/%3E%3Ccircle cx='47' cy='26' r='5'/%3E%3C/g%3E%3C/svg%3E">
-<style>html{-webkit-text-size-adjust:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>html{-webkit-text-size-adjust:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}
+/* ===== top bar + mobile tuning ===== */
+html{-webkit-text-size-adjust:100%}
+a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:35;display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding-top:calc(8px + env(safe-area-inset-top,0px));padding-bottom:8px;
+  padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));
+  background:rgba(11,7,22,.96);border-bottom:1px solid var(--line);transform:translateZ(0);will-change:transform}
+.topbar .profile,.topbar .livebox{position:static;top:auto;left:auto;right:auto;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none;background:var(--surface);min-width:0}
+.topbar .profile{max-width:48%!important;min-height:44px}
+.topbar .livebox{width:auto!important;max-width:min(360px,50%)!important;flex-direction:row;align-items:center;gap:12px;padding:8px 14px;border-radius:999px;min-height:44px}
+.topbar .livebox:has(.is-on){box-shadow:0 0 16px rgba(61,255,138,.25)}
+.topbar .live{flex:none}
+.topbar #streamTitle{-webkit-line-clamp:1;font-size:12.5px}
+.wrap{padding-top:96px}
+.kfeed{top:calc(72px + env(safe-area-inset-top,0px))!important}
+.pet button{min-height:48px;padding-inline:24px}
+
+@media (max-width:620px){
+  .wrap{padding-top:84px!important}
+  .topbar #streamTitle{display:none}
+  .topbar .live small{display:none}
+  .avatar{max-width:230px;margin-inline:auto}
+  .hero > div:last-child{text-align:left}
+  .lead{font-size:16px}
+  .sec-head{margin-bottom:16px}
+  .ticker-track{font-size:13px;padding-block:10px}
+  /* lighter neon on phones: one glow instead of two keeps scrolling smooth */
+  .n-pink{filter:drop-shadow(0 0 3px var(--pink))}
+  .n-cyan{filter:drop-shadow(0 0 3px var(--cyan))}
+  .n-yel{filter:drop-shadow(0 0 3px var(--yellow))}
+  .f-pink,.f-cyan,.f-yel{filter:none}
+  .art:hover,.don:hover,.link:hover,.btn:hover{transform:none}
+  .intel dl{grid-template-columns:minmax(0,1fr)}
+  .intel dt{padding-bottom:0;border-bottom:0}
+  .intel dd{padding-top:4px}
+  .intel dl > :nth-last-child(2){border-bottom:0}
+  .podium b{font-size:20px}
+  .board li{padding:9px 2px}
+  .quiet{padding:4px 12px}
+  .quiet-row code{font-size:13px}
+  .pet{justify-content:flex-start}
+  .pet button{flex:1 1 100%}
+  .hello-card{padding:22px 18px}
+}
+@media (max-width:380px){
+  .topbar .profile .pf-av{width:30px;height:30px}
+  .pf-txt small{font-size:10px}
+  .pf-txt b{font-size:13px}
+}
+@media (hover:none){
+  .art:hover,.don:hover,.link:hover{transform:none}
+}
+</style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&family=Manrope:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap">
@@ -230,6 +283,36 @@ body.shake .wrap{animation:shake .6s}
 .kf{font:700 13px/1 var(--mono);padding:8px 12px;border-radius:8px;background:rgba(11,7,22,.88);border:1px solid #ff4d5e;color:var(--fg);animation:kfin .35s ease-out both,msOut .4s ease-in forwards}
 .kf b{color:var(--cyan)}.kf i{font-style:normal;color:var(--pink)}.kf span{color:#ff4d5e}
 @keyframes kfin{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:none}}
+.profile{position:fixed;z-index:31;top:calc(14px + env(safe-area-inset-top,0px));left:calc(14px + env(safe-area-inset-left,0px));display:flex;align-items:center;gap:10px;max-width:min(260px,calc(100vw - 28px));padding:7px 12px 7px 7px;border-radius:999px;background:rgba(20,13,37,.92);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid var(--line);box-shadow:0 8px 30px rgba(0,0,0,.45);color:var(--fg);cursor:pointer;text-align:left;transition:border-color .2s,box-shadow .2s}
+.profile:hover{border-color:var(--pink);box-shadow:0 8px 30px rgba(0,0,0,.45),0 0 20px rgba(255,62,165,.3)}
+.pf-av{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:700 16px/1 var(--mono);color:var(--pink);background:rgba(255,62,165,.12);border:1.5px solid var(--pink);box-shadow:0 0 10px rgba(255,62,165,.5)}
+.pf-txt{display:grid;min-width:0}
+.pf-txt small{font:600 11px/1.2 var(--body);color:var(--muted)}
+.pf-txt b{font:600 14px/1.2 var(--body);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profile.is-guest .pf-txt b{color:var(--muted)}
+.pf-edit{flex:none;color:var(--muted);font-size:14px}
+.kfeed{top:calc(68px + env(safe-area-inset-top,0px))!important}
+@media (max-width:620px){.wrap{padding-top:70px}.profile{max-width:calc(50vw - 22px)}.livebox{max-width:calc(50vw - 22px)!important}}
+.hello{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:rgba(5,3,12,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:hfade .3s ease-out}
+.hello-card{width:min(420px,100%);display:grid;gap:12px;padding:26px 24px;border-radius:22px;background:var(--surface);border:1.5px solid var(--pink);box-shadow:0 0 50px rgba(255,62,165,.35);text-align:center;animation:hpop .45s cubic-bezier(.2,1.5,.4,1)}
+.hello-cat{font:700 26px/1 var(--mono);color:var(--pink);text-shadow:0 0 12px var(--pink)}
+.hello-card h2{font-size:clamp(24px,5vw,30px)}
+.hello-card p{margin:0;color:var(--muted);font-size:15px}
+.hello-card input{font:700 18px/1.2 var(--body);text-align:center;color:var(--fg);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:13px 14px;min-width:0}
+.hello-card input:focus{border-color:var(--cyan);outline:none;box-shadow:0 0 18px rgba(44,241,255,.3)}
+.hello-card small{min-height:1.2em;color:#ff4d5e;font-size:13px}
+.hello-btns{display:flex;gap:10px;flex-wrap:wrap}
+.hello-btns button{flex:1 1 120px;font:800 15px/1 var(--body);border-radius:12px;padding:13px 16px;cursor:pointer}
+.hb-ok{background:var(--pink);color:#1a0010;border:0;box-shadow:0 0 22px rgba(255,62,165,.5)}
+.hb-skip{background:transparent;color:var(--muted);border:1.5px solid var(--line)}
+.hb-skip:hover{color:var(--fg);border-color:var(--muted)}
+@keyframes hfade{from{opacity:0}}
+@keyframes hpop{from{opacity:0;transform:scale(.85)}}
+.petnick{display:grid;gap:6px;margin-top:16px;max-width:420px}
+.petnick label{font:700 12px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.petnick input{font:600 16px/1.2 var(--body);color:var(--fg);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:11px 14px;min-width:0}
+.petnick input:focus{border-color:var(--pink);outline:none;box-shadow:0 0 18px rgba(255,62,165,.3)}
+.petnick small{font-size:13px;color:var(--muted)}
 .pet output small{color:var(--muted);font-weight:500}
 
 /* gallery */
@@ -293,10 +376,31 @@ footer a{color:var(--pink);text-decoration:none}
 </svg>
 
 <div class="pawbg" aria-hidden="true"></div>
+<header class="topbar">
+<button type="button" class="profile" id="profileBtn" aria-label="Сменить Twitch ник">
+  <span class="pf-av" aria-hidden="true">ฅ</span>
+  <span class="pf-txt"><small>Вы вошли как</small><b id="pfNick">Гость</b></span>
+  <span class="pf-edit" aria-hidden="true">✎</span>
+</button>
 <a id="liveBox" class="livebox" href="https://www.twitch.tv/0hayoooo" target="_blank" rel="noopener" aria-label="Статус стрима на Twitch">
   <span id="live" class="live" aria-live="polite"><i></i><b>проверяю…</b><small>twitch</small></span>
   <span id="streamTitle">—</span>
 </a>
+</header>
+
+<div class="hello" id="hello" role="dialog" aria-modal="true" aria-labelledby="helloH" hidden>
+  <form class="hello-card" id="helloForm">
+    <div class="hello-cat" aria-hidden="true">ฅ^•ﻌ•^ฅ</div>
+    <h2 id="helloH">Укажите ваш Twitch ник</h2>
+    <p>Каждые 100 поглаживаний котика на стриме вылезает алерт с твоим ником.</p>
+    <input id="helloNick" type="text" maxlength="25" autocomplete="off" spellcheck="false" placeholder="например, reiz" aria-label="Twitch ник">
+    <small id="helloErr" aria-live="polite"></small>
+    <div class="hello-btns">
+      <button type="submit" class="hb-ok">Готово</button>
+      <button type="button" class="hb-skip" id="helloSkip">Пропустить</button>
+    </div>
+  </form>
+</div>
 
 <main class="wrap">
 
@@ -415,6 +519,7 @@ footer a{color:var(--pink);text-decoration:none}
         <button type="button" id="petBtn">Погладить котика ฅ</button>
         <output id="petOut" for="petBtn" aria-live="polite">поглажено: <b>0</b></output>
       </div>
+      <input type="hidden" id="petNick">
     </div>
 
     <div class="intel" aria-label="Карточка игрока">
@@ -744,7 +849,58 @@ document.querySelectorAll('[data-copy]').forEach(function(b){
     try{localStorage.setItem('pets',String(n));}catch(e){}
     if(!RM){var b=bc();burst(b[0],b[1],['ฅ','♡','✦'],[PINK,CYAN,YEL],5,4);}
     milestone(n);
+    if(n>=100&&n%100===0) sendAlert(n);
   });
+
+  /* алерт на стрим (через ntfy.sh) */
+  var TOPIC='0hayoooo-murk-f3c841f12959';
+  var nickIn=document.getElementById('petNick');
+  try{nickIn.value=localStorage.getItem('petNick')||'';}catch(e){}
+  nickIn.addEventListener('input',function(){
+    nickIn.value=nickIn.value.replace(/[^A-Za-z0-9_]/g,'').slice(0,25);
+    try{localStorage.setItem('petNick',nickIn.value);}catch(e){}
+  });
+  /* профиль + окно "Укажите ваш Twitch ник" */
+  (function(){
+    var box=document.getElementById('hello'), form=document.getElementById('helloForm'),
+        inp=document.getElementById('helloNick'), err=document.getElementById('helloErr'), skip=document.getElementById('helloSkip'),
+        pBtn=document.getElementById('profileBtn'), pNick=document.getElementById('pfNick');
+    if(!box) return;
+    var editing=false;
+    function paint(){var v=nickIn.value;pNick.textContent=v||'Гость';pBtn.classList.toggle('is-guest',!v);}
+    function open(edit){
+      editing=edit; inp.value=edit?nickIn.value:''; err.textContent='';
+      skip.textContent=edit?'Отмена':'Пропустить';
+      box.hidden=false; setTimeout(function(){inp.focus();inp.select();},50);
+    }
+    function close(){box.hidden=true; if(editing) pBtn.focus();}
+    paint();
+    var skipped=false; try{skipped=sessionStorage.getItem('helloSkip')==='1';}catch(e){}
+    if(!nickIn.value&&!skipped) open(false);
+    pBtn.addEventListener('click',function(){open(true);});
+    inp.addEventListener('input',function(){
+      var c=inp.value.replace(/[^A-Za-z0-9_]/g,'').slice(0,25);
+      err.textContent=(c!==inp.value)?'Только латиница, цифры и _ (как на Twitch)':'';
+      inp.value=c;
+    });
+    form.addEventListener('submit',function(e){
+      e.preventDefault();
+      if(!inp.value&&!editing){err.textContent='Впиши ник или нажми «Пропустить»';inp.focus();return;}
+      nickIn.value=inp.value;
+      try{localStorage.setItem('petNick',inp.value);}catch(x){}
+      paint(); close();
+    });
+    skip.addEventListener('click',function(){
+      if(!editing){try{sessionStorage.setItem('helloSkip','1');}catch(x){}}
+      close();
+    });
+    box.addEventListener('click',function(e){if(e.target===box)skip.click();});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!box.hidden)skip.click();});
+  })();
+  function sendAlert(k){
+    var nick=(nickIn.value||'').replace(/[^A-Za-z0-9_]/g,'').slice(0,25);
+    try{fetch('https://ntfy.sh/'+TOPIC,{method:'POST',body:JSON.stringify({nick:nick,n:k})}).catch(function(){});}catch(e){}
+  }
 })();
 </script>
 </body>
