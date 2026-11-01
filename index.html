@@ -407,7 +407,7 @@ footer a{color:var(--pink);text-decoration:none}
 </button>
 <a id="liveBox" class="livebox" href="https://www.twitch.tv/0hayoooo" target="_blank" rel="noopener" aria-label="Статус стрима на Twitch">
   <span id="live" class="live" aria-live="polite"><i></i><b>проверяю…</b><small>twitch</small></span>
-  <span id="streamTitle">—</span>
+  <span id="streamTitle" hidden></span>
 </a>
 </header>
 
@@ -785,11 +785,11 @@ var ТОП = [
   function check(){
     get('https://decapi.me/twitch/title/'+CH).then(function(t){if(t&&!/not found|error|offline/i.test(t))card.textContent=t;}).catch(function(){});
     get('https://decapi.me/twitch/uptime/'+CH).then(function(up){
-      if(/offline/i.test(up)){set('off','offline');title.textContent='—';title.className='';return;}
+      if(/offline/i.test(up)){set('off','Offline');title.textContent='';title.className='';title.hidden=true;return;}
       if(/not found|error/i.test(up)) throw 0;
-      set('on','online');
-      return get('https://decapi.me/twitch/title/'+CH).then(function(t){title.textContent=t||'—';title.className='on';});
-    }).catch(function(){set('','нет связи с Twitch');title.textContent='—';title.className='';});
+      set('on','Online');
+      return get('https://decapi.me/twitch/title/'+CH).then(function(t){title.textContent=t||'';title.className='on';title.hidden=!t;});
+    }).catch(function(){set('','нет связи с Twitch');title.textContent='';title.className='';title.hidden=true;});
   }
   check(); setInterval(check,60000);
 })();
