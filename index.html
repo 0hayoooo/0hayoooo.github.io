@@ -431,6 +431,38 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
 .topbar > *{pointer-events:auto}
 .topbar .profile,.topbar .livebox{box-shadow:0 6px 22px rgba(0,0,0,.55)}
 .topbar .livebox:has(.is-on){box-shadow:0 6px 22px rgba(0,0,0,.55),0 0 16px rgba(61,255,138,.25)}
+
+/* ===== вход через Twitch ===== */
+.tw-login{display:flex;align-items:center;justify-content:center;gap:10px;font:800 16px/1 var(--body);color:#fff;background:#9146ff;border:0;border-radius:12px;padding:15px 18px;cursor:pointer;box-shadow:0 0 22px rgba(145,70,255,.55);transition:filter .2s,box-shadow .2s}
+.tw-login:hover{filter:brightness(1.12);box-shadow:0 0 30px rgba(145,70,255,.8)}
+.tw-login svg{width:22px;height:22px;flex:none}
+.tw-login[disabled]{opacity:.6;cursor:progress}
+.hello-av{width:76px;height:76px;margin:0 auto;border-radius:50%;object-fit:cover;border:2px solid #9146ff;box-shadow:0 0 18px rgba(145,70,255,.6)}
+.hb-out{background:transparent;color:#ff4d5e;border:1.5px solid rgba(255,77,94,.6)}
+.hb-out:hover{background:rgba(255,77,94,.1)}
+.pf-av img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.profile.is-verified .pf-av{border-color:#9146ff;box-shadow:0 0 10px rgba(145,70,255,.6);overflow:hidden}
+.profile.is-verified .pf-txt b::after{content:" \2713";color:#bf94ff;font-size:.85em}
+
+/* ===== цель по фолловерам ===== */
+.goal{padding:24px 26px;border-radius:22px;background:var(--surface);border:1px solid var(--line);box-shadow:0 0 40px rgba(255,62,165,.12)}
+.goal-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:10px 24px;margin-bottom:16px}
+.goal-eye{font:700 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.goal-h{font-size:clamp(24px,3.6vw,34px)}
+.goal-num{font:400 clamp(30px,5vw,48px)/1 var(--display);font-variant-numeric:tabular-nums;white-space:nowrap}
+.goal-num b{font-weight:400;color:var(--fg);text-shadow:0 0 10px var(--pink),0 0 26px rgba(255,62,165,.6)}
+.goal-sep{color:var(--muted);margin:0 .12em}
+.goal-num #fGoal{color:var(--cyan);text-shadow:0 0 12px rgba(44,241,255,.5)}
+.goal-bar{position:relative;height:20px;border-radius:999px;background:var(--bg);border:1px solid var(--line);overflow:hidden}
+.goal-bar i{position:relative;display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--pink),#c56bff 55%,var(--cyan));box-shadow:0 0 18px rgba(255,62,165,.6);transition:width 1.2s cubic-bezier(.2,.8,.2,1);overflow:hidden}
+.goal-bar i::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);background-size:220% 100%;animation:goalshine 2.6s linear infinite}
+@keyframes goalshine{from{background-position:120% 0}to{background-position:-120% 0}}
+.goal-foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px 20px;margin-top:14px}
+.goal-cta{margin:0;font:700 clamp(16px,2.2vw,19px)/1.45 var(--body)}
+.goal-cta a{color:var(--yellow);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px;text-shadow:0 0 10px rgba(255,210,63,.5)}
+.goal-cta a:hover{color:#fff;text-decoration-color:var(--yellow)}
+.goal-left{font:500 13px/1.4 var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+@media (max-width:620px){.goal{padding:18px 16px}.goal-bar{height:16px}}
 </style>
 </head>
 <body>
@@ -444,7 +476,7 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
 
 <div class="pawbg" aria-hidden="true"></div>
 <header class="topbar">
-<button type="button" class="profile" id="profileBtn" aria-label="Сменить Twitch ник">
+<button type="button" class="profile" id="profileBtn" aria-label="Профиль Twitch">
   <span class="pf-av" aria-hidden="true">ฅ</span>
   <span class="pf-txt"><small>Вы вошли как</small><b id="pfNick">Гость</b></span>
   <span class="pf-edit" aria-hidden="true">✎</span>
@@ -458,12 +490,15 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
 <div class="hello" id="hello" role="dialog" aria-modal="true" aria-labelledby="helloH" hidden>
   <form class="hello-card" id="helloForm">
     <div class="hello-cat" aria-hidden="true">ฅ^•ﻌ•^ฅ</div>
+    <img class="hello-av" id="helloAv" alt="" hidden>
     <h2 id="helloH">Укажите ваш Twitch ник</h2>
-    <p>Каждые 500 поглаживаний котика на стриме вылезает алерт с твоим ником.</p>
+    <p id="helloP">Каждые 500 поглаживаний котика на стриме вылезает алерт с твоим ником.</p>
+    <button type="button" class="tw-login" id="twLogin" hidden><svg aria-hidden="true"><use href="#i-twitch"/></svg>Войти через Twitch</button>
     <input id="helloNick" type="text" maxlength="25" autocomplete="off" spellcheck="false" placeholder="например, reiz" aria-label="Twitch ник">
     <small id="helloErr" aria-live="polite"></small>
     <div class="hello-btns">
-      <button type="submit" class="hb-ok">Готово</button>
+      <button type="submit" class="hb-ok" id="helloOk">Готово</button>
+      <button type="button" class="hb-out" id="helloOut" hidden>Выйти</button>
       <button type="button" class="hb-skip" id="helloSkip">Пропустить</button>
     </div>
   </form>
@@ -519,6 +554,22 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
       <span>КОШЕЛЁК ИЛИ КУСЬ</span><i>✦</i><span>ПРЕМЬЕР</span><i>✦</i><span>FACEIT</span><i>✦</i><span>ДУЭЛИ 1Х1</span><i>✦</i><span>5×5 С ЧАТОМ</span><i>✦</i><span>ฅ^•ﻌ•^ฅ</span><i>✦</i><span>КЛАТЧ ЛАПКОЙ</span><i>✦</i><span>GG WP, ЧАТИК</span><i>✦</i><span>ПЛАНТ НА B</span><i>✦</i>
     </div>
   </div>
+
+  <!-- FOLLOWER GOAL -->
+  <section class="goal" aria-labelledby="goal-h">
+    <div class="goal-top">
+      <div>
+        <div class="goal-eye">фолловеры на twitch</div>
+        <h2 id="goal-h" class="goal-h">Команда <em>мурканутых</em></h2>
+      </div>
+      <div class="goal-num"><b id="fNow">586</b><span class="goal-sep">/</span><span id="fGoal">1000</span></div>
+    </div>
+    <div class="goal-bar" id="fBar" role="progressbar" aria-labelledby="goal-h" aria-valuemin="0" aria-valuemax="1000" aria-valuenow="586"><i id="fFill" style="width:58.6%"></i></div>
+    <div class="goal-foot">
+      <p class="goal-cta">Присоединяйтесь в команду мурканутых, <a href="https://www.twitch.tv/0hayoooo" target="_blank" rel="noopener">жмяк сюда</a> <span class="kaomoji">ฅ^•ﻌ•^ฅ</span></p>
+      <span class="goal-left" id="fLeft">до 1000 осталось 414</span>
+    </div>
+  </section>
 
   <!-- LINKS -->
   <section aria-labelledby="links-h">
@@ -735,6 +786,16 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
    Порядок строк = место в топе (первые три попадут на пьедестал).
    Не забывай запятую в конце каждой строки и кавычки вокруг текста.
    ============================================================ */
+/* ФОЛЛОВЕРЫ: запасное число, если Twitch не ответит (обновляется на сайте само). */
+var ФОЛЛОВЕРЫ = 586;
+
+/* ВХОД ЧЕРЕЗ TWITCH
+   TWITCH_CLIENT_ID — Client ID приложения с dev.twitch.tv/console (он не секретный).
+   SITE_URL — адрес сайта ровно как в поле «OAuth Redirect URLs», со слешем в конце.
+   Пока что-то пустое, вход работает по-старому: зритель вписывает ник сам. */
+var TWITCH_CLIENT_ID = "";
+var SITE_URL = "";
+
 /* ССЫЛКА НА GOOGLE ТАБЛИЦУ (Файл → Поделиться → Опубликовать в интернете → CSV).
    Пока ссылки нет, оставь пустые кавычки "" — тогда сайт берёт список ниже. */
 var ТАБЛИЦА = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSw1U4NvT0kVTGy9TSoP1FvCS6uAqwRSejcU-LY5nSwHhIa2PAw0QYqk6OKdLl1ITw9Z82OJDRO9saJ/pub?gid=464919870&single=true&output=csv";
@@ -836,6 +897,27 @@ var ТОП = [
     }).catch(function(){set('','нет связи с Twitch');title.textContent='';title.className='';title.hidden=true;});
   }
   check(); setInterval(check,60000);
+})();
+(function(){
+  var now=document.getElementById('fNow'), goal=document.getElementById('fGoal'), fill=document.getElementById('fFill'),
+      bar=document.getElementById('fBar'), left=document.getElementById('fLeft');
+  if(!now) return;
+  function render(n){
+    n=Math.max(0,Math.floor(n));
+    var g=(Math.floor(n/1000)+1)*1000, base=g-1000;
+    now.textContent=n.toLocaleString('ru-RU'); goal.textContent=g.toLocaleString('ru-RU');
+    fill.style.width=Math.max(2,Math.min(100,(n-base)/1000*100))+'%';
+    bar.setAttribute('aria-valuemin',base); bar.setAttribute('aria-valuemax',g); bar.setAttribute('aria-valuenow',n);
+    left.textContent='до '+g.toLocaleString('ru-RU')+' осталось '+(g-n).toLocaleString('ru-RU');
+  }
+  render(typeof ФОЛЛОВЕРЫ==='number'?ФОЛЛОВЕРЫ:0);
+  function load(){
+    fetch('https://decapi.me/twitch/followcount/0hayoooo',{cache:'no-store'})
+      .then(function(r){if(!r.ok)throw 0;return r.text();})
+      .then(function(t){var n=parseInt(String(t).replace(/\D/g,''),10);if(isFinite(n)&&n>0)render(n);})
+      .catch(function(){});
+  }
+  load(); setInterval(load,5*60*1000);
 })();
 document.querySelectorAll('a[href="#donate"]').forEach(function(a){
   a.addEventListener('click',function(e){
@@ -959,24 +1041,98 @@ document.querySelectorAll('[data-copy]').forEach(function(b){
     nickIn.value=nickIn.value.replace(/[^A-Za-z0-9_]/g,'').slice(0,25);
     try{localStorage.setItem('petNick',nickIn.value);}catch(e){}
   });
-  /* профиль + окно "Укажите ваш Twitch ник" */
+  /* профиль: вход через Twitch (или ручной ник, если вход не настроен) */
   (function(){
     var box=document.getElementById('hello'), form=document.getElementById('helloForm'),
-        inp=document.getElementById('helloNick'), err=document.getElementById('helloErr'), skip=document.getElementById('helloSkip'),
-        pBtn=document.getElementById('profileBtn'), pNick=document.getElementById('pfNick');
+        inp=document.getElementById('helloNick'), err=document.getElementById('helloErr'),
+        skip=document.getElementById('helloSkip'), ok=document.getElementById('helloOk'), out=document.getElementById('helloOut'),
+        twb=document.getElementById('twLogin'), av=document.getElementById('helloAv'),
+        hh=document.getElementById('helloH'), hp=document.getElementById('helloP'),
+        pBtn=document.getElementById('profileBtn'), pNick=document.getElementById('pfNick'), pAv=pBtn.querySelector('.pf-av');
     if(!box) return;
-    var editing=false;
-    function paint(){var v=nickIn.value;pNick.textContent=v||'Гость';pBtn.classList.toggle('is-guest',!v);}
-    function open(edit){
-      editing=edit; inp.value=edit?nickIn.value:''; err.textContent='';
-      skip.textContent=edit?'Отмена':'Пропустить';
-      box.hidden=false; setTimeout(function(){inp.focus();inp.select();},50);
+    var CID=(typeof TWITCH_CLIENT_ID==='string')?TWITCH_CLIENT_ID.trim():'';
+    var SITE=(typeof SITE_URL==='string')?SITE_URL.trim():'';
+    var LOGIN=!!(CID&&SITE&&location.href.indexOf(SITE)===0);
+    var HINT='Каждые 500 поглаживаний котика на стриме вылезает алерт с твоим ником.';
+    var mode='', editing=false;
+
+    function getUser(){try{return JSON.parse(localStorage.getItem('twUser')||'null');}catch(e){return null;}}
+    function setUser(u){try{u?localStorage.setItem('twUser',JSON.stringify(u)):localStorage.removeItem('twUser');}catch(e){}}
+    function setNick(v){nickIn.value=v||'';try{localStorage.setItem('petNick',nickIn.value);}catch(e){}loadCount();}
+
+    /* в режиме входа через Twitch ручной ник не принимаем */
+    if(LOGIN&&!getUser()&&nickIn.value) setNick('');
+
+    function paint(){
+      var u=LOGIN?getUser():null;
+      pNick.textContent=u?u.name:(nickIn.value||'Гость');
+      pBtn.classList.toggle('is-guest',!u&&!nickIn.value);
+      pBtn.classList.toggle('is-verified',!!u);
+      pAv.textContent='';
+      if(u&&u.avatar){var im=document.createElement('img');im.src=u.avatar;im.alt='';pAv.appendChild(im);}else pAv.textContent='ฅ';
     }
-    function close(){box.hidden=true; if(editing) pBtn.focus();}
+    function show(el,on){el.hidden=!on;}
+    function open(m,edit){
+      mode=m; editing=edit; err.textContent='';
+      var u=getUser();
+      show(av,m==='account'&&!!(u&&u.avatar)); if(m==='account'&&u&&u.avatar) av.src=u.avatar;
+      show(inp,m==='manual'); show(ok,m==='manual'); show(twb,m==='login'); show(out,m==='account');
+      twb.disabled=false;
+      if(m==='manual'){hh.textContent='Укажите ваш Twitch ник';hp.textContent=HINT;inp.value=edit?nickIn.value:'';}
+      if(m==='login'){hh.textContent='Войдите через Twitch';hp.textContent=HINT+' Пароль вводится только на сайте Twitch, этот сайт его не видит.';}
+      if(m==='account'){hh.textContent='Вы вошли как '+(u?u.name:'');hp.textContent='Аккаунт Twitch подтверждён. Алерты на стриме придут с этим ником.';}
+      skip.textContent=m==='account'?'Закрыть':(edit?'Отмена':'Пропустить');
+      box.hidden=false;
+      setTimeout(function(){(m==='manual'?inp:m==='login'?twb:skip).focus();if(m==='manual')inp.select();},50);
+    }
+    function close(){box.hidden=true;if(editing)pBtn.focus();}
+
+    /* --- вход через Twitch (implicit grant: без сервера, токен сразу отзываем) --- */
+    function startLogin(){
+      var st=''; try{var a=new Uint8Array(16);crypto.getRandomValues(a);st=Array.prototype.map.call(a,function(x){return('0'+x.toString(16)).slice(-2);}).join('');}catch(e){st=String(Math.random()).slice(2);}
+      try{sessionStorage.setItem('twState',st);}catch(e){}
+      twb.disabled=true;
+      location.href='https://id.twitch.tv/oauth2/authorize?'+
+        'client_id='+encodeURIComponent(CID)+'&redirect_uri='+encodeURIComponent(SITE)+
+        '&response_type=token&scope=&state='+encodeURIComponent(st);
+    }
+    function finishLogin(){
+      var h=location.hash.replace(/^#/,''); if(!/access_token=|error=/.test(h)) return false;
+      var q={}; h.split('&').forEach(function(kv){var i=kv.indexOf('=');if(i>0)q[decodeURIComponent(kv.slice(0,i))]=decodeURIComponent(kv.slice(i+1).replace(/\+/g,' '));});
+      try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}
+      var want=''; try{want=sessionStorage.getItem('twState')||'';sessionStorage.removeItem('twState');}catch(e){}
+      if(q.error){open('login',false);err.textContent='Вход отменён. Можно попробовать ещё раз.';return true;}
+      if(!q.access_token||!want||q.state!==want){open('login',false);err.textContent='Не удалось войти, попробуй ещё раз.';return true;}
+      var tok=q.access_token;
+      open('login',false); twb.disabled=true; err.textContent='Проверяю аккаунт…';
+      fetch('https://api.twitch.tv/helix/users',{headers:{'Authorization':'Bearer '+tok,'Client-Id':CID}})
+        .then(function(r){if(!r.ok)throw 0;return r.json();})
+        .then(function(j){
+          var d=j&&j.data&&j.data[0]; if(!d||!d.login) throw 0;
+          var name=/^[A-Za-z0-9_]{1,25}$/.test(d.display_name||'')?d.display_name:d.login;
+          setUser({id:d.id,login:d.login,name:name,avatar:d.profile_image_url||''});
+          setNick(d.login); paint(); close();
+        })
+        .catch(function(){twb.disabled=false;err.textContent='Twitch не ответил, попробуй ещё раз.';})
+        .then(function(){
+          /* токен больше не нужен: отзываем, чтобы он нигде не остался */
+          try{fetch('https://id.twitch.tv/oauth2/revoke',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'client_id='+encodeURIComponent(CID)+'&token='+encodeURIComponent(tok)}).catch(function(){});}catch(e){}
+        });
+      return true;
+    }
+
     paint();
+    var handled=LOGIN&&finishLogin();
     var skipped=false; try{skipped=sessionStorage.getItem('helloSkip')==='1';}catch(e){}
-    if(!nickIn.value&&!skipped) open(false);
-    pBtn.addEventListener('click',function(){open(true);});
+    if(!handled&&!skipped){
+      if(LOGIN&&!getUser()) open('login',false);
+      else if(!LOGIN&&!nickIn.value) open('manual',false);
+    }
+    pBtn.addEventListener('click',function(){
+      if(LOGIN) open(getUser()?'account':'login',true); else open('manual',true);
+    });
+    twb.addEventListener('click',startLogin);
+    out.addEventListener('click',function(){setUser(null);setNick('');paint();close();});
     inp.addEventListener('input',function(){
       var c=inp.value.replace(/[^A-Za-z0-9_]/g,'').slice(0,25);
       err.textContent=(c!==inp.value)?'Только латиница, цифры и _ (как на Twitch)':'';
@@ -984,20 +1140,20 @@ document.querySelectorAll('[data-copy]').forEach(function(b){
     });
     form.addEventListener('submit',function(e){
       e.preventDefault();
+      if(mode!=='manual') return;
       if(!inp.value&&!editing){err.textContent='Впиши ник или нажми «Пропустить»';inp.focus();return;}
-      nickIn.value=inp.value;
-      try{localStorage.setItem('petNick',inp.value);}catch(x){}
-      loadCount(); paint(); close();
+      setNick(inp.value); paint(); close();
     });
     skip.addEventListener('click',function(){
-      if(!editing){try{sessionStorage.setItem('helloSkip','1');}catch(x){}}
+      if(!editing&&mode!=='account'){try{sessionStorage.setItem('helloSkip','1');}catch(x){}}
       close();
     });
     box.addEventListener('click',function(e){if(e.target===box)skip.click();});
     document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!box.hidden)skip.click();});
   })();
   function sendAlert(k){
-    var nick=(nickIn.value||'').replace(/[^A-Za-z0-9_]/g,'').slice(0,25);
+    var u=null; try{u=JSON.parse(localStorage.getItem('twUser')||'null');}catch(e){}
+    var nick=((u&&u.name)||nickIn.value||'').replace(/[^A-Za-z0-9_]/g,'').slice(0,25);
     try{fetch('https://ntfy.sh/'+TOPIC,{method:'POST',body:JSON.stringify({nick:nick,n:k})}).catch(function(){});}catch(e){}
   }
 })();
