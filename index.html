@@ -709,6 +709,18 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
 .price-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media (max-width:900px){.price-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:620px){.price-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* статистика Leetify в карточке рангов */
+.rk-stats .rk-name{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px}
+.st-src{font:600 11px/1 var(--mono);letter-spacing:.06em;color:var(--muted)}
+.st-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.st{display:grid;gap:5px;justify-items:center;padding:10px 6px;border-radius:12px;background:var(--surface);border:1px solid var(--line);min-width:0}
+.st b{font:400 20px/1 var(--display);color:var(--cyan);text-shadow:0 0 8px rgba(44,241,255,.45);font-variant-numeric:tabular-nums;white-space:nowrap}
+.st small{font:700 9.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+/* мини-статистика FACEIT */
+.fc-mini{display:flex;flex-wrap:wrap;gap:6px 14px;font:600 12px/1.3 var(--mono);color:var(--muted)}
+.fc-mini b{font:400 15px/1 var(--display);color:var(--fc,#ffc800);margin-right:3px}
 </style>
 </head>
 <body>
@@ -996,7 +1008,21 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
             <div class="rk-name">FACEIT</div>
             <div class="fc-elo"><b id="fcElo">1 190</b> ELO</div>
             <div class="fc-bar" aria-hidden="true"><i id="fcBar"></i></div>
+            <div class="fc-mini" id="fcMini" hidden>
+              <span><b id="fcKd">—</b> K/D</span><span><b id="fcHs">—</b> в голову</span><span><b id="fcWr">—</b> побед</span><span><b id="fcM">—</b> матчей</span>
+            </div>
             <small id="fcNext">до 6 уровня 11 ELO</small>
+          </div>
+        </div>
+        <div class="rk-block rk-stats" id="rkStats" hidden>
+          <div class="rk-name">Статистика <small class="st-src">Leetify · <span id="stMatches">—</span> матчей</small></div>
+          <div class="st-grid">
+            <div class="st"><b id="stAim">—</b><small>aim</small></div>
+            <div class="st"><b id="stHs">—</b><small>в голову</small></div>
+            <div class="st"><b id="stReact">—</b><small>реакция</small></div>
+            <div class="st"><b id="stSpray">—</b><small>спрей</small></div>
+            <div class="st"><b id="stAcc">—</b><small>точность</small></div>
+            <div class="st"><b id="stWin">—</b><small>винрейт</small></div>
           </div>
         </div>
         <div class="rk-links">
@@ -1131,8 +1157,13 @@ var ПРАЙС = [
   ["прайс", "Закончить стрим", "30000", "", "выключаю сразу, но котик тебя запомнит", "«закончить стрим»"],
 ];
 
-/* РАНГИ CS2: запасные числа. Если профиль есть на leetify.com, сайт берёт свежие ранги оттуда сам;
-   «лучший Premier» обновляется, когда текущий его превысит. Уровень FACEIT считается сам. */
+/* FACEIT НАПРЯМУЮ: клиентский ключ с developers.faceit.com (Client-side API key) и ник на FACEIT.
+   Пока ключ пустой, уровень FACEIT берётся с Leetify. */
+var FACEIT_KEY = "005a0ebe-02f8-439d-b021-9da7f3c51255";
+var FACEIT_NICK = "0haYo";
+
+/* РАНГИ CS2. Premier и статистика обновляются сами с Leetify.
+   ELO FACEIT берётся с FACEIT сам; число ниже — запасное, на случай если FACEIT не ответит. */
 var РАНГИ = { premier: 10157, premierBest: 19898, faceitElo: 1190 };
 
 /* ФОЛЛОВЕРЫ: запасное число, если Twitch не ответит (обновляется на сайте само). */
@@ -1292,6 +1323,33 @@ var ТОП = [
     document.getElementById('fcNext').textContent=lv[0]===10?'максимальный уровень':'до '+(lv[0]+1)+' уровня '+(L[lv[0]][1]-Math.round(elo))+' ELO';
     box.setAttribute('aria-label','FACEIT уровень '+lv[0]);
   }
+  function levelOf(elo){if(!isFinite(elo)||elo<=0)return 0;var lv=1;for(var k=0;k<L.length;k++)if(elo>=L[k][1])lv=L[k][0];return lv;}
+  /* когда Leetify знает только уровень FACEIT, без ELO */
+  function setFcLevel(lvl){
+    var lv=L[Math.min(10,Math.max(1,lvl))-1];
+    var box=document.getElementById('fcLvl'); box.style.setProperty('--fc',lv[3]);
+    var fcb=document.querySelector('.rk-fc'); if(fcb) fcb.style.setProperty('--fc',lv[3]);
+    document.getElementById('fcNum').textContent=lv[0];
+    document.getElementById('fcArc').style.strokeDashoffset='0';
+    var e=document.querySelector('.fc-elo'); if(e){e.textContent='';var b=document.createElement('b');b.id='fcElo';b.textContent=lv[0];e.appendChild(b);e.appendChild(document.createTextNode(' уровень'));}
+    var bar=document.querySelector('.fc-bar'); if(bar) bar.hidden=true;
+    var nx=document.getElementById('fcNext'); if(nx) nx.textContent='по данным Leetify';
+    box.setAttribute('aria-label','FACEIT уровень '+lv[0]);
+  }
+  function setStats(j){
+    var box=document.getElementById('rkStats'); if(!box||!j) return;
+    var st=j.stats||{}, rt=j.rating||{}, any=false;
+    function put(id,v){var e=document.getElementById(id);if(e&&v!=null&&isFinite(v)){e.textContent=v;any=true;}}
+    function pct(v){return isFinite(v)?Math.round(v)+'%':null;}
+    var aim=Number(rt.aim); if(isFinite(aim)) put('stAim',Math.round(aim));
+    var hs=Number(st.accuracy_head); if(isFinite(hs)){document.getElementById('stHs').textContent=pct(hs);any=true;}
+    var re=Number(st.reaction_time_ms); if(isFinite(re)&&re>0){document.getElementById('stReact').textContent=(re/1000).toFixed(2).replace('.',',')+' с';any=true;}
+    var sp=Number(st.spray_accuracy); if(isFinite(sp)){document.getElementById('stSpray').textContent=pct(sp);any=true;}
+    var ac=Number(st.accuracy_enemy_spotted); if(isFinite(ac)){document.getElementById('stAcc').textContent=pct(ac);any=true;}
+    var wr=Number(j.winrate); if(isFinite(wr)){document.getElementById('stWin').textContent=Math.round(wr*100)+'%';any=true;}
+    var tm=Number(j.total_matches); if(isFinite(tm)) document.getElementById('stMatches').textContent=tm.toLocaleString('ru-RU');
+    box.hidden=!any;
+  }
   var best=Number(R.premierBest)||0;
   setPr('prNow',Number(R.premier)); setPr('prBest',best); setFc(Number(R.faceitElo));
   /* автообновление с Leetify (работает, когда профиль зарегистрирован на leetify.com) */
@@ -1300,9 +1358,36 @@ var ТОП = [
     .then(function(j){
       var rk=j&&j.ranks; if(!rk) return;
       var pr=Number(rk.premier); if(isFinite(pr)&&pr>0){setPr('prNow',pr); if(pr>best){best=pr;setPr('prBest',best);}}
-      var elo=Number(rk.faceit_elo); if(isFinite(elo)&&elo>0) setFc(elo);
+      var elo=Number(rk.faceit_elo), lvl=Number(rk.faceit);
+      if(isFinite(elo)&&elo>0) setFc(elo);
+      setStats(j);
     })
-    .catch(function(){});
+    .catch(function(){})
+    .then(loadFaceit);
+  /* FACEIT напрямую по официальному API (если указан ключ) — точный ELO и статистика */
+  function loadFaceit(){
+    var KEY=(typeof FACEIT_KEY==='string')?FACEIT_KEY.trim():'', NICK=(typeof FACEIT_NICK==='string')?FACEIT_NICK.trim():'';
+    if(!KEY||!NICK) return;
+    var H={headers:{'Authorization':'Bearer '+KEY,'Accept':'application/json'}};
+    fetch('https://open.faceit.com/data/v4/players?nickname='+encodeURIComponent(NICK)+'&game=cs2',H)
+      .then(function(r){if(!r.ok)throw 0;return r.json();})
+      .then(function(pl){
+        var g=pl&&pl.games&&pl.games.cs2; if(!g) throw 0;
+        var bar=document.querySelector('.fc-bar'); if(bar) bar.hidden=false;
+        var e=document.querySelector('.fc-elo'); if(e){e.textContent='';var b=document.createElement('b');b.id='fcElo';e.appendChild(b);e.appendChild(document.createTextNode(' ELO'));}
+        setFc(Number(g.faceit_elo));
+        return fetch('https://open.faceit.com/data/v4/players/'+encodeURIComponent(pl.player_id)+'/stats/cs2',H);
+      })
+      .then(function(r){if(!r||!r.ok)throw 0;return r.json();})
+      .then(function(s){
+        var lt=(s&&s.lifetime)||{}, any=false;
+        function put(id,v){var el=document.getElementById(id);if(el&&v!=null&&v!==''){el.textContent=v;any=true;}}
+        put('fcKd',lt['Average K/D Ratio']); put('fcHs',lt['Average Headshots %']!=null?lt['Average Headshots %']+'%':null);
+        put('fcWr',lt['Win Rate %']!=null?lt['Win Rate %']+'%':null); put('fcM',lt['Matches']);
+        var mini=document.getElementById('fcMini'); if(mini) mini.hidden=!any;
+      })
+      .catch(function(){});
+  }
 })();
 (function(){
   var grid=document.getElementById('priceGrid'), goals=document.getElementById('goals');
