@@ -537,6 +537,39 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
 
 .copy-show.xh-hidden,.xh-hidden.copy-show{position:static;width:100%;height:auto;overflow:visible;clip:auto;clip-path:none;white-space:normal;overflow-wrap:anywhere;
   display:block;font:600 14px/1.45 var(--mono);color:var(--fg);padding:10px 12px;border:1px dashed var(--pink);border-radius:10px;background:var(--bg);user-select:all;text-align:center}
+
+/* ===== прицел + ранги в один ряд ===== */
+.cfg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch}
+.cfg .xh{width:auto;margin:0;align-content:center}
+.rk-card{display:grid;gap:16px;align-content:center;padding:22px;border-radius:22px;background:var(--surface);border:1px solid var(--line);min-width:0}
+.rk-label{font:700 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.rk-block{display:grid;gap:10px;padding:16px;border-radius:16px;background:var(--bg);border:1px solid var(--line)}
+.rk-name{font:400 20px/1 var(--display);letter-spacing:.02em}
+.rk-pair{display:flex;flex-wrap:wrap;gap:12px 22px}
+.rk-item{display:grid;gap:6px}
+.rk-item small{font:700 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.pr-tag{--t:#4b69ff;position:relative;display:inline-flex;align-items:center;padding:6px 16px 6px 26px;transform:skewX(-14deg);
+  background:linear-gradient(90deg,color-mix(in srgb,var(--t) 38%,#0b0716),#0b0716 85%);border:1.5px solid var(--t);border-radius:4px;
+  box-shadow:0 0 16px color-mix(in srgb,var(--t) 45%,transparent)}
+.pr-tag::before{content:"";position:absolute;left:6px;top:5px;bottom:5px;width:12px;
+  background:repeating-linear-gradient(90deg,var(--t) 0 3px,transparent 3px 6px);opacity:.9}
+.pr-in{display:inline-flex;align-items:baseline;transform:skewX(14deg);color:var(--t);text-shadow:0 0 10px color-mix(in srgb,var(--t) 60%,transparent);font-variant-numeric:tabular-nums}
+.pr-in b{font:400 28px/1 var(--display)}
+.pr-in i{font:400 17px/1 var(--display);font-style:normal;opacity:.9}
+.rk-fc{grid-template-columns:auto minmax(0,1fr);align-items:center;gap:16px}
+.fc-lvl{--fc:#ffc800;position:relative;width:64px;height:64px;display:grid;place-items:center}
+.fc-lvl svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.fc-track{fill:none;stroke:var(--line);stroke-width:6}
+.fc-arc{fill:none;stroke:var(--fc);stroke-width:6;stroke-linecap:round;stroke-dasharray:163.4;stroke-dashoffset:163.4;filter:drop-shadow(0 0 5px var(--fc));transition:stroke-dashoffset 1s ease}
+.fc-lvl b{position:relative;font:400 26px/1 var(--display);color:var(--fc);text-shadow:0 0 10px color-mix(in srgb,var(--fc) 60%,transparent)}
+.fc-txt{display:grid;gap:6px;min-width:0}
+.fc-elo{font-weight:700;color:var(--muted)}
+.fc-elo b{font:400 22px/1 var(--display);color:var(--fg);font-variant-numeric:tabular-nums}
+.fc-txt small{font-size:13px;color:var(--muted)}
+.rk-links{display:flex;flex-wrap:wrap;gap:10px}
+.rk-links a{flex:1 1 120px;text-align:center;font:800 14px/1 var(--body);text-decoration:none;color:var(--cyan);border:1.5px solid var(--cyan);border-radius:12px;padding:12px 14px;box-shadow:inset 0 0 14px rgba(44,241,255,.15);transition:box-shadow .2s}
+.rk-links a:hover{box-shadow:0 0 18px rgba(44,241,255,.4)}
+@media (max-width:760px){.cfg{grid-template-columns:minmax(0,1fr)}.cfg .xh{width:100%}}
 </style>
 </head>
 <body>
@@ -763,23 +796,50 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
   <!-- CROSSHAIR -->
   <section aria-labelledby="xh-h">
     <div class="sec-head">
-      <h2 id="xh-h">Мой <em>прицел</em></h2>
+      <h2 id="xh-h">Прицел и <em>ранги</em></h2>
     </div>
-    <div class="xh">
-      <div class="xh-view" role="img" aria-label="Прицел 0hayoooo: маленький розовый плюс с зазором в центре и чёрной обводкой">
-        <span class="xh-tag">×16</span>
-        <svg viewBox="-3 -3 6 6" aria-hidden="true">
-          <g fill="#000"><rect x="0" y="-1" width="3" height="2"/><rect x="-3" y="-1" width="3" height="2"/><rect x="-1" y="0" width="2" height="3"/><rect x="-1" y="-3" width="2" height="3"/></g>
-          <g fill="#ff00ff"><rect x="0.5" y="-0.5" width="2" height="1"/><rect x="-2.5" y="-0.5" width="2" height="1"/><rect x="-0.5" y="0.5" width="1" height="2"/><rect x="-0.5" y="-2.5" width="1" height="2"/></g>
-        </svg>
-        <svg class="xh-real" viewBox="-3 -3 6 6" aria-hidden="true">
-          <g fill="#000"><rect x="0" y="-1" width="3" height="2"/><rect x="-3" y="-1" width="3" height="2"/><rect x="-1" y="0" width="2" height="3"/><rect x="-1" y="-3" width="2" height="3"/></g>
-          <g fill="#ff00ff"><rect x="0.5" y="-0.5" width="2" height="1"/><rect x="-2.5" y="-0.5" width="2" height="1"/><rect x="-0.5" y="0.5" width="1" height="2"/><rect x="-0.5" y="-2.5" width="1" height="2"/></g>
-        </svg>
-        <span class="xh-real-cap">в игре</span>
+    <div class="cfg">
+      <div class="xh">
+        <div class="xh-view" role="img" aria-label="Прицел 0hayoooo: маленький розовый плюс с зазором в центре и чёрной обводкой">
+          <span class="xh-tag">×16</span>
+          <svg viewBox="-3 -3 6 6" aria-hidden="true">
+            <g fill="#000"><rect x="0" y="-1" width="3" height="2"/><rect x="-3" y="-1" width="3" height="2"/><rect x="-1" y="0" width="2" height="3"/><rect x="-1" y="-3" width="2" height="3"/></g>
+            <g fill="#ff00ff"><rect x="0.5" y="-0.5" width="2" height="1"/><rect x="-2.5" y="-0.5" width="2" height="1"/><rect x="-0.5" y="0.5" width="1" height="2"/><rect x="-0.5" y="-2.5" width="1" height="2"/></g>
+          </svg>
+          <svg class="xh-real" viewBox="-3 -3 6 6" aria-hidden="true">
+            <g fill="#000"><rect x="0" y="-1" width="3" height="2"/><rect x="-3" y="-1" width="3" height="2"/><rect x="-1" y="0" width="2" height="3"/><rect x="-1" y="-3" width="2" height="3"/></g>
+            <g fill="#ff00ff"><rect x="0.5" y="-0.5" width="2" height="1"/><rect x="-2.5" y="-0.5" width="2" height="1"/><rect x="-0.5" y="0.5" width="1" height="2"/><rect x="-0.5" y="-2.5" width="1" height="2"/></g>
+          </svg>
+          <span class="xh-real-cap">в игре</span>
+        </div>
+        <button type="button" class="xh-copy" data-copy="c-xhair">Скопировать</button>
+        <code id="c-xhair" class="xh-hidden">CSUJqvNPJhxbUD8hr6iXP3pWn54ZX8WGwZvywPuZRcs3BY</code>
       </div>
-      <button type="button" class="xh-copy" data-copy="c-xhair">Скопировать</button>
-      <code id="c-xhair" class="xh-hidden">CSUJqvNPJhxbUD8hr6iXP3pWn54ZX8WGwZvywPuZRcs3BY</code>
+      <div class="rk-card" aria-labelledby="rk-h">
+        <div class="rk-label" id="rk-h">ранги cs2</div>
+        <div class="rk-block">
+          <div class="rk-name">Premier</div>
+          <div class="rk-pair">
+            <div class="rk-item"><small>сейчас</small><span class="pr-tag" id="prNow"><span class="pr-in"><b>10</b><i>,157</i></span></span></div>
+            <div class="rk-item"><small>лучший</small><span class="pr-tag" id="prBest"><span class="pr-in"><b>19</b><i>,898</i></span></span></div>
+          </div>
+        </div>
+        <div class="rk-block rk-fc">
+          <div class="fc-lvl" id="fcLvl">
+            <svg viewBox="0 0 64 64" aria-hidden="true"><circle class="fc-track" cx="32" cy="32" r="26"/><circle class="fc-arc" id="fcArc" cx="32" cy="32" r="26"/></svg>
+            <b id="fcNum">5</b>
+          </div>
+          <div class="fc-txt">
+            <div class="rk-name">FACEIT</div>
+            <div class="fc-elo"><b id="fcElo">1 190</b> ELO</div>
+            <small id="fcNext">до 6 уровня 11 ELO</small>
+          </div>
+        </div>
+        <div class="rk-links">
+          <a href="https://steamcommunity.com/profiles/76561199071581988/" target="_blank" rel="noopener">Профиль Steam</a>
+          <a href="https://leetify.com/public/profile/76561199071581988" target="_blank" rel="noopener">Статистика</a>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -883,6 +943,10 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
    Порядок строк = место в топе (первые три попадут на пьедестал).
    Не забывай запятую в конце каждой строки и кавычки вокруг текста.
    ============================================================ */
+/* РАНГИ CS2: запасные числа. Если профиль есть на leetify.com, сайт берёт свежие ранги оттуда сам;
+   «лучший Premier» обновляется, когда текущий его превысит. Уровень FACEIT считается сам. */
+var РАНГИ = { premier: 10157, premierBest: 19898, faceitElo: 1190 };
+
 /* ФОЛЛОВЕРЫ: запасное число, если Twitch не ответит (обновляется на сайте само). */
 var ФОЛЛОВЕРЫ = 586;
 
@@ -1015,6 +1079,40 @@ var ТОП = [
       .catch(function(){});
   }
   load(); setInterval(load,5*60*1000);
+})();
+(function(){
+  var R=(typeof РАНГИ==='object'&&РАНГИ)||{};
+  function tier(n){return n>=30000?'#ffd700':n>=25000?'#eb4b4b':n>=20000?'#d32ce6':n>=15000?'#8847ff':n>=10000?'#4b69ff':n>=5000?'#5e98d9':'#b0c3d9';}
+  function setPr(id,n){
+    var el=document.getElementById(id); if(!el||!isFinite(n)) return;
+    n=Math.max(0,Math.round(n)); el.style.setProperty('--t',tier(n));
+    var b=el.querySelector('b'), i=el.querySelector('i');
+    if(n>=1000){b.textContent=Math.floor(n/1000);i.textContent=','+String(n%1000).padStart(3,'0');}else{b.textContent=n;i.textContent='';}
+  }
+  var L=[[1,100,500,'#eeeeee'],[2,501,750,'#1ce400'],[3,751,900,'#1ce400'],[4,901,1050,'#ffc800'],[5,1051,1200,'#ffc800'],
+         [6,1201,1350,'#ffc800'],[7,1351,1530,'#ffc800'],[8,1531,1750,'#ff6309'],[9,1751,2000,'#ff6309'],[10,2001,Infinity,'#fe1f00']];
+  function setFc(elo){
+    if(!isFinite(elo)) return;
+    var lv=L[0]; for(var k=0;k<L.length;k++) if(elo>=L[k][1]) lv=L[k];
+    var box=document.getElementById('fcLvl'); box.style.setProperty('--fc',lv[3]);
+    document.getElementById('fcNum').textContent=lv[0];
+    document.getElementById('fcElo').textContent=Math.round(elo).toLocaleString('ru-RU');
+    var p=lv[0]===10?1:Math.max(.04,Math.min(1,(elo-lv[1])/(lv[2]-lv[1]+1)));
+    document.getElementById('fcArc').style.strokeDashoffset=(163.4*(1-p)).toFixed(1);
+    document.getElementById('fcNext').textContent=lv[0]===10?'максимальный уровень':'до '+(lv[0]+1)+' уровня '+(L[lv[0]][1]-Math.round(elo))+' ELO';
+    box.setAttribute('aria-label','FACEIT уровень '+lv[0]);
+  }
+  var best=Number(R.premierBest)||0;
+  setPr('prNow',Number(R.premier)); setPr('prBest',best); setFc(Number(R.faceitElo));
+  /* автообновление с Leetify (работает, когда профиль зарегистрирован на leetify.com) */
+  fetch('https://api-public.cs-prod.leetify.com/v3/profile?steam64_id=76561199071581988',{cache:'no-store'})
+    .then(function(r){if(!r.ok)throw 0;return r.json();})
+    .then(function(j){
+      var rk=j&&j.ranks; if(!rk) return;
+      var pr=Number(rk.premier); if(isFinite(pr)&&pr>0){setPr('prNow',pr); if(pr>best){best=pr;setPr('prBest',best);}}
+      var elo=Number(rk.faceit_elo); if(isFinite(elo)&&elo>0) setFc(elo);
+    })
+    .catch(function(){});
 })();
 document.querySelectorAll('a[href="#donate"]').forEach(function(a){
   a.addEventListener('click',function(e){
