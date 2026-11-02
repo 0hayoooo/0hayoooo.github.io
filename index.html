@@ -570,6 +570,27 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
 .rk-links a{flex:1 1 120px;text-align:center;font:800 14px/1 var(--body);text-decoration:none;color:var(--cyan);border:1.5px solid var(--cyan);border-radius:12px;padding:12px 14px;box-shadow:inset 0 0 14px rgba(44,241,255,.15);transition:box-shadow .2s}
 .rk-links a:hover{box-shadow:0 0 18px rgba(44,241,255,.4)}
 @media (max-width:760px){.cfg{grid-template-columns:minmax(0,1fr)}.cfg .xh{width:100%}}
+
+/* ===== ранги: содержимое заполняет карточку ===== */
+.rk-card{display:flex;flex-direction:column;gap:14px;align-content:stretch}
+.rk-block{flex:1;align-content:center;padding:18px}
+.rk-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.rk-item{gap:8px;min-width:0}
+.pr-tag{display:flex;justify-content:center;width:100%;padding:12px 18px 12px 32px}
+.pr-tag::before{left:8px;width:14px}
+.pr-in b{font-size:clamp(28px,3.4vw,38px)}
+.pr-in i{font-size:clamp(17px,2vw,22px)}
+.rk-fc{grid-template-columns:auto minmax(0,1fr);gap:20px}
+.fc-lvl{width:84px;height:84px}
+.fc-lvl b{font-size:32px}
+.fc-txt{gap:8px}
+.fc-elo b{font-size:28px}
+.fc-bar{height:8px;border-radius:999px;background:var(--line);overflow:hidden}
+.fc-bar i{display:block;height:100%;width:0;border-radius:999px;background:var(--fc,#ffc800);box-shadow:0 0 10px var(--fc,#ffc800);transition:width 1s ease}
+.rk-fc .fc-txt{--fc:inherit}
+.rk-links a{padding:14px}
+.rk-links .rk-fcbtn{color:var(--pink);border-color:var(--pink);box-shadow:inset 0 0 14px rgba(255,62,165,.18)}
+.rk-links .rk-fcbtn:hover{box-shadow:0 0 18px rgba(255,62,165,.5)}
 </style>
 </head>
 <body>
@@ -832,12 +853,13 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
           <div class="fc-txt">
             <div class="rk-name">FACEIT</div>
             <div class="fc-elo"><b id="fcElo">1 190</b> ELO</div>
+            <div class="fc-bar" aria-hidden="true"><i id="fcBar"></i></div>
             <small id="fcNext">до 6 уровня 11 ELO</small>
           </div>
         </div>
         <div class="rk-links">
           <a href="https://steamcommunity.com/profiles/76561199071581988/" target="_blank" rel="noopener">Профиль Steam</a>
-          <a href="https://leetify.com/public/profile/76561199071581988" target="_blank" rel="noopener">Статистика</a>
+          <a class="rk-fcbtn" href="https://www.faceit.com/ru/players/0haYo" target="_blank" rel="noopener">Профиль FACEIT</a>
         </div>
       </div>
     </div>
@@ -1095,10 +1117,12 @@ var ТОП = [
     if(!isFinite(elo)) return;
     var lv=L[0]; for(var k=0;k<L.length;k++) if(elo>=L[k][1]) lv=L[k];
     var box=document.getElementById('fcLvl'); box.style.setProperty('--fc',lv[3]);
+    var fcb=document.querySelector('.rk-fc'); if(fcb) fcb.style.setProperty('--fc',lv[3]);
     document.getElementById('fcNum').textContent=lv[0];
     document.getElementById('fcElo').textContent=Math.round(elo).toLocaleString('ru-RU');
     var p=lv[0]===10?1:Math.max(.04,Math.min(1,(elo-lv[1])/(lv[2]-lv[1]+1)));
     document.getElementById('fcArc').style.strokeDashoffset=(163.4*(1-p)).toFixed(1);
+    var fb=document.getElementById('fcBar'); if(fb) fb.style.width=(p*100).toFixed(1)+'%';
     document.getElementById('fcNext').textContent=lv[0]===10?'максимальный уровень':'до '+(lv[0]+1)+' уровня '+(L[lv[0]][1]-Math.round(elo))+' ELO';
     box.setAttribute('aria-label','FACEIT уровень '+lv[0]);
   }
