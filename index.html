@@ -648,6 +648,43 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
 .hp-heart{fill:none;stroke:#ff4f9a;stroke-width:5;stroke-linejoin:round;filter:drop-shadow(0 0 3px #ff4f9a) drop-shadow(0 0 9px rgba(255,62,140,.75))}
 .hp-paw path{fill:none;stroke:#fff1dc;stroke-width:3.6;stroke-linejoin:round;filter:drop-shadow(0 0 2px #ffe2b8) drop-shadow(0 0 7px rgba(255,205,150,.65))}
 @media (max-width:620px){.pc-top{grid-template-columns:auto minmax(0,1fr) auto}.pc-heart{width:46px;height:43px}}
+
+/* ===== прайс и цели ===== */
+.goals{display:grid;gap:12px;margin-bottom:16px}
+.goal2{padding:20px 22px;border-radius:20px;background:var(--surface);border:1.5px solid rgba(255,210,63,.45);box-shadow:0 0 26px rgba(255,210,63,.12)}
+.goal2-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px 18px;margin-bottom:12px}
+.goal2-eye{font:700 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--yellow);margin-bottom:7px}
+.goal2-name{font:400 clamp(20px,2.8vw,26px)/1.15 var(--display);overflow-wrap:anywhere}
+.goal2-num{font:400 clamp(20px,3vw,30px)/1 var(--display);white-space:nowrap;font-variant-numeric:tabular-nums}
+.goal2-num b{font-weight:400;color:var(--yellow);text-shadow:0 0 10px rgba(255,210,63,.55)}
+.goal2-num span{color:var(--muted)}
+.goal2-bar{position:relative;height:16px;border-radius:999px;background:var(--bg);border:1px solid rgba(255,210,63,.4);overflow:hidden}
+.goal2-bar i{position:relative;display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#ffb800,var(--yellow));box-shadow:0 0 12px rgba(255,210,63,.6);transition:width 1.2s cubic-bezier(.2,.8,.2,1);overflow:hidden}
+.goal2-bar i::before{content:"";position:absolute;left:0;top:0;bottom:0;width:0;border-radius:999px;background:var(--pink);animation:goalpaint 3.6s cubic-bezier(.4,0,.2,1) infinite}
+.goal2-foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 16px;margin-top:12px}
+.goal2-desc{margin:0;color:var(--muted);font-size:14.5px}
+.goal2-left{font:500 13px/1.3 var(--mono);color:var(--muted)}
+.price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.pcard{display:flex;flex-direction:column;gap:10px;padding:18px;border-radius:18px;background:var(--surface);border:1px solid var(--line);min-width:0;transition:border-color .2s,box-shadow .2s,transform .15s}
+.pcard:hover{border-color:var(--pink);box-shadow:0 0 24px rgba(255,62,165,.22);transform:translateY(-2px)}
+.pcard-name{font:400 18px/1.2 var(--display);overflow-wrap:anywhere}
+.pcard-price{align-self:flex-start;font:700 14px/1 var(--mono);color:var(--yellow);border:1px solid rgba(255,210,63,.55);background:rgba(255,210,63,.08);border-radius:999px;padding:7px 11px;text-shadow:0 0 8px rgba(255,210,63,.4)}
+.pcard-desc{margin:0;color:var(--muted);font-size:14px;line-height:1.45;flex:1}
+.pcard-btn,.goal2-btn{font:800 14px/1 var(--body);color:#1a0010;background:var(--pink);border:0;border-radius:12px;padding:12px 16px;cursor:pointer;box-shadow:0 0 16px rgba(255,62,165,.45)}
+.pcard-btn:hover,.goal2-btn:hover{filter:brightness(1.1)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:70;max-width:calc(100vw - 32px);
+  padding:14px 18px;border-radius:14px;background:rgba(11,7,22,.96);border:1.5px solid var(--pink);box-shadow:0 0 26px rgba(255,62,165,.4);
+  font-weight:700;font-size:15px;line-height:1.4;text-align:center;animation:toastin .3s ease-out}
+.toast b{color:var(--yellow)}
+@keyframes toastin{from{opacity:0;transform:translate(-50%,12px)}}
+@media (max-width:620px){.goal2{padding:16px}.price-grid{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){.goal2-bar i::before{animation:none}}
+
+.pcard-need{display:grid;gap:4px;padding:10px 12px;border-radius:12px;background:rgba(44,241,255,.07);border:1px dashed rgba(44,241,255,.5)}
+.pcard-need small{font:700 9.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--cyan)}
+.pcard-need span{font-weight:700;font-size:14px;line-height:1.35;color:var(--fg);overflow-wrap:anywhere}
+.pcard-desc{flex:0 0 auto}
+.pcard-need{margin-top:auto}
 </style>
 </head>
 <body>
@@ -800,6 +837,16 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
       <div class="quiet-row"><span class="q-k">Сбер</span><code id="c-sb">2202 2053 1008 5953</code><button type="button" data-copy="c-sb">Копировать</button></div>
       <div class="quiet-row"><span class="q-k">USDT <small>TRC20 · из любой страны</small></span><code id="c-usdt">TXeDvrDMfEBfzN394SCrQsp9TEuDoNQQpU</code><button type="button" data-copy="c-usdt">Копировать</button></div>
     </div>
+  </section>
+
+  <!-- PRICE + GOAL -->
+  <section id="price" aria-labelledby="price-h">
+    <div class="sec-head">
+      <h2 id="price-h">Прайс <em>и цели</em></h2>
+      <p>Выбирай, донать с пометкой в сообщении, и я всё сделаю.</p>
+    </div>
+    <div class="goals" id="goals" hidden></div>
+    <div class="price-grid" id="priceGrid"></div>
   </section>
 
   <!-- TOP DONATORS -->
@@ -1036,6 +1083,24 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
    Порядок строк = место в топе (первые три попадут на пьедестал).
    Не забывай запятую в конце каждой строки и кавычки вокруг текста.
    ============================================================ */
+/* ПРАЙС И ЦЕЛЬ СБОРА
+   ПРАЙС_ТАБЛИЦА — ссылка на опубликованный лист Google Таблицы (CSV). Пока пусто, берётся список ниже.
+   Столбцы: тип | название | цена | собрано | описание | указать
+   «указать» — что зритель должен написать в сообщении к донату.
+   тип «прайс»: цена — число (500) или текст («договорная»).
+   тип «цель»: цена — сколько нужно собрать, собрано — сколько уже есть. */
+var ПРАЙС_ТАБЛИЦА = "";
+var ПРАЙС = [
+  ["прайс", "Мяукнуть в микрофон", "50", "", "персональное «мяу» в эфире для тебя", "«мяу» и свой ник"],
+  ["прайс", "1 раунд с ножом / зевсом", "100", "", "целый раунд играю только ножом или зевсом", "«нож» или «зевс»"],
+  ["прайс", "Заказ трека", "100", "", "включу на стриме", "название трека и исполнителя"],
+  ["прайс", "Сыграть со мной FACEIT", "300", "", "залетай в пати и тащим вместе", "свой ник на FACEIT"],
+  ["прайс", "Продлить стрим", "1000", "", "ещё 1 часик кусь", "«продлить стрим»"],
+  ["прайс", "Заказ фильма / сериала / аниме", "1500", "", "смотрим вместе после стрима", "название фильма, сериала или аниме"],
+  ["прайс", "Заказ игры", "2000", "", "игру оплачиваешь сам, сверх доната", "название игры"],
+  ["прайс", "Закончить стрим", "30000", "", "выключаю сразу, но котик тебя запомнит", "«закончить стрим»"],
+];
+
 /* РАНГИ CS2: запасные числа. Если профиль есть на leetify.com, сайт берёт свежие ранги оттуда сам;
    «лучший Premier» обновляется, когда текущий его превысит. Уровень FACEIT считается сам. */
 var РАНГИ = { premier: 10157, premierBest: 19898, faceitElo: 1190 };
@@ -1208,6 +1273,84 @@ var ТОП = [
       var elo=Number(rk.faceit_elo); if(isFinite(elo)&&elo>0) setFc(elo);
     })
     .catch(function(){});
+})();
+(function(){
+  var grid=document.getElementById('priceGrid'), goals=document.getElementById('goals');
+  if(!grid) return;
+  function el(t,c,txt){var e=document.createElement(t);if(c)e.className=c;if(txt!=null)e.textContent=txt;return e;}
+  function num(v){var n=parseFloat(String(v||'').replace(/\s/g,'').replace(',','.').replace(/[^\d.]/g,''));return isFinite(n)?n:NaN;}
+  function money(v){var n=num(v);return isFinite(n)&&/^[\s\d.,₽рруб]*$/i.test(String(v))?Math.round(n).toLocaleString('ru-RU')+' ₽':String(v||'').trim();}
+  var toastT;
+  function toast(name){
+    var old=document.querySelector('.toast'); if(old) old.remove();
+    var t=el('div','toast'); t.setAttribute('role','status');
+    t.appendChild(document.createTextNode('В сообщении к донату укажи: '));
+    t.appendChild(el('b',null,name));
+    document.body.appendChild(t); clearTimeout(toastT); toastT=setTimeout(function(){t.remove();},5000);
+  }
+  function toDonate(){var d=document.getElementById('donate');if(d)d.scrollIntoView({behavior:'smooth',block:'start'});}
+  function render(rows){
+    grid.textContent=''; goals.textContent='';
+    /* прайс всегда по возрастанию цены; «договорная» и прочий текст — в конце */
+    rows=rows.map(function(r,i){return {r:r,i:i,p:num(r[2])};}).sort(function(a,b){
+      var ga=String(a.r[0]||'').trim().toLowerCase()==='цель', gb=String(b.r[0]||'').trim().toLowerCase()==='цель';
+      if(ga||gb) return ga===gb?a.i-b.i:(ga?-1:1);
+      var pa=isFinite(a.p)?a.p:Infinity, pb=isFinite(b.p)?b.p:Infinity;
+      return pa===pb?a.i-b.i:pa-pb;
+    }).map(function(x){return x.r;});
+    rows.forEach(function(r){
+      var type=String(r[0]||'').trim().toLowerCase(), name=String(r[1]||'').trim();
+      if(!name) return;
+      if(type==='цель'){
+        var target=num(r[2]), got=num(r[3])||0; if(!isFinite(target)||target<=0) return;
+        var g=el('div','goal2'), top=el('div','goal2-top'), l=el('div');
+        l.appendChild(el('div','goal2-eye','цель сбора')); l.appendChild(el('div','goal2-name',name));
+        var nm=el('div','goal2-num'); nm.appendChild(el('b',null,Math.round(got).toLocaleString('ru-RU')));
+        nm.appendChild(el('span',null,' / '+Math.round(target).toLocaleString('ru-RU')+' ₽'));
+        top.appendChild(l); top.appendChild(nm); g.appendChild(top);
+        var bar=el('div','goal2-bar'), fill=el('i'); fill.style.width=Math.max(got>0?3:0,Math.min(100,got/target*100))+'%';
+        bar.setAttribute('role','progressbar'); bar.setAttribute('aria-valuemin','0'); bar.setAttribute('aria-valuemax',String(target)); bar.setAttribute('aria-valuenow',String(got));
+        bar.appendChild(fill); g.appendChild(bar);
+        var foot=el('div','goal2-foot'), left=el('div');
+        if(r[4]) left.appendChild(el('p','goal2-desc',String(r[4])));
+        left.appendChild(el('div','goal2-left',got>=target?'собрано! спасибо, мурки ♡':'осталось '+Math.round(target-got).toLocaleString('ru-RU')+' ₽'));
+        var gb=el('button','goal2-btn','Поддержать'); gb.type='button';
+        var gneed=String(r[5]||'').trim()||'«на цель»';
+        gb.addEventListener('click',function(){toast(gneed);toDonate();});
+        foot.appendChild(left); foot.appendChild(gb); g.appendChild(foot); goals.appendChild(g);
+      }else{
+        var c=el('div','pcard');
+        c.appendChild(el('div','pcard-name',name));
+        c.appendChild(el('span','pcard-price',money(r[2])||'договорная'));
+        c.appendChild(el('p','pcard-desc',String(r[4]||'')));
+        var need=String(r[5]||'').trim()||('«'+name+'»');
+        var nd=el('div','pcard-need'); nd.appendChild(el('small',null,'в донате укажи')); nd.appendChild(el('span',null,need)); c.appendChild(nd);
+        var b=el('button','pcard-btn','Заказать'); b.type='button';
+        b.addEventListener('click',function(){toast(need);toDonate();});
+        c.appendChild(b); grid.appendChild(c);
+      }
+    });
+    goals.hidden=!goals.children.length;
+  }
+  function parseCSV(t){
+    var rows=[],row=[],f='',q=false;
+    for(var i=0;i<t.length;i++){var c=t[i];
+      if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++;}else q=false;}else f+=c;}
+      else if(c==='"')q=true; else if(c===','){row.push(f);f='';}
+      else if(c==='\n'){row.push(f);rows.push(row);row=[];f='';} else if(c!=='\r')f+=c;}
+    if(f!==''||row.length){row.push(f);rows.push(row);}
+    return rows;
+  }
+  render(typeof ПРАЙС!=='undefined'?ПРАЙС:[]);
+  var URL=(typeof ПРАЙС_ТАБЛИЦА==='string')?ПРАЙС_ТАБЛИЦА.trim():'';
+  if(!URL) return;
+  fetch(URL+(URL.indexOf('?')<0?'?':'&')+'t='+Date.now(),{cache:'no-store'})
+    .then(function(r){if(!r.ok)throw 0;return r.text();})
+    .then(function(t){
+      var rows=parseCSV(t).filter(function(r){return r[1]&&r[1].trim();});
+      if(rows.length&&/тип|type/i.test(rows[0][0]||''))rows.shift();
+      if(rows.length)render(rows);
+    }).catch(function(){});
 })();
 document.querySelectorAll('a[href="#donate"]').forEach(function(a){
   a.addEventListener('click',function(e){
