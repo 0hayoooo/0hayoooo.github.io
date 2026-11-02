@@ -685,6 +685,12 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
 .pcard-need span{font-weight:700;font-size:14px;line-height:1.35;color:var(--fg);overflow-wrap:anywhere}
 .pcard-desc{flex:0 0 auto}
 .pcard-need{margin-top:auto}
+
+/* живая полоса сбора CloudTips */
+.goal2-live{position:relative;height:150px;margin:2px -6px 0;border-radius:14px;overflow:hidden;background:rgba(11,7,22,.55);border:1px dashed rgba(255,210,63,.35)}
+.goal2-live iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent;color-scheme:normal}
+a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
+@media (max-width:620px){.goal2-live{height:160px;margin-inline:0}}
 </style>
 </head>
 <body>
@@ -842,7 +848,7 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
   <!-- PRICE + GOAL -->
   <section id="price" aria-labelledby="price-h">
     <div class="sec-head">
-      <h2 id="price-h">Прайс <em>и цели</em></h2>
+      <h2 id="price-h">Мой <em>прайс</em></h2>
       <p>Выбирай, донать с пометкой в сообщении, и я всё сделаю.</p>
     </div>
     <div class="goals" id="goals" hidden></div>
@@ -1089,8 +1095,13 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
    «указать» — что зритель должен написать в сообщении к донату.
    тип «прайс»: цена — число (500) или текст («договорная»).
    тип «цель»: цена — сколько нужно собрать, собрано — сколько уже есть. */
+/* ЖИВАЯ ЦЕЛЬ CLOUDTIPS: ссылка на виджет «Сбор» (как в OBS) и ссылка для доната.
+   Виджет показывается в первой цели из прайса; если ссылки нет, рисуется своя полоса по таблице. */
+var ЦЕЛЬ_CLOUDTIPS = "https://stream.cloudtips.ru/t/BIvyiLrXMf592rtosd6V";
+var ЦЕЛЬ_ДОНАТ = "https://pay.cloudtips.ru/p/7250e315";
 var ПРАЙС_ТАБЛИЦА = "";
 var ПРАЙС = [
+  ["цель", "На новий компик для мурки :3", "133333", "21111", "сбор идёт через CloudTips", "«на компик»"],
   ["прайс", "Мяукнуть в микрофон", "50", "", "персональное «мяу» в эфире для тебя", "«мяу» и свой ник"],
   ["прайс", "1 раунд с ножом / зевсом", "100", "", "целый раунд играю только ножом или зевсом", "«нож» или «зевс»"],
   ["прайс", "Заказ трека", "100", "", "включу на стриме", "название трека и исполнителя"],
@@ -1305,18 +1316,36 @@ var ТОП = [
         var target=num(r[2]), got=num(r[3])||0; if(!isFinite(target)||target<=0) return;
         var g=el('div','goal2'), top=el('div','goal2-top'), l=el('div');
         l.appendChild(el('div','goal2-eye','цель сбора')); l.appendChild(el('div','goal2-name',name));
-        var nm=el('div','goal2-num'); nm.appendChild(el('b',null,Math.round(got).toLocaleString('ru-RU')));
-        nm.appendChild(el('span',null,' / '+Math.round(target).toLocaleString('ru-RU')+' ₽'));
-        top.appendChild(l); top.appendChild(nm); g.appendChild(top);
-        var bar=el('div','goal2-bar'), fill=el('i'); fill.style.width=Math.max(got>0?3:0,Math.min(100,got/target*100))+'%';
-        bar.setAttribute('role','progressbar'); bar.setAttribute('aria-valuemin','0'); bar.setAttribute('aria-valuemax',String(target)); bar.setAttribute('aria-valuenow',String(got));
-        bar.appendChild(fill); g.appendChild(bar);
+        var LIVE=(typeof ЦЕЛЬ_CLOUDTIPS==='string'&&ЦЕЛЬ_CLOUDTIPS.trim()&&!goals.children.length)?ЦЕЛЬ_CLOUDTIPS.trim():'';
+        var PAY=(typeof ЦЕЛЬ_ДОНАТ==='string')?ЦЕЛЬ_ДОНАТ.trim():'';
+        var nums=Math.round(got).toLocaleString('ru-RU')+' из '+Math.round(target).toLocaleString('ru-RU')+' ₽';
+        if(LIVE){
+          l.firstChild.textContent='цель сбора · обновляется сама';
+          if(l.lastChild&&l.lastChild.className==='goal2-name') l.removeChild(l.lastChild);
+          top.appendChild(l); g.appendChild(top);
+          var live=el('div','goal2-live'), fr=document.createElement('iframe');
+          fr.src=LIVE; fr.title='Сбор на CloudTips: '+name; fr.loading='lazy'; fr.setAttribute('scrolling','no');
+          fr.setAttribute('referrerpolicy','no-referrer');
+          live.appendChild(fr); g.appendChild(live);
+        }else{
+          var nm=el('div','goal2-num'); nm.appendChild(el('b',null,Math.round(got).toLocaleString('ru-RU')));
+          nm.appendChild(el('span',null,' / '+Math.round(target).toLocaleString('ru-RU')+' ₽'));
+          top.appendChild(l); top.appendChild(nm); g.appendChild(top);
+          var bar=el('div','goal2-bar'), fill=el('i'); fill.style.width=Math.max(got>0?3:0,Math.min(100,got/target*100))+'%';
+          bar.setAttribute('role','progressbar'); bar.setAttribute('aria-valuemin','0'); bar.setAttribute('aria-valuemax',String(target)); bar.setAttribute('aria-valuenow',String(got));
+          bar.appendChild(fill); g.appendChild(bar);
+        }
         var foot=el('div','goal2-foot'), left=el('div');
         if(r[4]) left.appendChild(el('p','goal2-desc',String(r[4])));
-        left.appendChild(el('div','goal2-left',got>=target?'собрано! спасибо, мурки ♡':'осталось '+Math.round(target-got).toLocaleString('ru-RU')+' ₽'));
-        var gb=el('button','goal2-btn','Поддержать'); gb.type='button';
-        var gneed=String(r[5]||'').trim()||'«на цель»';
-        gb.addEventListener('click',function(){toast(gneed);toDonate();});
+        if(LIVE) left.appendChild(el('div','goal2-left','не видно полоску? последние данные: '+nums));
+        else left.appendChild(el('div','goal2-left',got>=target?'собрано! спасибо, мурки ♡':'осталось '+Math.round(target-got).toLocaleString('ru-RU')+' ₽'));
+        var gb;
+        if(PAY){ gb=el('a','goal2-btn','Поддержать через CloudTips'); gb.href=PAY; gb.target='_blank'; gb.rel='noopener'; }
+        else{
+          gb=el('button','goal2-btn','Поддержать'); gb.type='button';
+          var gneed=String(r[5]||'').trim()||'«на цель»';
+          gb.addEventListener('click',function(){toast(gneed);toDonate();});
+        }
         foot.appendChild(left); foot.appendChild(gb); g.appendChild(foot); goals.appendChild(g);
       }else{
         var c=el('div','pcard');
@@ -1331,6 +1360,7 @@ var ТОП = [
       }
     });
     goals.hidden=!goals.children.length;
+    var ph=document.getElementById('price-h'); if(ph) ph.innerHTML=goals.children.length?'Прайс <em>и цели</em>':'Мой <em>прайс</em>';
   }
   function parseCSV(t){
     var rows=[],row=[],f='',q=false;
