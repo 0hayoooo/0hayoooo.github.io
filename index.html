@@ -691,6 +691,15 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
 .goal2-live iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent;color-scheme:normal}
 a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
 @media (max-width:620px){.goal2-live{height:160px;margin-inline:0}}
+
+/* «ЦЕЛЬ» неоновой вывеской */
+.goal2-eye{display:inline-block;margin-bottom:12px;font:400 clamp(28px,4vw,38px)/1 var(--display);letter-spacing:.22em;color:#fff4fb;
+  text-shadow:0 0 4px #fff,0 0 10px var(--pink),0 0 22px var(--pink),0 0 42px rgba(255,62,165,.75),0 0 70px rgba(255,62,165,.45);
+  animation:neonflick 6s infinite}
+.goal2-eye::after{content:"";display:block;height:3px;margin-top:10px;border-radius:2px;background:linear-gradient(90deg,var(--pink),var(--yellow));box-shadow:0 0 10px var(--pink),0 0 18px rgba(255,210,63,.5)}
+@keyframes neonflick{0%,18%,22%,25%,53%,57%,100%{opacity:1}20%,24%,55%{opacity:.55}}
+@media (prefers-reduced-motion:reduce){.goal2-eye{animation:none}}
+.goal2-foot .goal2-btn{margin-left:auto}
 </style>
 </head>
 <body>
@@ -1101,7 +1110,7 @@ var ЦЕЛЬ_CLOUDTIPS = "https://stream.cloudtips.ru/t/BIvyiLrXMf592rtosd6V";
 var ЦЕЛЬ_ДОНАТ = "https://pay.cloudtips.ru/p/7250e315";
 var ПРАЙС_ТАБЛИЦА = "";
 var ПРАЙС = [
-  ["цель", "На новий компик для мурки :3", "133333", "21111", "сбор идёт через CloudTips", "«на компик»"],
+  ["цель", "На новий компик для мурки :3", "133333", "21111", "", "«на компик»"],
   ["прайс", "Мяукнуть в микрофон", "50", "", "персональное «мяу» в эфире для тебя", "«мяу» и свой ник"],
   ["прайс", "1 раунд с ножом / зевсом", "100", "", "целый раунд играю только ножом или зевсом", "«нож» или «зевс»"],
   ["прайс", "Заказ трека", "100", "", "включу на стриме", "название трека и исполнителя"],
@@ -1315,12 +1324,11 @@ var ТОП = [
       if(type==='цель'){
         var target=num(r[2]), got=num(r[3])||0; if(!isFinite(target)||target<=0) return;
         var g=el('div','goal2'), top=el('div','goal2-top'), l=el('div');
-        l.appendChild(el('div','goal2-eye','цель сбора')); l.appendChild(el('div','goal2-name',name));
+        l.appendChild(el('div','goal2-eye','цель')); l.appendChild(el('div','goal2-name',name));
         var LIVE=(typeof ЦЕЛЬ_CLOUDTIPS==='string'&&ЦЕЛЬ_CLOUDTIPS.trim()&&!goals.children.length)?ЦЕЛЬ_CLOUDTIPS.trim():'';
         var PAY=(typeof ЦЕЛЬ_ДОНАТ==='string')?ЦЕЛЬ_ДОНАТ.trim():'';
         var nums=Math.round(got).toLocaleString('ru-RU')+' из '+Math.round(target).toLocaleString('ru-RU')+' ₽';
         if(LIVE){
-          l.firstChild.textContent='цель сбора · обновляется сама';
           if(l.lastChild&&l.lastChild.className==='goal2-name') l.removeChild(l.lastChild);
           top.appendChild(l); g.appendChild(top);
           var live=el('div','goal2-live'), fr=document.createElement('iframe');
@@ -1336,9 +1344,8 @@ var ТОП = [
           bar.appendChild(fill); g.appendChild(bar);
         }
         var foot=el('div','goal2-foot'), left=el('div');
-        if(r[4]) left.appendChild(el('p','goal2-desc',String(r[4])));
-        if(LIVE) left.appendChild(el('div','goal2-left','не видно полоску? последние данные: '+nums));
-        else left.appendChild(el('div','goal2-left',got>=target?'собрано! спасибо, мурки ♡':'осталось '+Math.round(target-got).toLocaleString('ru-RU')+' ₽'));
+        if(r[4]&&!LIVE) left.appendChild(el('p','goal2-desc',String(r[4])));
+        if(!LIVE) left.appendChild(el('div','goal2-left',got>=target?'собрано! спасибо, мурки ♡':'осталось '+Math.round(target-got).toLocaleString('ru-RU')+' ₽'));
         var gb;
         if(PAY){ gb=el('a','goal2-btn','Поддержать через CloudTips'); gb.href=PAY; gb.target='_blank'; gb.rel='noopener'; }
         else{
