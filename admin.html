@@ -439,13 +439,14 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
     busy=true;$('save').disabled=true;status('','Сохраняю…');
     applyAdds(donors);renderDon();
     sortDon();var keep=donors.filter(function(r){return r[0].trim();});
-    var gone=keep.slice(TOP_N).map(function(r){return r[0];});keep=keep.slice(0,TOP_N);
-    api({action:'save',price:price,donors:keep,gone:gone.map(function(g){return [g];})}).then(function(j){
+    var goneRows=keep.slice(TOP_N).map(function(r){return [r[0],r[1]];}),gone=goneRows.map(function(r){return r[0];});keep=keep.slice(0,TOP_N);
+    api({action:'save',price:price,donors:keep,gone:goneRows}).then(function(j){
       donors=keep;if(j.archive){archive=j.archive;renderArch();}
+      var oldSrv=!j.archive&&gone.length;
       busy=false;
       price=price.filter(function(r){return r[0].trim();});donors=donors.filter(function(r){return r[0].trim();});
       sortDon();renderPrice();renderDon();setDirty(false);
-      status('ok','Сохранено ✓ На сайте обновится в течение минуты.'+(gone.length?' Из топа ушли: '+gone.join(', ')+'.':'')+(bad?' Пустые строки убраны.':''));
+      status('ok','Сохранено ✓ На сайте обновится в течение минуты.'+(gone.length?' Из топа ушли: '+gone.join(', ')+'.':'')+(oldSrv?' ВНИМАНИЕ: скрипт в таблице старый, архив не записан — обновите скрипт и разверните новую версию.':'')+(bad?' Пустые строки убраны.':''));
     }).catch(function(e){
       busy=false;$('save').disabled=false;
       if(e.message==='bad_token'||e.message==='no_token'){
