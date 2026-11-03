@@ -736,6 +736,25 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
 .board span{justify-self:end;text-align:right;font:600 12.5px/1.35 var(--mono);color:var(--yellow);background:rgba(255,210,63,.07);
   border:1px solid rgba(255,210,63,.3);border-radius:10px;padding:5px 9px;max-width:100%}
 @media (max-width:620px){.board li{grid-template-columns:auto minmax(0,1fr) auto;gap:8px;padding:8px 9px 8px 7px}.board li::before{min-width:40px;height:26px;font-size:11px}.board b{font-size:14px}.board span{max-width:42vw;font-size:11.5px;padding:4px 7px}}
+
+/* ===== топ мурок по уровням ===== */
+.tiers{display:grid;gap:14px}
+.tier{--c:#ffd23f;padding:16px;border-radius:20px;border:1px solid color-mix(in srgb,var(--c) 42%,transparent);
+  background:linear-gradient(160deg,color-mix(in srgb,var(--c) 9%,#140d25),#140d25 70%);box-shadow:0 0 26px color-mix(in srgb,var(--c) 10%,transparent)}
+.t-gold{--c:#ffd23f}.t-pink{--c:#ff8cc6}.t-cyan{--c:#2cf1ff}
+.tier-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin-bottom:12px}
+.tier-h b{font:800 13px/1 var(--body);letter-spacing:.2em;text-transform:uppercase;color:var(--c);text-shadow:0 0 10px color-mix(in srgb,var(--c) 55%,transparent)}
+.tier-h small{font:600 12px/1 var(--mono);color:var(--muted)}
+.tier-c{display:flex;flex-wrap:wrap;gap:8px}
+.tchip{display:inline-flex;align-items:center;gap:8px;max-width:100%;padding:5px 12px 5px 5px;border-radius:999px;background:rgba(11,7,22,.72);border:1px solid var(--line);transition:border-color .2s,box-shadow .2s,transform .15s}
+.tchip:hover{border-color:color-mix(in srgb,var(--c) 70%,transparent);box-shadow:0 0 14px color-mix(in srgb,var(--c) 30%,transparent);transform:translateY(-1px)}
+.tchip i{display:grid;place-items:center;min-width:38px;height:24px;padding:0 6px;border-radius:999px;font:700 11.5px/1 var(--mono);font-style:normal;color:#0b0716;background:var(--c)}
+.tchip b{font-weight:700;font-size:14px;overflow-wrap:anywhere}
+.tchip em{font:600 12px/1.3 var(--mono);font-style:normal;color:var(--yellow)}
+@media (max-width:620px){.tier{padding:13px}.tchip{padding-right:10px}.tchip b{font-size:13.5px}}
+
+.podium .pt{font:800 11.5px/1.2 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--c);text-shadow:0 0 10px color-mix(in srgb,var(--c) 60%,transparent);margin-top:-2px}
+.podium .p1 .pt{font-size:12.5px}
 </style>
 </head>
 <body>
@@ -907,7 +926,7 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
       <p>Спасибо каждой мурке за поддержку <span class="kaomoji">ฅ^•ﻌ•^ฅ</span></p>
     </div>
     <ol class="podium" id="podium"></ol>
-    <ol class="board" id="board" start="4"></ol>
+    <div class="tiers" id="board"></div>
   </section>
 
   <!-- ABOUT -->
@@ -1191,6 +1210,9 @@ var ФОЛЛОВЕРЫ = 586;
 var TWITCH_CLIENT_ID = "";
 var SITE_URL = "";
 
+/* Титулы тройки лидеров (№1, №2, №3) */
+var ТИТУЛЫ_ТОП3 = ["легенда мурлыканья", "мастер почесушек", "хранитель вкусняшек"];
+
 /* ССЫЛКА НА GOOGLE ТАБЛИЦУ (Файл → Поделиться → Опубликовать в интернете → CSV).
    Пока ссылки нет, оставь пустые кавычки "" — тогда сайт берёт список ниже. */
 var ТАБЛИЦА = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSw1U4NvT0kVTGy9TSoP1FvCS6uAqwRSejcU-LY5nSwHhIa2PAw0QYqk6OKdLl1ITw9Z82OJDRO9saJ/pub?gid=464919870&single=true&output=csv";
@@ -1229,25 +1251,45 @@ var ТОП = [
   if(!pod||!brd) return;
   function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;}
   function render(list){
-    pod.textContent='';brd.textContent='';var i=0;
+    pod.textContent='';brd.textContent='';var i=0, rest=[];
     list.forEach(function(row){
       var nick=String(row[0]||'').trim(), sum=String(row[1]||'').trim();
       if(!nick) return;
       if(i<3){
         var li=el('li','p'+(i+1));
         li.appendChild(el('span','rk','№'+(i+1)));
+        var TT=(typeof ТИТУЛЫ_ТОП3!=='undefined'&&ТИТУЛЫ_ТОП3)||[]; if(TT[i]) li.appendChild(el('small','pt',TT[i]));
         li.appendChild(el('b',null,nick));
         li.appendChild(el('span','am',sum));
         pod.appendChild(li);
       }else{
-        var r=el('li');
-        r.appendChild(el('b',null,nick));
-        r.appendChild(el('span',null,sum));
-        brd.appendChild(r);
+        rest.push({n:i+1,nick:nick,sum:sum,v:amount(sum)});
       }
       i++;
     });
+    /* уровни: мур-король / мур-принц / котёночек (по сумме в рублях) */
+    var TIERS=[['мур-король','от 10 000 ₽',function(v){return v>=10000;},'t-gold'],
+               ['мур-принц','от 5 000 ₽',function(v){return v>=5000&&v<10000;},'t-pink'],
+               ['котёночек','до 5 000 ₽',function(v){return v<5000;},'t-cyan']];
+    TIERS.forEach(function(t){
+      var items=rest.filter(function(x){return t[2](x.v);}); if(!items.length) return;
+      var box=el('div','tier '+t[3]), head=el('div','tier-h');
+      head.appendChild(el('b',null,'ты '+t[0])); head.appendChild(el('small',null,t[1]));
+      box.appendChild(head);
+      var wrap=el('div','tier-c');
+      items.forEach(function(x){
+        var c=el('span','tchip'); c.appendChild(el('i',null,'№'+x.n));
+        c.appendChild(el('b',null,x.nick)); c.appendChild(el('em',null,x.sum)); wrap.appendChild(c);
+      });
+      box.appendChild(wrap); brd.appendChild(box);
+    });
     brd.hidden=!brd.children.length;
+  }
+  /* сумма доната в рублях: складываем все числа перед «₽» (донат + скины, рубли из скобок у валюты) */
+  function amount(s){
+    var t=String(s).replace(/\u00a0/g,' '), sum=0, m, re=/(\d[\d ]*)\s*₽/g;
+    while((m=re.exec(t))) sum+=parseInt(m[1].replace(/\s/g,''),10)||0;
+    return sum;
   }
   function parseCSV(t){
     var rows=[],row=[],f='',q=false;
