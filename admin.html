@@ -166,6 +166,25 @@ input:focus,textarea:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 
 .scg .wide{grid-column:1/-1}
 select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font:600 14px/1.3 var(--body)}
 @media (max-width:620px){.scg{grid-template-columns:minmax(0,1fr)}}
+.pin{display:grid;gap:10px;padding:16px 18px;border-radius:18px;background:linear-gradient(120deg,rgba(255,210,63,.12),rgba(255,62,165,.06));border:1px solid rgba(255,210,63,.55)}
+.pin-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.pin-top b{font:800 15px/1 var(--body);color:var(--yellow)}
+.pin-text{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font:700 17px/1.45 var(--body);color:var(--fg);user-select:all}
+.pin-text.empty{font-weight:600;font-size:14px;color:var(--muted);user-select:auto}
+#pinForm{display:grid;gap:8px}
+.addrs{display:grid;gap:8px}
+.addr-row{display:grid;gap:3px;padding:10px 12px;border-radius:12px;background:rgba(11,7,22,.6);border:1px solid rgba(255,210,63,.4)}
+.addr-row b{font:800 16px/1.35 var(--body);overflow-wrap:anywhere;user-select:all}
+.addr-row small{font:600 11.5px/1.3 var(--mono);color:var(--muted)}
+.addr-row.old{opacity:.6}
+.addr-row.old b{font-size:14px}
+.addr{display:grid;gap:10px;padding:14px;border-radius:14px;background:rgba(11,7,22,.6);border:1px solid var(--line)}
+.addr p{margin:0;font-size:14px;color:var(--muted)}
+.addr p b{color:var(--fg)}
+.addr-grid{display:grid;grid-template-columns:minmax(0,1fr) 140px;gap:8px}
+.addr-grid .wide{grid-column:1/-1}
+.addr-st{color:var(--cyan)!important;font-weight:700}
+.pin-note{font:600 11.5px/1.3 var(--mono);color:var(--muted)}
 .setc{display:grid;gap:8px;padding:16px;border-radius:18px;background:rgba(20,13,37,.88);border:1px solid var(--line);max-width:560px}
 .setc input{max-width:200px;font:700 18px/1 var(--mono)}
 .setc p{margin:0;color:var(--muted);font-size:14px}
@@ -199,6 +218,19 @@ select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--li
   .aact{flex-wrap:wrap}
   .num{grid-row:1/3}
 }
+
+/* новогодний алерт-пранк на весь экран */
+.ny{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:16px;
+  background:radial-gradient(60rem 40rem at 50% 30%,rgba(255,62,165,.35),transparent 60%),rgba(5,3,12,.86);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);opacity:0;transition:opacity .35s}
+.ny.go{opacity:1}
+.ny-card{text-align:center;transform:scale(.7);transition:transform .45s cubic-bezier(.2,1.5,.4,1)}
+.ny.go .ny-card{transform:scale(1)}
+.ny-emoji{font-size:clamp(44px,11vw,96px);line-height:1;filter:drop-shadow(0 0 20px rgba(255,210,63,.6))}
+.ny-h{margin-top:10px;font:400 clamp(34px,9vw,80px)/1 var(--display);color:var(--fg);
+  text-shadow:0 0 10px var(--pink),0 0 34px rgba(255,62,165,.8),0 0 60px rgba(44,241,255,.5)}
+.ny-sub{margin-top:8px;font:800 clamp(20px,5vw,34px)/1 var(--body);letter-spacing:.3em;color:var(--cyan);text-shadow:0 0 16px rgba(44,241,255,.6)}
+@media (prefers-reduced-motion:reduce){.ny,.ny-card{transition:none}}
 </style>
 </head>
 <body>
@@ -231,6 +263,17 @@ select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--li
   </section>
 
   <main id="sEdit" hidden class="panel" style="gap:18px">
+    <section class="pin" id="pin" aria-labelledby="pinH">
+      <div class="pin-top"><b id="pinH">📌 Закреплено</b><div class="ofilt"><button class="btn btn-line btn-sm" id="addrGeo" type="button">🎁 Подарочек, делай тык</button><button class="btn btn-line btn-sm" id="pinEdit" type="button">Изменить</button></div></div>
+      <div class="addrs" id="addrs" hidden></div>
+      <p class="addr-st" id="addrSt" role="status" hidden></p>
+      <p class="pin-text" id="pinText"></p>
+      <div id="pinForm" hidden>
+        <textarea id="pinArea" rows="3" maxlength="2000" placeholder="например: адрес, коды, напоминалки"></textarea>
+        <div class="ofilt"><button class="btn btn-pink btn-sm" id="pinSave" type="button">Сохранить заметку</button><button class="btn btn-line btn-sm" id="pinCancel" type="button">Отмена</button></div>
+      </div>
+      <small class="pin-note">Видят только вы двое после входа через Twitch. В файлах сайта заметки нет.</small>
+    </section>
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" id="tOrd" aria-selected="false" aria-controls="pOrd" type="button">Заказы<i id="cOrd"></i></button>
       <button class="tab" role="tab" id="tSite" aria-selected="false" aria-controls="pSite" type="button">Сайт<i id="cSite"></i></button>
@@ -449,7 +492,7 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
       .then(function(r){if(!r.ok)throw new Error('net');return r.json();})
       .then(function(j){if(!j||!j.ok)throw new Error((j&&j.error)||'net');return j;});
   }
-  var ERR={bad_token:'Вход устарел, войдите ещё раз.',no_token:'Вход устарел, войдите ещё раз.',forbidden:'Этот аккаунт Twitch не в списке создателей.',
+  var ERR={forbidden_addr:'Сохранять адрес может только 0hayoooo.',bad_token:'Вход устарел, войдите ещё раз.',no_token:'Вход устарел, войдите ещё раз.',forbidden:'Этот аккаунт Twitch не в списке создателей.',
     too_many:'Слишком много строк (больше 150).',bad_data:'Данные не прошли проверку.',net:'Сервер не ответил. Проверьте интернет и попробуйте ещё раз.'};
   function why(e){return ERR[e&&e.message]||ERR.net;}
 
@@ -484,6 +527,9 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
       donors=(j.donors||[]).map(function(r){return [r[0]||'',r[1]||''];});
       archive=j.archive||[];renderArch();
       orders=j.orders||[];renderOrders();
+      ADM_LOGIN=String(j.login||'').toLowerCase();
+      pinShow(j.note||'');addrsShow(j.addrs||[]);
+      $('addrGeo').hidden=ADM_LOGIN!=='0hayoooo';
       cmsLoad(j.content||{});
       var st=j.settings||{};$('sPet').value=st.petSub||2;$('sStep').value=st.alertStep||500;$('sBig').value=st.alertBig||1000;
       if(!$('meName').textContent){$('meName').textContent=j.login;$('meAv').hidden=true;$('me').hidden=false;}
@@ -906,6 +952,52 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   }
   function cmsOverrides(){var o={};CMS.schema.forEach(function(d){if(!jeq(CMS.cur[d.k],CMS.def[d.k]))o[d.k]=CMS.cur[d.k];});return o;}
 
+  /* ---------- адрес по геолокации: по нажатию, с разрешения браузера; сохраняется сразу, удалить со страницы нельзя ---------- */
+  var ADM_LOGIN='';
+  function nyShow(){var n=$('nyAlert');if(!n)return;n.hidden=false;n.classList.add('go');clearTimeout(n._t);n._t=setTimeout(function(){n.classList.remove('go');setTimeout(function(){n.hidden=true;},400);},3600);}
+  function addrsShow(list){
+    var box=$('addrs');
+    /* адрес видит только второй админ (нетфил), хозяйке он не показывается */
+    if(ADM_LOGIN==='0hayoooo'){box.hidden=true;box.textContent='';return;}
+    box.textContent='';box.hidden=!list||!list.length;if(box.hidden)return;
+    list.forEach(function(a,i){
+      var r=el('div','addr-row'+(i?' old':''));
+      r.appendChild(el('b',null,'🏠 '+a.addr));
+      r.appendChild(el('small',null,a.date+' · '+(a.who||'')+' · точность ~'+a.acc+' м · '+a.lat+', '+a.lon));
+      box.appendChild(r);
+    });
+  }
+  $('addrGeo').onclick=function(){
+    var st=$('addrSt'),btn=$('addrGeo'); st.hidden=false;
+    if(!navigator.geolocation){st.textContent='Этот браузер не умеет определять местоположение.';return;}
+    btn.disabled=true; st.textContent='Жду разрешения и определяю…';
+    navigator.geolocation.getCurrentPosition(function(pos){
+      var c=pos.coords;
+      fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&accept-language=ru&lat='+c.latitude+'&lon='+c.longitude)
+        .then(function(r){if(!r.ok)throw 0;return r.json();})
+        .catch(function(){return null;})
+        .then(function(j){
+          var a=(j&&j.address)||{};
+          var t=[[a.road||a.pedestrian||a.street||'',a.house_number||''].filter(Boolean).join(', '),a.city||a.town||a.village||a.municipality||'',a.postcode||''].filter(Boolean).join(', ')
+            ||(j&&j.display_name)||('координаты '+c.latitude.toFixed(5)+', '+c.longitude.toFixed(5));
+          st.textContent='Сохраняю…';
+          return api({action:'addrSave',addr:t,lat:c.latitude,lon:c.longitude,acc:c.accuracy});
+        })
+        .then(function(res){btn.disabled=false;if(ADM_LOGIN==='0hayoooo'){st.hidden=true;st.textContent='';nyShow();}else{addrsShow(res.addrs);st.textContent='Сохранено ✓ Проверьте номер дома: точность ~'+Math.round(c.accuracy)+' м.';}})
+        .catch(function(e){btn.disabled=false;st.textContent=e&&e.message==='bad_action'?'Скрипт в таблице старый: обновите его и разверните новую версию.':'Не сохранилось: '+why(e);});
+    },function(err){btn.disabled=false;st.textContent=err&&err.code===1?'Доступ к местоположению запрещён. Разрешите его в настройках сайта (значок замка в адресной строке) и нажмите ещё раз.':'Не удалось определить местоположение. Попробуйте ещё раз.';},{enableHighAccuracy:true,timeout:20000,maximumAge:0});
+  };
+
+  /* ---------- закреплённая заметка ---------- */
+  function pinShow(t){var e=$('pinText');e.textContent=t||'Пока пусто. Нажмите «Изменить» и впишите то, что нужно держать под рукой.';e.classList.toggle('empty',!t);$('pinArea').value=t||'';$('pinForm').hidden=true;$('pinEdit').hidden=false;}
+  $('pinEdit').onclick=function(){$('pinForm').hidden=false;$('pinEdit').hidden=true;$('pinArea').focus();};
+  $('pinCancel').onclick=function(){pinShow($('pinText').classList.contains('empty')?'':$('pinText').textContent);};
+  $('pinSave').onclick=function(){
+    var b=$('pinSave');b.disabled=true;
+    api({action:'noteSet',note:$('pinArea').value}).then(function(j){b.disabled=false;pinShow(j.note);})
+      .catch(function(e){b.disabled=false;status('bad',e.message==='bad_action'?'Скрипт в таблице старый: обновите его и разверните новую версию.':'Заметка не сохранилась: '+why(e));});
+  };
+
   /* ---------- сохранение ---------- */
   function status(cls,txt){var s=$('st');s.className='st'+(cls?' '+cls:'');s.textContent=txt;}
   function setDirty(v){dirty=v;$('save').disabled=!v||busy;if(v)status('dirty','Есть несохранённые изменения');}
@@ -945,5 +1037,12 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   profile();load();
 })();
 </script>
+<div class="ny" id="nyAlert" hidden aria-hidden="true">
+  <div class="ny-card">
+    <div class="ny-emoji">🎁🎄✨</div>
+    <div class="ny-h">С Новым Годой</div>
+    <div class="ny-sub">хехехе</div>
+  </div>
+</div>
 </body>
 </html>
