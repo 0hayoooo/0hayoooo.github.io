@@ -103,6 +103,9 @@ input:focus,textarea:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 
 .arow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 14px;padding:12px 14px;border-radius:14px;background:rgba(20,13,37,.88);border:1px solid var(--line)}
 .ainfo{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;min-width:0}
 .aact{display:flex;gap:8px;align-items:center;flex:1 1 360px;max-width:480px}
+.arow.is-del{opacity:.55;border-style:dashed;border-color:rgba(255,90,110,.5)}
+.arow.is-del .ainfo b{text-decoration:line-through}
+.ico.del.armed{width:auto;padding:0 10px;color:var(--red);border-color:var(--red);font:800 12px/1 var(--body)}
 .aact .aadd{flex:0 1 130px;border-color:rgba(61,255,168,.35)}
 .aact input{flex:1;min-width:0;padding:8px 10px;font-size:14px}
 .aact .btn{flex:none}
@@ -196,7 +199,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 
     </section>
 
     <section class="panel" id="pArch" role="tabpanel" aria-labelledby="tArch" hidden>
-      <div class="ph"><p>Кто вылетел из топа или был удалён — с суммой и датой. Додонатил? Слева сумма, которая была (её можно поправить), рядом — сколько додонатил. «Вернуть в топ» — и он встанет на место по общей сумме. После «Сохранить» он уйдёт из архива.</p></div>
+      <div class="ph"><p>Кто вылетел из топа или был удалён — с суммой и датой. Додонатил? Слева сумма, которая была (её можно поправить), рядом — сколько додонатил. «Вернуть в топ» — и он встанет на место по общей сумме. После «Сохранить» он уйдёт из архива. ✕ — удалить запись (тоже после «Сохранить»).</p></div>
       <label class="f search"><span>Поиск по нику</span><input type="search" id="archQ" placeholder="например, reiz" autocomplete="off" spellcheck="false"></label>
       <div class="dlist" id="archList"></div>
     </section>
@@ -305,7 +308,7 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   try{tab(localStorage.getItem('admTab')||'price');}catch(e){}
 
   /* ---------- архив вылетевших ---------- */
-  var archive=[];
+  var archive=[], archDel={};
   $('archQ').addEventListener('input',function(){renderArch();});
   function renderArch(){
     var box=$('archList');box.textContent='';
@@ -325,7 +328,12 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
         var r=[a[0],sum.value.trim()||a[1]];r.add=add.value.trim();archive.splice(i,1);renderArch();
         donors.push(r);setDirty(true);tab('don');renderDon();live(r);
       };
-      act.appendChild(sum);act.appendChild(add);act.appendChild(bt);row.appendChild(act);box.appendChild(row);
+      var marked=!!archDel[a[0].toLowerCase()];
+      row.classList.toggle('is-del',marked);
+      var del=el('button','ico del'+(marked?' armed':''),marked?'Отменить':'✕');del.type='button';
+      del.title=marked?'Не удалять':'Удалить из архива (после «Сохранить»)';del.setAttribute('aria-label',(marked?'Не удалять ':'Удалить ')+a[0]);
+      del.onclick=function(){var k=a[0].toLowerCase();if(archDel[k])delete archDel[k];else archDel[k]=a[0];setDirty(true);renderArch();};
+      act.appendChild(sum);act.appendChild(add);act.appendChild(bt);act.appendChild(del);row.appendChild(act);box.appendChild(row);
     });
     if(!archive.length) box.appendChild(el('p','ph','Архив пуст. Сюда попадут те, кто вылетит из топа после сохранения.'));
     else if(!shown) box.appendChild(el('p','ph','В архиве нет ника «'+$('archQ').value.trim()+'».'));
@@ -440,13 +448,13 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
     applyAdds(donors);renderDon();
     sortDon();var keep=donors.filter(function(r){return r[0].trim();});
     var goneRows=keep.slice(TOP_N).map(function(r){return [r[0],r[1]];}),gone=goneRows.map(function(r){return r[0];});keep=keep.slice(0,TOP_N);
-    api({action:'save',price:price,donors:keep,gone:goneRows}).then(function(j){
-      donors=keep;if(j.archive){archive=j.archive;renderArch();}
+    api({action:'save',price:price,donors:keep,gone:goneRows,archDel:Object.keys(archDel).map(function(k){return [archDel[k]];})}).then(function(j){
+      donors=keep;var nDel=Object.keys(archDel).length;archDel={};if(j.archive){archive=j.archive;}renderArch();
       var oldSrv=!j.archive&&gone.length;
       busy=false;
       price=price.filter(function(r){return r[0].trim();});donors=donors.filter(function(r){return r[0].trim();});
       sortDon();renderPrice();renderDon();setDirty(false);
-      status('ok','Сохранено ✓ На сайте обновится в течение минуты.'+(gone.length?' Из топа ушли: '+gone.join(', ')+'.':'')+(oldSrv?' ВНИМАНИЕ: скрипт в таблице старый, архив не записан — обновите скрипт и разверните новую версию.':'')+(bad?' Пустые строки убраны.':''));
+      status('ok','Сохранено ✓ На сайте обновится в течение минуты.'+(gone.length?' Из топа ушли: '+gone.join(', ')+'.':'')+(nDel?' Удалено из архива: '+nDel+'.':'')+(oldSrv?' ВНИМАНИЕ: скрипт в таблице старый, архив не записан — обновите скрипт и разверните новую версию.':'')+(bad?' Пустые строки убраны.':''));
     }).catch(function(e){
       busy=false;$('save').disabled=false;
       if(e.message==='bad_token'||e.message==='no_token'){
