@@ -721,6 +721,21 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
 /* мини-статистика FACEIT */
 .fc-mini{display:flex;flex-wrap:wrap;gap:6px 14px;font:600 12px/1.3 var(--mono);color:var(--muted)}
 .fc-mini b{font:400 15px/1 var(--display);color:var(--fc,#ffc800);margin-right:3px}
+
+/* ===== топ мурок №4–25: нежные карточки ===== */
+.board{border-top:0;row-gap:8px;column-gap:12px}
+.board li{grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:9px 12px 9px 9px;border:1px solid var(--line);border-radius:14px;
+  background:linear-gradient(90deg,rgba(255,62,165,.08),rgba(176,107,255,.05) 55%,rgba(20,13,37,.6));transition:border-color .2s,box-shadow .2s,transform .15s}
+.board li:hover{border-color:rgba(255,62,165,.6);box-shadow:0 0 18px rgba(255,62,165,.2);transform:translateY(-1px)}
+.board li::before{content:"№" counter(r);display:grid;place-items:center;min-width:46px;height:28px;padding:0 6px;border-radius:999px;
+  font:700 12px/1 var(--mono);color:#ff8cc6;background:rgba(255,62,165,.1);border:1px solid rgba(255,62,165,.4)}
+.board li:nth-child(-n+7){border-color:rgba(255,62,165,.35);background:linear-gradient(90deg,rgba(255,62,165,.16),rgba(176,107,255,.08) 55%,rgba(20,13,37,.6))}
+.board li:nth-child(-n+7)::before{color:#1a0010;background:linear-gradient(135deg,#ff6fb5,#c08bff);border-color:transparent;box-shadow:0 0 10px rgba(255,62,165,.45)}
+.board b{display:flex;align-items:center;gap:6px;font-weight:700;font-size:15px;min-width:0;overflow-wrap:anywhere}
+.board b::before{content:"\2661";color:var(--pink);font-size:14px;text-shadow:0 0 6px rgba(255,62,165,.6)}
+.board span{justify-self:end;text-align:right;font:600 12.5px/1.35 var(--mono);color:var(--yellow);background:rgba(255,210,63,.07);
+  border:1px solid rgba(255,210,63,.3);border-radius:10px;padding:5px 9px;max-width:100%}
+@media (max-width:620px){.board li{grid-template-columns:auto minmax(0,1fr) auto;gap:8px;padding:8px 9px 8px 7px}.board li::before{min-width:40px;height:26px;font-size:11px}.board b{font-size:14px}.board span{max-width:42vw;font-size:11.5px;padding:4px 7px}}
 </style>
 </head>
 <body>
