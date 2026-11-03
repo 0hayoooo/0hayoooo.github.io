@@ -807,6 +807,23 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
 @media (max-width:700px){.pawbg{background:
   linear-gradient(180deg,rgba(11,7,22,.66),rgba(11,7,22,.86)),
   url("fon.jpg") 70% 20%/cover no-repeat}}
+
+/* владелица канала / создатель в профиле */
+.profile.is-owner .pf-txt small{color:var(--yellow);font-weight:800}
+.profile.is-owner{border-color:rgba(255,210,63,.55);box-shadow:0 0 16px rgba(255,210,63,.25)}
+
+/* окно заказа */
+.ord-card{text-align:left}
+.ord-card h2,.ord-card .hello-cat{text-align:center}
+.ord-svc{margin:0;color:var(--muted)}
+.ord-svc b{color:var(--fg)}
+.ord-l{display:grid;gap:6px}
+.ord-l span{font:700 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--cyan)}
+.ord-l input{width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);font:600 15px/1.3 var(--body)}
+.ord-l input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(44,241,255,.15)}
+.ord-who{margin:0;font-size:14px;color:var(--muted)}
+.ord-q{display:block;padding:10px 12px;border-radius:12px;border:1px dashed var(--pink);color:var(--fg);background:rgba(255,62,165,.08);overflow-wrap:anywhere}
+#ordErr{color:#ff6b7d;font-weight:700;min-height:1.2em}
 </style>
 </head>
 <body>
@@ -818,6 +835,20 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
   </defs>
 </svg>
 
+<div class="hello" id="ord" role="dialog" aria-modal="true" aria-labelledby="ordH" hidden>
+  <form class="hello-card ord-card" id="ordForm" novalidate>
+    <div class="hello-cat" aria-hidden="true">ฅ^•ﻌ•^ฅ</div>
+    <h2 id="ordH">Заказ</h2>
+    <p class="ord-svc" id="ordSvc"></p>
+    <label class="ord-l" id="ordL"><span id="ordAsk">Что указать</span><input id="ordText" type="text" maxlength="200" autocomplete="off"></label>
+    <p class="ord-who" id="ordWho"></p>
+    <small id="ordErr" aria-live="polite"></small>
+    <div class="hello-btns">
+      <button type="submit" class="hb-ok" id="ordOk">Отправить заявку</button>
+      <button type="button" class="hb-skip" id="ordCancel">Отмена</button>
+    </div>
+  </form>
+</div>
 <div class="pawbg" aria-hidden="true"></div>
 <header class="topbar">
 <button type="button" class="profile" id="profileBtn" aria-label="Профиль Twitch">
@@ -1316,6 +1347,9 @@ window.SITE_SET_READY=(function(){
     .catch(function(){return window.SITE_SET;});
 })();
 function plPet(n){n=Math.abs(n)%100;var d=n%10;return n>10&&n<20?'поглаживаний':d===1?'поглаживание':d>=2&&d<=4?'поглаживания':'поглаживаний';}
+/* роли: хозяйка канала и создатель сайта (только после входа через Twitch) */
+var РОЛИ={'0hayoooo':'хозяйка канала','netfil0':'создатель сайта'};
+function roleOf(u){return u&&u.login?(РОЛИ[String(u.login).toLowerCase()]||''):'';}
 function twMe(){try{var u=JSON.parse(localStorage.getItem('twUser')||'null');return u&&u.login?u:null;}catch(e){return null;}}
 (function(){
   var pod=document.getElementById('podium'), brd=document.getElementById('board');
@@ -1367,7 +1401,7 @@ function twMe(){try{var u=JSON.parse(localStorage.getItem('twUser')||'null');ret
   /* плашка «моё место в топе» для вошедшего через Twitch */
   function meBanner(list,me,isMe){
     var box=document.getElementById('topMe'); if(!box) return;
-    box.textContent=''; box.hidden=!me; if(!me) return;
+    box.textContent=''; box.hidden=!me||roleOf(me)==='хозяйка канала'; if(box.hidden) return;
     var vals=list.map(function(r){return amount(r[1]);}), idx=-1;
     list.forEach(function(r,k){if(idx<0&&isMe(r[0]))idx=k;});
     var t=el('p'), b=el('b'), msg='';
@@ -1611,12 +1645,60 @@ function twMe(){try{var u=JSON.parse(localStorage.getItem('twUser')||'null');ret
         var need=String(r[5]||'').trim()||('«'+name+'»');
         var nd=el('div','pcard-need'); nd.appendChild(el('small',null,'в донате укажи')); nd.appendChild(el('span',null,need)); c.appendChild(nd);
         var b=el('button','pcard-btn','Заказать'); b.type='button';
-        b.addEventListener('click',function(){toast(need);toDonate();});
+        (function(nm,pr,nd){b.addEventListener('click',function(){orderOpen(nm,pr,nd);});})(name,r[2],need);
         c.appendChild(b); grid.appendChild(c);
       }
     });
     goals.hidden=!goals.children.length;
     var ph=document.getElementById('price-h'); if(ph) ph.innerHTML=goals.children.length?'Прайс <em>и цели</em>':'Мой <em>прайс</em>';
+  }
+  /* ---------- заказ из прайса: заявка в очередь на странице создателя ---------- */
+  var ORD=document.getElementById('ord'), oForm=document.getElementById('ordForm'), oSvc=document.getElementById('ordSvc'),
+      oAsk=document.getElementById('ordAsk'), oText=document.getElementById('ordText'), oWho=document.getElementById('ordWho'),
+      oErr=document.getElementById('ordErr'), oOk=document.getElementById('ordOk'), oCancel=document.getElementById('ordCancel'),
+      oL=document.getElementById('ordL'), oH=document.getElementById('ordH'), oCur=null, oDone=null;
+  var OAPI=(typeof ADMIN_API==='string')?ADMIN_API.trim():'';
+  var OERR={bad_nick:'Не получилось определить ник, войди через Twitch ещё раз.',no_service:'Этой услуги уже нет в прайсе, обнови страницу.',
+    too_fast:'Подожди 20 секунд перед следующей заявкой.',too_many:'У тебя уже 3 заявки в очереди — дождись, пока их выполнят.',queue_full:'Очередь заказов переполнена, попробуй позже.'};
+  function orderOpen(name,price,need){
+    if(!OAPI||!ORD){toast(need);toDonate();return;}
+    oCur={name:name,price:price,need:need};oDone=null;
+    var u=twMe();
+    oH.textContent='Заказ';oSvc.textContent='';
+    var bn=document.createElement('b');bn.textContent=name;oSvc.appendChild(bn);
+    oSvc.appendChild(document.createTextNode(' · '+(money(price)||'договорная')));
+    oAsk.textContent=need.replace(/^«|»$/g,'')||'Комментарий';oText.value='';oText.placeholder='например: Кино — Группа крови';
+    oL.hidden=!u;oErr.textContent='';oOk.disabled=false;oCancel.textContent='Отмена';
+    if(u){oWho.textContent='Заявка уйдёт от '+u.name+'. После неё нужно будет задонатить.';oOk.textContent='Отправить заявку';}
+    else{oWho.textContent='Чтобы заказать, войди через Twitch — ник подставится сам.';oOk.textContent='Войти через Twitch';}
+    ORD.hidden=false;setTimeout(function(){(u?oText:oOk).focus();},50);
+  }
+  function orderClose(){ORD.hidden=true;}
+  if(ORD){
+    oCancel.addEventListener('click',orderClose);
+    ORD.addEventListener('click',function(e){if(e.target===ORD)orderClose();});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!ORD.hidden)orderClose();});
+    oForm.addEventListener('submit',function(e){
+      e.preventDefault();
+      if(oDone){orderClose();toast(oDone);toDonate();return;}
+      var u=twMe();
+      if(!u){orderClose();var pb=document.getElementById('profileBtn');if(pb)pb.click();return;}
+      var t=oText.value.trim();
+      if(!t){oErr.textContent='Напиши, что именно заказываешь.';oText.focus();return;}
+      oOk.disabled=true;oErr.textContent='Отправляю…';
+      fetch(OAPI,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'order',nick:u.login,service:oCur.name,text:t})})
+        .then(function(r){if(!r.ok)throw 0;return r.json();})
+        .then(function(j){
+          if(!j||!j.ok){oOk.disabled=false;oErr.textContent=OERR[j&&j.error]||'Не получилось отправить, попробуй ещё раз.';return;}
+          var ask=(oCur.need.replace(/»$/,'')+': '+t+(/^«/.test(oCur.need)?'»':'')).replace(/^««/,'«');
+          oDone=oCur.name+' — '+t;
+          oH.textContent='Заявка №'+j.id+' принята ♡';oL.hidden=true;oErr.textContent='';
+          oSvc.textContent='Ты '+j.pos+'-й в очереди. Теперь задонать '+(money(j.price)||'')+' и в сообщении напиши:';
+          oWho.textContent='';var q=document.createElement('b');q.className='ord-q';q.textContent=oDone;oWho.appendChild(q);
+          oOk.disabled=false;oOk.textContent='К донату';oCancel.textContent='Закрыть';
+        })
+        .catch(function(){oOk.disabled=false;oErr.textContent='Сервер не ответил, попробуй ещё раз.';});
+    });
   }
   function parseCSV(t){
     var rows=[],row=[],f='',q=false;
@@ -1819,9 +1901,12 @@ document.querySelectorAll('[data-copy]').forEach(function(b){
     /* в режиме входа через Twitch ручной ник не принимаем */
     if(LOGIN&&!getUser()&&nickIn.value) setNick('');
 
+    var pSmall=pBtn.querySelector('.pf-txt small');
     function paint(){
-      var u=LOGIN?getUser():null;
+      var u=LOGIN?getUser():null, role=roleOf(u);
       pNick.textContent=u?u.name:(nickIn.value||'Гость');
+      if(pSmall) pSmall.textContent=role?((role==='создатель сайта'?'♚ ':'♛ ')+role):'Вы вошли как';
+      pBtn.classList.toggle('is-owner',!!role);
       pBtn.classList.toggle('is-guest',!u&&!nickIn.value);
       pBtn.classList.toggle('is-verified',!!u);
       pBtn.classList.toggle('is-follower',!!(u&&u.follows));
@@ -1834,6 +1919,7 @@ document.querySelectorAll('[data-copy]').forEach(function(b){
     function meStats(u){
       var box=document.getElementById('helloMe'); if(!box) return;
       box.textContent=''; box.hidden=!u; if(!u) return;
+      if(roleOf(u)==='хозяйка канала'){box.hidden=true;return;}
       function E(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
       if(u.followedAt){
         var d=new Date(u.followedAt), days=Math.max(0,Math.floor((Date.now()-d.getTime())/864e5));
@@ -1862,7 +1948,12 @@ document.querySelectorAll('[data-copy]').forEach(function(b){
       if(m==='manual'){hh.textContent='Укажите ваш Twitch ник';hp.textContent=HINT;inp.value=edit?nickIn.value:'';}
       if(m==='login'){hh.textContent='Войдите через Twitch';hp.textContent=HINT+' Пароль вводится только на сайте Twitch, этот сайт его не видит.';}
       meStats(m==='account'?u:null);
-      if(m==='account'){hh.textContent='Вы вошли как '+(u?u.name:'');hp.textContent='Аккаунт Twitch подтверждён. Алерты на стриме придут с этим ником.'+(u&&u.follows?' Ты в команде мурканутых ♡':'');}
+      if(m==='account'){
+        var rl=roleOf(u);
+        if(rl==='хозяйка канала'){hh.textContent='Привет, хозяйка ♛';hp.textContent='Ты вошла как владелица канала и сайта. Всё редактируется на странице создателя.';}
+        else if(rl){hh.textContent='Рад вас приветствовать, ♚создатель♚';hp.textContent='Вы вошли как '+u.name+' — создатель сайта. Всё редактируется на странице создателя.';}
+        else{hh.textContent='Вы вошли как '+(u?u.name:'');hp.textContent='Аккаунт Twitch подтверждён. Алерты на стриме придут с этим ником.'+(u&&u.follows?' Ты в команде мурканутых ♡':'');}
+      }
       skip.textContent=m==='account'?'Закрыть':(edit?'Отмена':'Пропустить');
       box.hidden=false;
       setTimeout(function(){(m==='manual'?inp:m==='login'?twb:skip).focus();if(m==='manual')inp.select();},50);
@@ -1923,6 +2014,7 @@ document.querySelectorAll('[data-copy]').forEach(function(b){
     function renderFollow(){
       if(!cta) return;
       var u=LOGIN?getUser():null;
+      if(u&&roleOf(u)==='хозяйка канала'){cta.textContent='';cta.classList.add('is-in');var hh2=document.createElement('span');hh2.className='fol-heart';hh2.textContent='♛';cta.appendChild(hh2);cta.appendChild(document.createTextNode(' Это твой канал, хозяйка. Все мурканутые — твои ♡'));return;}
       if(!u||u.follows===undefined){cta.innerHTML=ctaHTML;cta.classList.remove('is-in');return;}
       cta.textContent='';
       if(u.follows){
