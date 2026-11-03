@@ -92,13 +92,32 @@ input:focus,textarea:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 
 
 /* донатеры */
 .dlist{display:grid;gap:8px}
-.drow{display:grid;grid-template-columns:48px minmax(0,1fr) minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px;border-radius:14px;background:rgba(20,13,37,.88);border:1px solid var(--line)}
+.drow{display:grid;grid-template-columns:48px minmax(0,1fr) minmax(0,1fr) 130px auto;gap:8px;align-items:center;padding:8px;border-radius:14px;background:rgba(20,13,37,.88);border:1px solid var(--line)}
 .drow:focus-within{border-color:rgba(255,62,165,.55)}
 .num{display:grid;place-items:center;height:34px;border-radius:999px;font:700 12px/1 var(--mono);color:#0b0716;background:var(--cyan)}
-.drow:nth-child(1) .num{background:var(--yellow)}
-.drow:nth-child(2) .num,.drow:nth-child(3) .num{background:var(--pink)}
+.num.r1{background:var(--yellow)}
+.num.out{background:var(--line);color:var(--red);font-size:11px}
+.drow.is-out{opacity:.6;border-style:dashed;border-color:rgba(255,90,110,.5)}
+.drow.moved{animation:mv 1.6s ease-out}
+@keyframes mv{0%{box-shadow:0 0 0 2px var(--yellow),0 0 26px rgba(255,210,63,.6)}100%{box-shadow:0 0 0 0 transparent}}
+.arow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 14px;padding:12px 14px;border-radius:14px;background:rgba(20,13,37,.88);border:1px solid var(--line)}
+.ainfo{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;min-width:0}
+.aact{display:flex;gap:8px;align-items:center;flex:1 1 360px;max-width:480px}
+.aact .aadd{flex:0 1 130px;border-color:rgba(61,255,168,.35)}
+.aact input{flex:1;min-width:0;padding:8px 10px;font-size:14px}
+.aact .btn{flex:none}
+.ainfo b{font-weight:800;overflow-wrap:anywhere}
+.asum{font:700 13px/1.3 var(--mono);color:var(--yellow)}
+.ainfo small{flex-basis:100%;font:600 12px/1.3 var(--mono);color:var(--muted)}
+.search{max-width:360px}
+.warn{padding:10px 14px;border-radius:12px;border:1px solid rgba(255,90,110,.5);background:rgba(255,90,110,.08);color:var(--red);font-weight:700;font-size:14px}
+.num.r23{background:var(--pink)}
 .drow .ctl{flex-direction:row}
 .sumv{font:700 11px/1 var(--mono);color:var(--muted);padding-left:2px}
+.sumv.plus{color:var(--green)}
+.drow .add input{border-color:rgba(61,255,168,.35)}
+.drow .add input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(61,255,168,.15)}
+.drow .add{align-self:start}
 
 /* полоса сохранения */
 .bar{position:fixed;left:0;right:0;bottom:0;z-index:20;padding-bottom:env(safe-area-inset-bottom,0px);background:rgba(11,7,22,.92);border-top:1px solid var(--line);backdrop-filter:blur(10px)}
@@ -113,9 +132,12 @@ input:focus,textarea:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 
   .prow{grid-template-columns:minmax(0,1fr);padding:13px}
   .pf{grid-template-columns:minmax(0,1fr) 110px}
   .prow .ctl{flex-direction:row;justify-content:flex-end}
-  .drow{grid-template-columns:40px minmax(0,1fr) auto}
+  .drow{grid-template-columns:40px minmax(0,1fr) 96px auto}
+  .drow>.f:nth-child(2){grid-column:2/4}
   .drow .sum{grid-column:2/3}
-  .drow .ctl{grid-row:1/3;grid-column:3;flex-direction:column}
+  .drow .add{grid-column:3/4}
+  .drow .ctl{grid-row:1/3;grid-column:4;flex-direction:column}
+  .aact{flex-wrap:wrap}
   .num{grid-row:1/3}
 }
 </style>
@@ -153,6 +175,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" id="tPrice" aria-selected="true" aria-controls="pPrice" type="button">Прайс<i id="cPrice"></i></button>
       <button class="tab" role="tab" id="tDon" aria-selected="false" aria-controls="pDon" type="button">Топ донатеров<i id="cDon"></i></button>
+      <button class="tab" role="tab" id="tArch" aria-selected="false" aria-controls="pArch" type="button">Архив<i id="cArch"></i></button>
     </div>
 
     <section class="panel" id="pPrice" role="tabpanel" aria-labelledby="tPrice">
@@ -165,13 +188,17 @@ input:focus,textarea:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 
 
     <section class="panel" id="pDon" role="tabpanel" aria-labelledby="tDon" hidden>
       <div class="ph">
-        <p>Порядок строк = место в топе, первые три встают на пьедестал. Сумма пишется как на сайте: «12&nbsp;000&nbsp;₽», «108&nbsp;€ (10&nbsp;667&nbsp;₽)».</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn-line btn-sm" id="sortDon" type="button">Сортировать по сумме</button>
-          <button class="btn btn-line btn-sm" id="addDon" type="button">+ Донатер</button>
-        </div>
+        <p>В топе 25 мест. Впишите сумму или прибавьте донат в поле «+&nbsp;Додонатил» — итог посчитается сам и после сохранения встанет в «Сумму». Строки сами встают по сумме, кто ниже №25 — уходит в архив.</p>
+        <button class="btn btn-line btn-sm" id="addDon" type="button">+ Донатер</button>
       </div>
+      <div class="warn" id="outWarn" role="status" hidden></div>
       <div class="dlist" id="donList"></div>
+    </section>
+
+    <section class="panel" id="pArch" role="tabpanel" aria-labelledby="tArch" hidden>
+      <div class="ph"><p>Кто вылетел из топа или был удалён — с суммой и датой. Додонатил? Слева сумма, которая была (её можно поправить), рядом — сколько додонатил. «Вернуть в топ» — и он встанет на место по общей сумме. После «Сохранить» он уйдёт из архива.</p></div>
+      <label class="f search"><span>Поиск по нику</span><input type="search" id="archQ" placeholder="например, reiz" autocomplete="off" spellcheck="false"></label>
+      <div class="dlist" id="archList"></div>
     </section>
   </main>
 </div>
@@ -187,6 +214,8 @@ input:focus,textarea:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 
 <script>
 /* ======================= НАСТРОЙКИ ======================= */
 /* Ссылка на веб-приложение Apps Script (…/exec) */
+/* Сколько мест в топе донатеров */
+var TOP_N = 25;
 var ADMIN_API = "https://script.google.com/macros/s/AKfycbxIjfVKwAF2RIsGP-qLkeeWuPJZ2a8P3Z6lfRuKrODdMnXJqtpri7ClBkAsvFoLAg83Cg/exec";
 var TWITCH_CLIENT_ID = "8ugmffobf6zb73tkl5bdp2d028xadn";
 /* Адрес этой страницы ровно как в «OAuth Redirect URLs» на dev.twitch.tv */
@@ -200,8 +229,8 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;}
 
   var TOK='', price=[], donors=[], dirty=false, busy=false;
-  function getTok(){try{return sessionStorage.getItem('admTok')||'';}catch(e){return '';}}
-  function setTok(t){TOK=t||'';try{t?sessionStorage.setItem('admTok',t):sessionStorage.removeItem('admTok');}catch(e){}}
+  function getTok(){try{return localStorage.getItem('admTok')||'';}catch(e){return '';}}
+  function setTok(t){TOK=t||'';try{t?localStorage.setItem('admTok',t):localStorage.removeItem('admTok');}catch(e){}}
   function revoke(t){if(!t)return;try{fetch('https://id.twitch.tv/oauth2/revoke',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'client_id='+encodeURIComponent(CID)+'&token='+encodeURIComponent(t)}).catch(function(){});}catch(e){}}
 
   function api(body){
@@ -219,7 +248,7 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
     var st='';try{var a=new Uint8Array(16);crypto.getRandomValues(a);st=Array.prototype.map.call(a,function(x){return('0'+x.toString(16)).slice(-2);}).join('');}catch(e){st=String(Math.random()).slice(2);}
     try{sessionStorage.setItem('admState',st);}catch(e){}
     location.href='https://id.twitch.tv/oauth2/authorize?client_id='+encodeURIComponent(CID)+'&redirect_uri='+encodeURIComponent(ADMIN_URL)+
-      '&response_type=token&scope=&force_verify=true&state='+encodeURIComponent(st);
+      '&response_type=token&scope=&state='+encodeURIComponent(st);
   }
   function fromHash(){
     var h=location.hash.replace(/^#/,''); if(!/access_token=|error=/.test(h)) return null;
@@ -243,14 +272,19 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
     api({action:'load'}).then(function(j){
       price=(j.price||[]).map(function(r){return [r[1]||'',r[2]||'',r[4]||'',r[5]||''];});
       donors=(j.donors||[]).map(function(r){return [r[0]||'',r[1]||''];});
+      archive=j.archive||[];renderArch();
       if(!$('meName').textContent){$('meName').textContent=j.login;$('meAv').hidden=true;$('me').hidden=false;}
       var dr=null;try{dr=JSON.parse(sessionStorage.getItem('admDraft')||'null');sessionStorage.removeItem('admDraft');}catch(e){}
       if(dr&&dr.price&&dr.donors){price=dr.price;donors=dr.donors;}
-      renderPrice();renderDon();setDirty(!!dr);show('sEdit');
+      try{sessionStorage.removeItem('admAuto');}catch(x){}
+      sortDon();renderPrice();renderDon();setDirty(!!dr);show('sEdit');
       if(dr) status('dirty','Вернул несохранённые правки. Нажмите «Сохранить».');
     }).catch(function(e){
       if(e.message==='forbidden'){revoke(TOK);setTok('');$('me').hidden=true;show('sDenied');return;}
-      if(e.message==='bad_token'||e.message==='no_token'){setTok('');$('me').hidden=true;show('sLogin');$('loginErr').textContent=why(e);return;}
+      if(e.message==='bad_token'||e.message==='no_token'){setTok('');$('me').hidden=true;
+        var tried=false;try{tried=sessionStorage.getItem('admAuto')==='1';sessionStorage.setItem('admAuto','1');}catch(x){tried=true;}
+        if(!tried){show('sLoad');$('loadTxt').textContent='Обновляю вход через Twitch…';startLogin();return;}
+        show('sLogin');$('loginErr').textContent=why(e);return;}
       show('sLoad');$('loadTxt').textContent=why(e)+' ';var b=el('button','btn btn-line btn-sm','Повторить');b.type='button';b.onclick=load;$('loadTxt').appendChild(b);
     });
   }
@@ -259,15 +293,44 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   $('logout').onclick=function(){if(dirty&&!window.confirm('Есть несохранённые изменения. Всё равно выйти?'))return;revoke(TOK);setTok('');dirty=false;$('me').hidden=true;$('meName').textContent='';show('sLogin');};
 
   /* ---------- вкладки ---------- */
+  var TABS={price:['tPrice','pPrice'],don:['tDon','pDon'],arch:['tArch','pArch']};
   function tab(which){
-    var p=which==='price';
-    $('tPrice').setAttribute('aria-selected',p);$('tDon').setAttribute('aria-selected',!p);
-    $('pPrice').hidden=!p;$('pDon').hidden=p;
+    if(!TABS[which]) which='price';
+    Object.keys(TABS).forEach(function(k){$(TABS[k][0]).setAttribute('aria-selected',k===which);$(TABS[k][1]).hidden=k!==which;});
     try{localStorage.setItem('admTab',which);}catch(e){}
   }
   $('tPrice').onclick=function(){tab('price');};
   $('tDon').onclick=function(){tab('don');};
-  try{if(localStorage.getItem('admTab')==='don')tab('don');}catch(e){}
+  $('tArch').onclick=function(){tab('arch');};
+  try{tab(localStorage.getItem('admTab')||'price');}catch(e){}
+
+  /* ---------- архив вылетевших ---------- */
+  var archive=[];
+  $('archQ').addEventListener('input',function(){renderArch();});
+  function renderArch(){
+    var box=$('archList');box.textContent='';
+    var q=$('archQ').value.trim().toLowerCase(), shown=0;
+    archive.forEach(function(a,i){
+      if(q&&String(a[0]).toLowerCase().indexOf(q)<0) return;
+      shown++;
+      var row=el('div','arow');
+      var info=el('div','ainfo');info.appendChild(el('b',null,a[0]));info.appendChild(el('span','asum','было '+a[1]));
+      info.appendChild(el('small',null,[a[2],a[3],a[4]?'убрал '+a[4]:''].filter(Boolean).join(' · ')));
+      row.appendChild(info);
+      var act=el('div','aact'),sum=el('input'),add=el('input');sum.type=add.type='text';sum.value=a[1];sum.maxLength=add.maxLength=300;
+      sum.setAttribute('aria-label','Было у '+a[0]);add.setAttribute('aria-label','Додонатил '+a[0]);add.placeholder='+ додонатил';add.inputMode='numeric';add.className='aadd';
+      var bt=el('button','btn btn-line btn-sm','Вернуть в топ');bt.type='button';
+      [sum,add].forEach(function(x){x.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();bt.click();}});});
+      bt.onclick=function(){
+        var r=[a[0],sum.value.trim()||a[1]];r.add=add.value.trim();archive.splice(i,1);renderArch();
+        donors.push(r);setDirty(true);tab('don');renderDon();live(r);
+      };
+      act.appendChild(sum);act.appendChild(add);act.appendChild(bt);row.appendChild(act);box.appendChild(row);
+    });
+    if(!archive.length) box.appendChild(el('p','ph','Архив пуст. Сюда попадут те, кто вылетит из топа после сохранения.'));
+    else if(!shown) box.appendChild(el('p','ph','В архиве нет ника «'+$('archQ').value.trim()+'».'));
+    $('cArch').textContent=archive.length||'';
+  }
 
   /* ---------- общие кнопки строк ---------- */
   function ctl(list,i,rerender,noMove){
@@ -283,6 +346,7 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
     if(opts&&opts.area)inp.rows=2; else inp.type='text';
     inp.value=val; inp.maxLength=300; if(opts&&opts.ph)inp.placeholder=opts.ph; if(opts&&opts.mode)inp.inputMode=opts.mode;
     inp.addEventListener('input',function(){onIn(inp.value);setDirty(true);});
+    if(opts&&opts.onChange) inp.addEventListener('change',opts.onChange);
     l.appendChild(s);l.appendChild(inp);return l;
   }
   function refocus(box,idx,kind){
@@ -313,21 +377,59 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   function renderDon(fi,kind){
     var box=$('donList');box.textContent='';
     donors.forEach(function(r,i){
-      var row=el('div','drow');
-      row.appendChild(el('div','num','№'+(i+1)));
+      var row=el('div','drow');row._r=r;
+      row.appendChild(el('div','num'));
       row.appendChild(field('Ник',r[0],function(v){r[0]=v;},{ph:'ник'}));
-      var sf=field('Сумма',r[1],function(v){r[1]=v;hint.textContent=amount(v)?'в топе считается: '+amount(v).toLocaleString('ru-RU')+' ₽':'нет суммы в ₽';},{ph:'1 000 ₽'});
-      sf.className+=' sum';
-      var hint=el('small','sumv',amount(r[1])?'в топе считается: '+amount(r[1]).toLocaleString('ru-RU')+' ₽':'нет суммы в ₽');sf.appendChild(hint);
-      row.appendChild(sf);
-      row.appendChild(ctl(donors,i,renderDon));box.appendChild(row);
+      var hint=el('small','sumv');
+      function upd(){var t=total(r),a=num(r.add);hint.textContent=!t?'нет суммы в ₽':a?'итого станет: '+fmt(t):'в топе считается: '+fmt(t);hint.classList.toggle('plus',!!a);}
+      var sf=field('Сумма',r[1],function(v){r[1]=v;ranks();upd();},{ph:'1 000 ₽',onChange:function(){live(r);}});
+      sf.className+=' sum';sf.appendChild(hint);
+      var af=field('+ Додонатил',r.add||'',function(v){r.add=v;ranks();upd();},{ph:'0',mode:'numeric',onChange:function(){live(r);}});
+      af.className+=' add';
+      upd();row.appendChild(sf);row.appendChild(af);
+      row.appendChild(ctl(donors,i,renderDon,true));box.appendChild(row);
     });
     if(!donors.length) box.appendChild(el('p','ph','Список пуст.'));
-    $('cDon').textContent=donors.length;
+    $('cDon').textContent=donors.length; ranks();
     if(fi!=null) refocus(box,fi,kind);
   }
   $('addDon').onclick=function(){donors.push(['','']);setDirty(true);renderDon(donors.length-1,'new');$('donList').lastChild.scrollIntoView({block:'center',behavior:'smooth'});};
-  $('sortDon').onclick=function(){donors=donors.map(function(r,i){return {r:r,i:i,v:amount(r[1])};}).sort(function(a,b){return b.v-a.v||a.i-b.i;}).map(function(x){return x.r;});setDirty(true);renderDon();};
+  /* суммы: «17777» = 17 777 ₽; «+ додонатил» прибавляется к сумме при сохранении */
+  function num(s){var d=String(s==null?'':s).replace(/[^\d]/g,'');return d?parseInt(d,10):0;}
+  function fmt(n){return n.toLocaleString('ru-RU').replace(/\u00a0/g,' ')+' ₽';}
+  var PLAIN=/^\s*\d[\d\s\u00a0]*\s*(₽|р\.?|руб\.?)?\s*$/i;
+  function rub(s){return PLAIN.test(String(s))?num(s):amount(s);}
+  function total(r){return rub(r[1])+num(r.add);}
+  function combine(sum,add){
+    sum=String(sum||'').trim();
+    if(!sum||PLAIN.test(sum)) return fmt(num(sum)+add);
+    var m=sum.match(/^(\d[\d\s\u00a0]*)\s*₽/); if(m) return fmt(num(m[1])+add)+sum.slice(m[0].length);
+    return sum+' + '+fmt(add);
+  }
+  /* перед сохранением: прибавляем додонаты, «17777» превращаем в «17 777 ₽» */
+  function applyAdds(list){list.forEach(function(r){var a=num(r.add);if(a>0)r[1]=combine(r[1],a);else if(PLAIN.test(r[1])&&num(r[1]))r[1]=fmt(num(r[1]));r.add='';});}
+  function sortDon(){donors=donors.map(function(r,i){return {r:r,i:i,v:total(r)};}).sort(function(a,b){return b.v-a.v||a.i-b.i;}).map(function(x){return x.r;});}
+  /* место в топе по сумме (как на сайте); кто ниже №TOP_N — вылетит из топа при сохранении */
+  function ranks(){var nums=$('donList').querySelectorAll('.num');var o=donors.map(function(r,i){return {i:i,v:total(r)};}).sort(function(a,b){return b.v-a.v||a.i-b.i;});
+    o.forEach(function(x,k){var n=nums[x.i];if(!n)return;var out=k>=TOP_N;n.textContent=out?'вне':'№'+(k+1);n.title=out?'не помещается в топ-'+TOP_N+', при сохранении удалится':'';
+      n.className='num'+(out?' out':k===0?' r1':k<3?' r23':'');n.parentNode.classList.toggle('is-out',out);});
+    var cnt=Math.max(0,donors.filter(function(r){return r[0].trim();}).length-TOP_N);
+    var w=$('outWarn'); if(w){w.hidden=!cnt;w.textContent=cnt?('При сохранении из топа уйдут нижние: '+cnt+'. В топе остаётся '+TOP_N+' мест.'):'';}}
+  /* сумму дописали (ушли из поля или нажали Enter) — строка сразу встаёт на своё место */
+  function live(r){
+    setTimeout(function(){
+      var a=document.activeElement, ar=a&&a.closest?a.closest('.drow'):null, ao=ar?ar._r:null, ai=ar?Array.prototype.indexOf.call(ar.querySelectorAll('input'),a):-1;
+      var before=donors.indexOf(r); sortDon(); var after=donors.indexOf(r);
+      if(before===after) return;
+      renderDon();
+      var rows=$('donList').children;
+      for(var k=0;k<rows.length;k++){
+        if(ao&&rows[k]._r===ao&&ai>=0){var t=rows[k].querySelectorAll('input')[ai];if(t)t.focus({preventScroll:true});}
+        if(rows[k]._r===r){var row=rows[k];row.classList.add('moved');setTimeout(function(){row.classList.remove('moved');},1600);if(!ao)row.scrollIntoView({block:'center',behavior:'smooth'});}
+      }
+      if(r[0].trim()) status('dirty',r[0].trim()+' → '+(after<TOP_N?'№'+(after+1):'вне топа')+'. Не забудьте «Сохранить».');
+    },0);
+  }
 
   /* ---------- сохранение ---------- */
   function status(cls,txt){var s=$('st');s.className='st'+(cls?' '+cls:'');s.textContent=txt;}
@@ -335,11 +437,15 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   $('save').onclick=function(){
     var bad=price.filter(function(r){return !r[0].trim();}).length+donors.filter(function(r){return !r[0].trim();}).length;
     busy=true;$('save').disabled=true;status('','Сохраняю…');
-    api({action:'save',price:price,donors:donors}).then(function(j){
+    applyAdds(donors);renderDon();
+    sortDon();var keep=donors.filter(function(r){return r[0].trim();});
+    var gone=keep.slice(TOP_N).map(function(r){return r[0];});keep=keep.slice(0,TOP_N);
+    api({action:'save',price:price,donors:keep,gone:gone.map(function(g){return [g];})}).then(function(j){
+      donors=keep;if(j.archive){archive=j.archive;renderArch();}
       busy=false;
       price=price.filter(function(r){return r[0].trim();});donors=donors.filter(function(r){return r[0].trim();});
-      renderPrice();renderDon();setDirty(false);
-      status('ok','Сохранено ✓ На сайте обновится в течение минуты.'+(bad?' Пустые строки без названия/ника убраны.':''));
+      sortDon();renderPrice();renderDon();setDirty(false);
+      status('ok','Сохранено ✓ На сайте обновится в течение минуты.'+(gone.length?' Из топа ушли: '+gone.join(', ')+'.':'')+(bad?' Пустые строки убраны.':''));
     }).catch(function(e){
       busy=false;$('save').disabled=false;
       if(e.message==='bad_token'||e.message==='no_token'){
