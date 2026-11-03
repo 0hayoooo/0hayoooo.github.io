@@ -761,6 +761,16 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
 .price-grid .pcard{flex:0 0 calc((100% - 24px)/3);max-width:calc((100% - 24px)/3)}
 @media (max-width:900px){.price-grid .pcard{flex-basis:calc((100% - 12px)/2);max-width:calc((100% - 12px)/2)}}
 @media (max-width:620px){.price-grid .pcard{flex-basis:100%;max-width:100%}}
+
+/* подписка на канал: «ты уже в команде» / «стать мурканутым» */
+.goal-cta.is-in{color:var(--fg)}
+.fol-heart{color:var(--pink);text-shadow:0 0 10px var(--pink)}
+.fol-row{display:inline-flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.fol-btn,.fol-check{font:800 14px/1 var(--body);border-radius:12px;padding:11px 16px;cursor:pointer;text-decoration:none}
+.goal-cta .fol-btn{color:#fff;background:#9146ff;text-decoration:none;text-shadow:none;box-shadow:0 0 18px rgba(145,70,255,.55)}
+.goal-cta .fol-btn:hover{filter:brightness(1.12);color:#fff}
+.fol-check{color:var(--cyan);background:transparent;border:1.5px solid var(--cyan)}
+.profile.is-verified.is-follower .pf-txt b::after{content:" \2713 \2661"}
 </style>
 </head>
 <body>
@@ -1181,11 +1191,10 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
    тип «цель»: цена — сколько нужно собрать, собрано — сколько уже есть. */
 /* ЖИВАЯ ЦЕЛЬ CLOUDTIPS: ссылка на виджет «Сбор» (как в OBS) и ссылка для доната.
    Виджет показывается в первой цели из прайса; если ссылки нет, рисуется своя полоса по таблице. */
-var ЦЕЛЬ_CLOUDTIPS = "https://stream.cloudtips.ru/t/BIvyiLrXMf592rtosd6V";
+var ЦЕЛЬ_CLOUDTIPS = "";
 var ЦЕЛЬ_ДОНАТ = "https://pay.cloudtips.ru/p/7250e315";
 var ПРАЙС_ТАБЛИЦА = "";
 var ПРАЙС = [
-  ["цель", "На новий компик для мурки :3", "133333", "21111", "", "«на компик»"],
   ["прайс", "Показать сердечко лично для тебя", "50", "", "сердечко в камеру только для тебя ♡", "«сердечко» и свой ник"],
   ["прайс", "Заказ трека", "100", "", "включу на стриме", "название трека и исполнителя"],
   ["прайс", "1 раунд с ножом / зевсом", "150", "", "целый раунд играю только ножом или зевсом", "«нож» или «зевс»"],
@@ -1717,6 +1726,7 @@ document.querySelectorAll('[data-copy]').forEach(function(b){
       pNick.textContent=u?u.name:(nickIn.value||'Гость');
       pBtn.classList.toggle('is-guest',!u&&!nickIn.value);
       pBtn.classList.toggle('is-verified',!!u);
+      pBtn.classList.toggle('is-follower',!!(u&&u.follows));
       pAv.textContent='';
       if(u&&u.avatar){var im=document.createElement('img');im.src=u.avatar;im.alt='';pAv.appendChild(im);}else pAv.textContent='ฅ';
     }
@@ -1729,7 +1739,7 @@ document.querySelectorAll('[data-copy]').forEach(function(b){
       twb.disabled=false;
       if(m==='manual'){hh.textContent='Укажите ваш Twitch ник';hp.textContent=HINT;inp.value=edit?nickIn.value:'';}
       if(m==='login'){hh.textContent='Войдите через Twitch';hp.textContent=HINT+' Пароль вводится только на сайте Twitch, этот сайт его не видит.';}
-      if(m==='account'){hh.textContent='Вы вошли как '+(u?u.name:'');hp.textContent='Аккаунт Twitch подтверждён. Алерты на стриме придут с этим ником.';}
+      if(m==='account'){hh.textContent='Вы вошли как '+(u?u.name:'');hp.textContent='Аккаунт Twitch подтверждён. Алерты на стриме придут с этим ником.'+(u&&u.follows?' Ты в команде мурканутых ♡':'');}
       skip.textContent=m==='account'?'Закрыть':(edit?'Отмена':'Пропустить');
       box.hidden=false;
       setTimeout(function(){(m==='manual'?inp:m==='login'?twb:skip).focus();if(m==='manual')inp.select();},50);
@@ -1743,7 +1753,7 @@ document.querySelectorAll('[data-copy]').forEach(function(b){
       twb.disabled=true;
       location.href='https://id.twitch.tv/oauth2/authorize?'+
         'client_id='+encodeURIComponent(CID)+'&redirect_uri='+encodeURIComponent(SITE)+
-        '&response_type=token&scope=&state='+encodeURIComponent(st);
+        '&response_type=token&scope=user%3Aread%3Afollows&state='+encodeURIComponent(st);
     }
     function finishLogin(){
       var h=location.hash.replace(/^#/,''); if(!/access_token=|error=/.test(h)) return false;
@@ -1759,8 +1769,14 @@ document.querySelectorAll('[data-copy]').forEach(function(b){
         .then(function(j){
           var d=j&&j.data&&j.data[0]; if(!d||!d.login) throw 0;
           var name=/^[A-Za-z0-9_]{1,25}$/.test(d.display_name||'')?d.display_name:d.login;
-          setUser({id:d.id,login:d.login,name:name,avatar:d.profile_image_url||''});
-          setNick(d.login); paint(); close();
+          var u0={id:d.id,login:d.login,name:name,avatar:d.profile_image_url||''};
+          return fetch('https://api.twitch.tv/helix/channels/followed?user_id='+encodeURIComponent(d.id)+'&broadcaster_id=1002649611',{headers:{'Authorization':'Bearer '+tok,'Client-Id':CID}})
+            .then(function(r){return r.ok?r.json():null;})
+            .catch(function(){return null;})
+            .then(function(f){
+              if(f&&f.data) u0.follows=f.data.length>0;
+              setUser(u0); setNick(d.login); paint(); close(); renderFollow();
+            });
         })
         .catch(function(){twb.disabled=false;err.textContent='Twitch не ответил, попробуй ещё раз.';})
         .then(function(){
@@ -1770,7 +1786,29 @@ document.querySelectorAll('[data-copy]').forEach(function(b){
       return true;
     }
 
-    paint();
+    /* блок «Команда мурканутых»: что видит вошедший зритель */
+    var cta=document.querySelector('.goal-cta'), ctaHTML=cta?cta.innerHTML:'';
+    function renderFollow(){
+      if(!cta) return;
+      var u=LOGIN?getUser():null;
+      if(!u||u.follows===undefined){cta.innerHTML=ctaHTML;cta.classList.remove('is-in');return;}
+      cta.textContent='';
+      if(u.follows){
+        cta.classList.add('is-in');
+        var h=document.createElement('span');h.className='fol-heart';h.textContent='♡';cta.appendChild(h);
+        cta.appendChild(document.createTextNode(' '+u.name+', ты уже в команде мурканутых, спасибо!'));
+        return;
+      }
+      cta.classList.remove('is-in');
+      cta.appendChild(document.createTextNode(u.name+', ты ещё не в команде мурканутых '));
+      var row=document.createElement('span');row.className='fol-row';
+      var a=document.createElement('a');a.className='fol-btn';a.href='https://www.twitch.tv/0hayoooo';a.target='_blank';a.rel='noopener';a.textContent='Стать мурканутым';
+      var chk=document.createElement('button');chk.type='button';chk.className='fol-check';chk.textContent='Я подписался — проверить';chk.hidden=true;
+      a.addEventListener('click',function(){chk.hidden=false;});
+      chk.addEventListener('click',startLogin);
+      row.appendChild(a);row.appendChild(chk);cta.appendChild(row);
+    }
+    paint(); renderFollow();
     var handled=LOGIN&&finishLogin();
     var skipped=false; try{skipped=sessionStorage.getItem('helloSkip')==='1';}catch(e){}
     if(!handled&&!skipped){
@@ -1781,7 +1819,7 @@ document.querySelectorAll('[data-copy]').forEach(function(b){
       if(LOGIN) open(getUser()?'account':'login',true); else open('manual',true);
     });
     twb.addEventListener('click',startLogin);
-    out.addEventListener('click',function(){setUser(null);setNick('');paint();close();});
+    out.addEventListener('click',function(){setUser(null);setNick('');paint();close();renderFollow();});
     inp.addEventListener('input',function(){
       var c=inp.value.replace(/[^A-Za-z0-9_]/g,'').slice(0,25);
       err.textContent=(c!==inp.value)?'Только латиница, цифры и _ (как на Twitch)':'';
