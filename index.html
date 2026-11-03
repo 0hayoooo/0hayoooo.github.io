@@ -799,6 +799,14 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
 .profile.is-verified.is-sub .pf-txt b::after{content:" \265B";color:var(--yellow)}
 .profile.is-verified.is-follower.is-sub .pf-txt b::after{content:" \2661 \265B";color:var(--yellow)}
 .pet-bonus{display:block;margin-top:4px;font:800 13px/1.3 var(--body);color:var(--yellow);text-shadow:0 0 10px rgba(255,210,63,.4)}
+
+/* ===== фон сайта: арт 0hayoooo (fon.jpg рядом с index.html), на весь экран без полос ===== */
+.pawbg{opacity:1;background:
+  linear-gradient(180deg,rgba(11,7,22,.70),rgba(11,7,22,.80) 45%,rgba(11,7,22,.90)),
+  url("fon.jpg") 72% 30%/cover no-repeat}
+@media (max-width:700px){.pawbg{background:
+  linear-gradient(180deg,rgba(11,7,22,.66),rgba(11,7,22,.86)),
+  url("fon.jpg") 70% 20%/cover no-repeat}}
 </style>
 </head>
 <body>
@@ -1754,8 +1762,11 @@ document.querySelectorAll('[data-copy]').forEach(function(b){
   }
 
   var S=window.SITE_SET||{petSub:2,alertStep:500};
-  function bonus(){var u=twMe();return u&&u.sub?Math.max(1,S.petSub|0):1;}
-  window.petBonusRefresh=function(){var b=document.getElementById('petBonus'),k=bonus();if(b){b.hidden=k<2;b.textContent='♛ саб-бонус: 1 клик = '+k+' '+plPet(k);}
+  /* создатели (вошедшие через Twitch) всегда получают саб-бонус — чтобы проверять его самим */
+  var CREATORS=['netfil0','0hayoooo'];
+  function isCreator(u){return !!(u&&CREATORS.indexOf(String(u.login||'').toLowerCase())>=0);}
+  function bonus(){var u=twMe();return u&&(u.sub||isCreator(u))?Math.max(1,S.petSub|0):1;}
+  window.petBonusRefresh=function(){var b=document.getElementById('petBonus'),k=bonus();if(b){b.hidden=k<2;var u=twMe();b.textContent=(u&&!u.sub&&isCreator(u)?'♛ бонус создателя (как у сабов): ':'♛ саб-бонус: ')+'1 клик = '+k+' '+plPet(k);}
     var st=document.getElementById('petStep');if(st)st.textContent=S.alertStep.toLocaleString('ru-RU');};
   if(window.SITE_SET_READY)window.SITE_SET_READY.then(function(x){S=x;window.petBonusRefresh();});
   window.petBonusRefresh();
