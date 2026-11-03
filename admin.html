@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>0hayoooo · создатель</title>
+<meta name="theme-color" content="#0b0716">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0716'/%3E%3Cpath d='M20 44l4-22 8 10 8-10 4 22z' fill='none' stroke='%23ffd23f' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&family=Manrope:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{
+  --bg:#0b0716; --surface:#140d25; --surface2:#1b1231; --line:#2b2048; --fg:#f3ecff; --muted:#a99cc9;
+  --pink:#ff3ea5; --cyan:#2cf1ff; --yellow:#ffd23f; --red:#ff5a6e; --green:#3dffa8;
+  --display:"Russo One","Arial Black",system-ui,sans-serif;
+  --body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 var(--body);
+  background-image:radial-gradient(50rem 26rem at 90% -10%,rgba(255,62,165,.16),transparent 60%),
+    radial-gradient(40rem 26rem at -10% 40%,rgba(44,241,255,.08),transparent 60%),
+    linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:auto,auto,32px 32px,32px 32px;background-attachment:fixed}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px;border-radius:6px}
+.wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 120px;display:flex;flex-direction:column;gap:24px}
+
+/* шапка */
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:grid;gap:4px}
+.brand small{font:700 11px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.brand h1{margin:0;font:400 clamp(26px,5vw,36px)/1 var(--display);text-shadow:0 0 6px var(--pink),0 0 22px rgba(255,62,165,.6)}
+.brand h1 em{font-style:normal;color:var(--yellow);text-shadow:0 0 14px rgba(255,210,63,.5)}
+.me{display:flex;align-items:center;gap:10px;padding:6px 6px 6px 8px;border-radius:999px;background:rgba(20,13,37,.85);border:1px solid var(--line)}
+.me img{width:30px;height:30px;border-radius:50%;object-fit:cover;border:1.5px solid var(--yellow)}
+.me b{font-weight:800;font-size:14px}
+.me b::after{content:" ♛";color:var(--yellow)}
+
+/* кнопки */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;border-radius:12px;border:1.5px solid transparent;
+  font:800 14px/1 var(--body);cursor:pointer;text-decoration:none;color:var(--fg);background:transparent;transition:transform .15s,box-shadow .2s,filter .2s}
+.btn:hover{transform:translateY(-1px)}
+.btn:disabled{opacity:.5;cursor:default;transform:none}
+.btn-pink{background:var(--pink);color:#1a0010;box-shadow:0 0 22px rgba(255,62,165,.45)}
+.btn-tw{background:#9146ff;color:#fff;box-shadow:0 0 22px rgba(145,70,255,.5);padding:15px 22px;font-size:16px}
+.btn-line{border-color:var(--line);color:var(--muted)}
+.btn-line:hover{border-color:var(--cyan);color:var(--cyan)}
+.btn-sm{padding:8px 12px;font-size:13px;border-radius:10px}
+.ico{width:34px;height:34px;padding:0;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--muted);font:700 15px/1 var(--mono);cursor:pointer;flex:none}
+.ico:hover{color:var(--cyan);border-color:var(--cyan)}
+.ico.del:hover{color:var(--red);border-color:var(--red)}
+.ico:disabled{opacity:.3;cursor:default;color:var(--muted);border-color:var(--line)}
+
+/* карточки состояний */
+.card{background:rgba(20,13,37,.88);border:1px solid var(--line);border-radius:22px;padding:28px;display:grid;gap:14px;justify-items:start}
+.card h2{margin:0;font:400 22px/1.2 var(--display)}
+.card p{margin:0;color:var(--muted);max-width:58ch}
+.card code{font:500 13px/1.4 var(--mono);color:var(--cyan);overflow-wrap:anywhere}
+.err{color:var(--red);font-weight:700;min-height:1.4em}
+.spin{width:28px;height:28px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--pink);animation:sp 0.8s linear infinite}
+@keyframes sp{to{transform:rotate(1turn)}}
+
+/* вкладки */
+.tabs{display:flex;gap:6px;padding:5px;border-radius:16px;background:rgba(20,13,37,.85);border:1px solid var(--line);width:max-content;max-width:100%}
+.tab{padding:10px 16px;border-radius:12px;border:0;background:transparent;color:var(--muted);font:800 14px/1 var(--body);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--surface2);color:var(--fg);box-shadow:0 0 0 1px var(--pink) inset,0 0 16px rgba(255,62,165,.25)}
+.tab i{font-style:normal;font:700 11px/1 var(--mono);color:var(--pink);margin-left:6px}
+
+.panel{display:grid;gap:12px}
+.ph{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.ph p{margin:0;color:var(--muted);font-size:14px;max-width:52ch}
+
+/* поля */
+label.f{display:grid;gap:5px;min-width:0}
+label.f span{font:700 10.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+input,textarea{width:100%;min-width:0;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font:600 15px/1.35 var(--body)}
+textarea{resize:vertical;min-height:44px}
+input:focus,textarea:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(44,241,255,.15)}
+
+/* прайс */
+.prow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:16px;border-radius:18px;background:rgba(20,13,37,.88);border:1px solid var(--line)}
+.prow:focus-within{border-color:rgba(255,62,165,.55)}
+.pf{display:grid;grid-template-columns:minmax(0,1fr) 140px;gap:10px}
+.pf .wide{grid-column:1/-1}
+.ctl{display:flex;flex-direction:column;gap:6px}
+
+/* донатеры */
+.dlist{display:grid;gap:8px}
+.drow{display:grid;grid-template-columns:48px minmax(0,1fr) minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px;border-radius:14px;background:rgba(20,13,37,.88);border:1px solid var(--line)}
+.drow:focus-within{border-color:rgba(255,62,165,.55)}
+.num{display:grid;place-items:center;height:34px;border-radius:999px;font:700 12px/1 var(--mono);color:#0b0716;background:var(--cyan)}
+.drow:nth-child(1) .num{background:var(--yellow)}
+.drow:nth-child(2) .num,.drow:nth-child(3) .num{background:var(--pink)}
+.drow .ctl{flex-direction:row}
+.sumv{font:700 11px/1 var(--mono);color:var(--muted);padding-left:2px}
+
+/* полоса сохранения */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;padding-bottom:env(safe-area-inset-bottom,0px);background:rgba(11,7,22,.92);border-top:1px solid var(--line);backdrop-filter:blur(10px)}
+.bar-in{max-width:860px;margin:0 auto;padding:12px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px));display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.st{flex:1 1 220px;min-width:0;font-weight:700;font-size:14px;color:var(--muted)}
+.st.dirty{color:var(--yellow)}
+.st.ok{color:var(--green)}
+.st.bad{color:var(--red)}
+
+@media (max-width:620px){
+  .card{padding:20px}
+  .prow{grid-template-columns:minmax(0,1fr);padding:13px}
+  .pf{grid-template-columns:minmax(0,1fr) 110px}
+  .prow .ctl{flex-direction:row;justify-content:flex-end}
+  .drow{grid-template-columns:40px minmax(0,1fr) auto}
+  .drow .sum{grid-column:2/3}
+  .drow .ctl{grid-row:1/3;grid-column:3;flex-direction:column}
+  .num{grid-row:1/3}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><small>0hayoooo.github.io</small><h1>Страница <em>создателя</em></h1></div>
+    <div class="me" id="me" hidden><img id="meAv" alt=""><b id="meName"></b><button class="btn btn-line btn-sm" id="logout" type="button">Выйти</button></div>
+  </header>
+
+  <section class="card" id="sSetup" hidden>
+    <h2>Сервер ещё не подключён</h2>
+    <p>Вставьте скрипт в Google Таблицу, разверните его как веб-приложение и впишите ссылку в <code>ADMIN_API</code> в начале скрипта этой страницы.</p>
+  </section>
+
+  <section class="card" id="sLogin" hidden>
+    <h2>Вход только для создателей</h2>
+    <p>Войдите через Twitch. Пароль вводится на сайте Twitch, эта страница его не видит. Редактировать могут только аккаунты из списка.</p>
+    <button class="btn btn-tw" id="login" type="button">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.3 3 3 6.4v13.8h4.7V23h2.6l2.8-2.8h3.8l5.1-5.1V3H4.3zm15.8 11.3-2.9 2.9h-4.8L9.8 19.8v-2.6H6V4.8h14.1v9.5zM17 8h-1.9v5.6H17V8zm-4.9 0h-1.9v5.6h1.9V8z"/></svg>
+      Войти через Twitch</button>
+    <div class="err" id="loginErr" role="alert"></div>
+  </section>
+
+  <section class="card" id="sLoad" hidden><div class="spin" aria-hidden="true"></div><p id="loadTxt">Загружаю данные из таблицы…</p></section>
+
+  <section class="card" id="sDenied" hidden>
+    <h2>Нет доступа</h2>
+    <p id="deniedTxt">Этот аккаунт Twitch не в списке создателей.</p>
+    <button class="btn btn-line" id="other" type="button">Войти другим аккаунтом</button>
+  </section>
+
+  <main id="sEdit" hidden class="panel" style="gap:18px">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tPrice" aria-selected="true" aria-controls="pPrice" type="button">Прайс<i id="cPrice"></i></button>
+      <button class="tab" role="tab" id="tDon" aria-selected="false" aria-controls="pDon" type="button">Топ донатеров<i id="cDon"></i></button>
+    </div>
+
+    <section class="panel" id="pPrice" role="tabpanel" aria-labelledby="tPrice">
+      <div class="ph">
+        <p>На сайте услуги сами встают по цене, от дешёвых к дорогим. Цена — число (500) или текст («договорная»).</p>
+        <button class="btn btn-line btn-sm" id="addPrice" type="button">+ Услуга</button>
+      </div>
+      <div class="panel" id="priceList"></div>
+    </section>
+
+    <section class="panel" id="pDon" role="tabpanel" aria-labelledby="tDon" hidden>
+      <div class="ph">
+        <p>Порядок строк = место в топе, первые три встают на пьедестал. Сумма пишется как на сайте: «12&nbsp;000&nbsp;₽», «108&nbsp;€ (10&nbsp;667&nbsp;₽)».</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-line btn-sm" id="sortDon" type="button">Сортировать по сумме</button>
+          <button class="btn btn-line btn-sm" id="addDon" type="button">+ Донатер</button>
+        </div>
+      </div>
+      <div class="dlist" id="donList"></div>
+    </section>
+  </main>
+</div>
+
+<div class="bar" id="bar" hidden>
+  <div class="bar-in">
+    <div class="st" id="st" role="status" aria-live="polite">Всё сохранено</div>
+    <a class="btn btn-line btn-sm" href="./" target="_blank" rel="noopener">Открыть сайт</a>
+    <button class="btn btn-pink" id="save" type="button" disabled>Сохранить</button>
+  </div>
+</div>
+
+<script>
+/* ======================= НАСТРОЙКИ ======================= */
+/* Ссылка на веб-приложение Apps Script (…/exec) */
+var ADMIN_API = "https://script.google.com/macros/s/AKfycbxIjfVKwAF2RIsGP-qLkeeWuPJZ2a8P3Z6lfRuKrODdMnXJqtpri7ClBkAsvFoLAg83Cg/exec";
+var TWITCH_CLIENT_ID = "8ugmffobf6zb73tkl5bdp2d028xadn";
+/* Адрес этой страницы ровно как в «OAuth Redirect URLs» на dev.twitch.tv */
+var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
+/* ========================================================= */
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  var API=ADMIN_API.trim(), CID=TWITCH_CLIENT_ID.trim();
+  var states=['sSetup','sLogin','sLoad','sDenied','sEdit'];
+  function show(id){states.forEach(function(s){$(s).hidden=s!==id;});$('bar').hidden=id!=='sEdit';}
+  function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;}
+
+  var TOK='', price=[], donors=[], dirty=false, busy=false;
+  function getTok(){try{return sessionStorage.getItem('admTok')||'';}catch(e){return '';}}
+  function setTok(t){TOK=t||'';try{t?sessionStorage.setItem('admTok',t):sessionStorage.removeItem('admTok');}catch(e){}}
+  function revoke(t){if(!t)return;try{fetch('https://id.twitch.tv/oauth2/revoke',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'client_id='+encodeURIComponent(CID)+'&token='+encodeURIComponent(t)}).catch(function(){});}catch(e){}}
+
+  function api(body){
+    body.token=TOK;
+    return fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)})
+      .then(function(r){if(!r.ok)throw new Error('net');return r.json();})
+      .then(function(j){if(!j||!j.ok)throw new Error((j&&j.error)||'net');return j;});
+  }
+  var ERR={bad_token:'Вход устарел, войдите ещё раз.',no_token:'Вход устарел, войдите ещё раз.',forbidden:'Этот аккаунт Twitch не в списке создателей.',
+    too_many:'Слишком много строк (больше 150).',bad_data:'Данные не прошли проверку.',net:'Сервер не ответил. Проверьте интернет и попробуйте ещё раз.'};
+  function why(e){return ERR[e&&e.message]||ERR.net;}
+
+  /* ---------- вход ---------- */
+  function startLogin(){
+    var st='';try{var a=new Uint8Array(16);crypto.getRandomValues(a);st=Array.prototype.map.call(a,function(x){return('0'+x.toString(16)).slice(-2);}).join('');}catch(e){st=String(Math.random()).slice(2);}
+    try{sessionStorage.setItem('admState',st);}catch(e){}
+    location.href='https://id.twitch.tv/oauth2/authorize?client_id='+encodeURIComponent(CID)+'&redirect_uri='+encodeURIComponent(ADMIN_URL)+
+      '&response_type=token&scope=&force_verify=true&state='+encodeURIComponent(st);
+  }
+  function fromHash(){
+    var h=location.hash.replace(/^#/,''); if(!/access_token=|error=/.test(h)) return null;
+    var q={};h.split('&').forEach(function(kv){var i=kv.indexOf('=');if(i>0)q[decodeURIComponent(kv.slice(0,i))]=decodeURIComponent(kv.slice(i+1).replace(/\+/g,' '));});
+    try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}
+    var want='';try{want=sessionStorage.getItem('admState')||'';sessionStorage.removeItem('admState');}catch(e){}
+    if(q.error) return {err:'Вход отменён.'};
+    if(!q.access_token||!want||q.state!==want) return {err:'Не удалось войти, попробуйте ещё раз.'};
+    return {tok:q.access_token};
+  }
+  function profile(){
+    fetch('https://api.twitch.tv/helix/users',{headers:{'Authorization':'Bearer '+TOK,'Client-Id':CID}})
+      .then(function(r){return r.ok?r.json():null;}).then(function(j){
+        var d=j&&j.data&&j.data[0]; if(!d) return;
+        $('meName').textContent=d.display_name||d.login; if(d.profile_image_url)$('meAv').src=d.profile_image_url; else $('meAv').hidden=true;
+        $('me').hidden=false;
+      }).catch(function(){});
+  }
+  function load(){
+    show('sLoad');$('loadTxt').textContent='Загружаю данные из таблицы…';
+    api({action:'load'}).then(function(j){
+      price=(j.price||[]).map(function(r){return [r[1]||'',r[2]||'',r[4]||'',r[5]||''];});
+      donors=(j.donors||[]).map(function(r){return [r[0]||'',r[1]||''];});
+      if(!$('meName').textContent){$('meName').textContent=j.login;$('meAv').hidden=true;$('me').hidden=false;}
+      var dr=null;try{dr=JSON.parse(sessionStorage.getItem('admDraft')||'null');sessionStorage.removeItem('admDraft');}catch(e){}
+      if(dr&&dr.price&&dr.donors){price=dr.price;donors=dr.donors;}
+      renderPrice();renderDon();setDirty(!!dr);show('sEdit');
+      if(dr) status('dirty','Вернул несохранённые правки. Нажмите «Сохранить».');
+    }).catch(function(e){
+      if(e.message==='forbidden'){revoke(TOK);setTok('');$('me').hidden=true;show('sDenied');return;}
+      if(e.message==='bad_token'||e.message==='no_token'){setTok('');$('me').hidden=true;show('sLogin');$('loginErr').textContent=why(e);return;}
+      show('sLoad');$('loadTxt').textContent=why(e)+' ';var b=el('button','btn btn-line btn-sm','Повторить');b.type='button';b.onclick=load;$('loadTxt').appendChild(b);
+    });
+  }
+  $('login').onclick=startLogin;
+  $('other').onclick=startLogin;
+  $('logout').onclick=function(){if(dirty&&!window.confirm('Есть несохранённые изменения. Всё равно выйти?'))return;revoke(TOK);setTok('');dirty=false;$('me').hidden=true;$('meName').textContent='';show('sLogin');};
+
+  /* ---------- вкладки ---------- */
+  function tab(which){
+    var p=which==='price';
+    $('tPrice').setAttribute('aria-selected',p);$('tDon').setAttribute('aria-selected',!p);
+    $('pPrice').hidden=!p;$('pDon').hidden=p;
+    try{localStorage.setItem('admTab',which);}catch(e){}
+  }
+  $('tPrice').onclick=function(){tab('price');};
+  $('tDon').onclick=function(){tab('don');};
+  try{if(localStorage.getItem('admTab')==='don')tab('don');}catch(e){}
+
+  /* ---------- общие кнопки строк ---------- */
+  function ctl(list,i,rerender,noMove){
+    var c=el('div','ctl');
+    function b(txt,lab,cls,fn,dis){var x=el('button','ico'+(cls?' '+cls:''),txt);x.type='button';x.title=lab;x.setAttribute('aria-label',lab);x.disabled=!!dis;x.onclick=fn;c.appendChild(x);}
+    if(!noMove)b('↑','Выше','',function(){var t=list[i-1];list[i-1]=list[i];list[i]=t;setDirty(true);rerender(i-1,'up');},i===0);
+    if(!noMove)b('↓','Ниже','',function(){var t=list[i+1];list[i+1]=list[i];list[i]=t;setDirty(true);rerender(i+1,'down');},i===list.length-1);
+    b('✕','Удалить','del',function(){list.splice(i,1);setDirty(true);rerender(Math.min(i,list.length-1),'del');});
+    return c;
+  }
+  function field(label,val,onIn,opts){
+    var l=el('label','f'+(opts&&opts.wide?' wide':'')),s=el('span',null,label),inp=el(opts&&opts.area?'textarea':'input');
+    if(opts&&opts.area)inp.rows=2; else inp.type='text';
+    inp.value=val; inp.maxLength=300; if(opts&&opts.ph)inp.placeholder=opts.ph; if(opts&&opts.mode)inp.inputMode=opts.mode;
+    inp.addEventListener('input',function(){onIn(inp.value);setDirty(true);});
+    l.appendChild(s);l.appendChild(inp);return l;
+  }
+  function refocus(box,idx,kind){
+    var rows=box.children; if(idx<0||!rows[idx]) return;
+    var sel=kind==='up'?'.ico[aria-label="Выше"]':kind==='down'?'.ico[aria-label="Ниже"]':'input';
+    var t=rows[idx].querySelector(sel); if(t&&t.disabled) t=rows[idx].querySelector('input'); if(t) t.focus();
+  }
+
+  /* ---------- прайс ---------- */
+  function renderPrice(fi,kind){
+    var box=$('priceList');box.textContent='';
+    price.forEach(function(r,i){
+      var row=el('div','prow'),f=el('div','pf');
+      f.appendChild(field('Название',r[0],function(v){r[0]=v;},{ph:'Заказ трека'}));
+      f.appendChild(field('Цена, ₽',r[1],function(v){r[1]=v;},{ph:'500'}));
+      f.appendChild(field('Описание',r[2],function(v){r[2]=v;},{wide:1,area:1,ph:'что получит зритель'}));
+      f.appendChild(field('Что указать в донате',r[3],function(v){r[3]=v;},{wide:1,ph:'«название трека»'}));
+      row.appendChild(f);row.appendChild(ctl(price,i,renderPrice,true));box.appendChild(row);
+    });
+    if(!price.length) box.appendChild(el('p','ph','Прайс пуст. На сайте раздел прайса скроется.'));
+    $('cPrice').textContent=price.length;
+    if(fi!=null) refocus(box,fi,kind);
+  }
+  $('addPrice').onclick=function(){price.push(['','','','']);setDirty(true);renderPrice(price.length-1,'new');$('priceList').lastChild.scrollIntoView({block:'center',behavior:'smooth'});};
+
+  /* ---------- донатеры ---------- */
+  function amount(s){var t=String(s).replace(/ /g,' '),sum=0,m,re=/(\d[\d ]*)\s*₽/g;while((m=re.exec(t)))sum+=parseInt(m[1].replace(/\s/g,''),10)||0;return sum;}
+  function renderDon(fi,kind){
+    var box=$('donList');box.textContent='';
+    donors.forEach(function(r,i){
+      var row=el('div','drow');
+      row.appendChild(el('div','num','№'+(i+1)));
+      row.appendChild(field('Ник',r[0],function(v){r[0]=v;},{ph:'ник'}));
+      var sf=field('Сумма',r[1],function(v){r[1]=v;hint.textContent=amount(v)?'в топе считается: '+amount(v).toLocaleString('ru-RU')+' ₽':'нет суммы в ₽';},{ph:'1 000 ₽'});
+      sf.className+=' sum';
+      var hint=el('small','sumv',amount(r[1])?'в топе считается: '+amount(r[1]).toLocaleString('ru-RU')+' ₽':'нет суммы в ₽');sf.appendChild(hint);
+      row.appendChild(sf);
+      row.appendChild(ctl(donors,i,renderDon));box.appendChild(row);
+    });
+    if(!donors.length) box.appendChild(el('p','ph','Список пуст.'));
+    $('cDon').textContent=donors.length;
+    if(fi!=null) refocus(box,fi,kind);
+  }
+  $('addDon').onclick=function(){donors.push(['','']);setDirty(true);renderDon(donors.length-1,'new');$('donList').lastChild.scrollIntoView({block:'center',behavior:'smooth'});};
+  $('sortDon').onclick=function(){donors=donors.map(function(r,i){return {r:r,i:i,v:amount(r[1])};}).sort(function(a,b){return b.v-a.v||a.i-b.i;}).map(function(x){return x.r;});setDirty(true);renderDon();};
+
+  /* ---------- сохранение ---------- */
+  function status(cls,txt){var s=$('st');s.className='st'+(cls?' '+cls:'');s.textContent=txt;}
+  function setDirty(v){dirty=v;$('save').disabled=!v||busy;if(v)status('dirty','Есть несохранённые изменения');}
+  $('save').onclick=function(){
+    var bad=price.filter(function(r){return !r[0].trim();}).length+donors.filter(function(r){return !r[0].trim();}).length;
+    busy=true;$('save').disabled=true;status('','Сохраняю…');
+    api({action:'save',price:price,donors:donors}).then(function(j){
+      busy=false;
+      price=price.filter(function(r){return r[0].trim();});donors=donors.filter(function(r){return r[0].trim();});
+      renderPrice();renderDon();setDirty(false);
+      status('ok','Сохранено ✓ На сайте обновится в течение минуты.'+(bad?' Пустые строки без названия/ника убраны.':''));
+    }).catch(function(e){
+      busy=false;$('save').disabled=false;
+      if(e.message==='bad_token'||e.message==='no_token'){
+        try{sessionStorage.setItem('admDraft',JSON.stringify({price:price,donors:donors}));}catch(x){}
+        status('bad','Вход устарел. ');var b=el('button','btn btn-line btn-sm','Войти снова');b.type='button';
+        b.onclick=function(){dirty=false;setTok('');startLogin();};$('st').appendChild(b);return;}
+      status('bad','Не сохранилось: '+why(e));
+    });
+  };
+  window.addEventListener('beforeunload',function(e){if(dirty){e.preventDefault();e.returnValue='';}});
+
+  /* ---------- старт ---------- */
+  if(!API||!CID){show('sSetup');return;}
+  var h=fromHash();
+  if(h&&h.err){show('sLogin');$('loginErr').textContent=h.err;return;}
+  if(h&&h.tok) setTok(h.tok); else TOK=getTok();
+  if(!TOK){show('sLogin');return;}
+  profile();load();
+})();
+</script>
+</body>
+</html>

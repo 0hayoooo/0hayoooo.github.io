@@ -771,6 +771,11 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
 .goal-cta .fol-btn:hover{filter:brightness(1.12);color:#fff}
 .fol-check{color:var(--cyan);background:transparent;border:1.5px solid var(--cyan)}
 .profile.is-verified.is-follower .pf-txt b::after{content:" \2713 \2661"}
+
+/* кнопка страницы создателя в профиле (видят только создатели; доступ всё равно проверяет сервер) */
+.hb-adm{display:flex;align-items:center;justify-content:center;gap:8px;margin:2px 0 12px;padding:13px 16px;border-radius:12px;text-decoration:none;
+  font:800 15px/1 var(--body);color:#1a1200;background:var(--yellow);box-shadow:0 0 22px rgba(255,210,63,.45);transition:transform .15s,box-shadow .2s}
+.hb-adm:hover{transform:translateY(-1px);box-shadow:0 0 32px rgba(255,210,63,.7)}
 </style>
 </head>
 <body>
@@ -804,6 +809,7 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
     <button type="button" class="tw-login" id="twLogin" hidden><svg aria-hidden="true"><use href="#i-twitch"/></svg>Войти через Twitch</button>
     <input id="helloNick" type="text" maxlength="25" autocomplete="off" spellcheck="false" placeholder="например, reiz" aria-label="Twitch ник">
     <small id="helloErr" aria-live="polite"></small>
+    <a class="hb-adm" id="helloAdm" href="admin.html" hidden>♛ Страница создателя</a>
     <div class="hello-btns">
       <button type="submit" class="hb-ok" id="helloOk">Готово</button>
       <button type="button" class="hb-out" id="helloOut" hidden>Выйти</button>
@@ -1230,6 +1236,10 @@ var ТИТУЛЫ_ТОП3 = ["легенда мурлыканья", "мастер
 
 /* ССЫЛКА НА GOOGLE ТАБЛИЦУ (Файл → Поделиться → Опубликовать в интернете → CSV).
    Пока ссылки нет, оставь пустые кавычки "" — тогда сайт берёт список ниже. */
+/* СТРАНИЦА СОЗДАТЕЛЯ (admin.html): ссылка на веб-приложение Apps Script (…/exec).
+   Когда она есть, прайс и топ донатеров берутся оттуда и обновляются почти сразу после «Сохранить». */
+var ADMIN_API = "https://script.google.com/macros/s/AKfycbxIjfVKwAF2RIsGP-qLkeeWuPJZ2a8P3Z6lfRuKrODdMnXJqtpri7ClBkAsvFoLAg83Cg/exec";
+
 var ТАБЛИЦА = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSw1U4NvT0kVTGy9TSoP1FvCS6uAqwRSejcU-LY5nSwHhIa2PAw0QYqk6OKdLl1ITw9Z82OJDRO9saJ/pub?gid=464919870&single=true&output=csv";
 
 /* Запасной список: показывается, пока таблица не подключена или не загрузилась. */
@@ -1320,8 +1330,10 @@ var ТОП = [
     return rows;
   }
   render(ТОП);
-  if(!ТАБЛИЦА) return;
-  fetch(ТАБЛИЦА+(ТАБЛИЦА.indexOf('?')<0?'?':'&')+'t='+Date.now(),{cache:'no-store'})
+  var API=(typeof ADMIN_API==='string')?ADMIN_API.trim():'';
+  var SRC=API?API+'?sheet=donors':ТАБЛИЦА;
+  if(!SRC) return;
+  fetch(SRC+(SRC.indexOf('?')<0?'?':'&')+'t='+Date.now(),{cache:'no-store'})
     .then(function(r){if(!r.ok)throw 0;return r.text();})
     .then(function(t){
       var rows=parseCSV(t).filter(function(r){return r[0]&&r[0].trim();});
@@ -1546,7 +1558,8 @@ var ТОП = [
     return rows;
   }
   render(typeof ПРАЙС!=='undefined'?ПРАЙС:[]);
-  var URL=(typeof ПРАЙС_ТАБЛИЦА==='string')?ПРАЙС_ТАБЛИЦА.trim():'';
+  var API=(typeof ADMIN_API==='string')?ADMIN_API.trim():'';
+  var URL=API?API+'?sheet=price':((typeof ПРАЙС_ТАБЛИЦА==='string')?ПРАЙС_ТАБЛИЦА.trim():'');
   if(!URL) return;
   fetch(URL+(URL.indexOf('?')<0?'?':'&')+'t='+Date.now(),{cache:'no-store'})
     .then(function(r){if(!r.ok)throw 0;return r.text();})
@@ -1736,6 +1749,7 @@ document.querySelectorAll('[data-copy]').forEach(function(b){
       var u=getUser();
       show(av,m==='account'&&!!(u&&u.avatar)); if(m==='account'&&u&&u.avatar) av.src=u.avatar;
       show(inp,m==='manual'); show(ok,m==='manual'); show(twb,m==='login'); show(out,m==='account');
+      var adm=document.getElementById('helloAdm'); if(adm) show(adm,m==='account'&&!!u&&['netfil0','0hayoooo'].indexOf(String(u.login||'').toLowerCase())>=0);
       twb.disabled=false;
       if(m==='manual'){hh.textContent='Укажите ваш Twitch ник';hp.textContent=HINT;inp.value=edit?nickIn.value:'';}
       if(m==='login'){hh.textContent='Войдите через Twitch';hp.textContent=HINT+' Пароль вводится только на сайте Twitch, этот сайт его не видит.';}
