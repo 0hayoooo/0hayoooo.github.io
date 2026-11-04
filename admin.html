@@ -279,6 +279,7 @@ select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--li
       <button class="tab" role="tab" id="tSite" aria-selected="false" aria-controls="pSite" type="button">Сайт<i id="cSite"></i></button>
       <button class="tab" role="tab" id="tPrice" aria-selected="true" aria-controls="pPrice" type="button">Прайс<i id="cPrice"></i></button>
       <button class="tab" role="tab" id="tDon" aria-selected="false" aria-controls="pDon" type="button">Топ донатеров<i id="cDon"></i></button>
+      <button class="tab" role="tab" id="tStreak" aria-selected="false" aria-controls="pStreak" type="button">Серии<i id="cStreak"></i></button>
       <button class="tab" role="tab" id="tArch" aria-selected="false" aria-controls="pArch" type="button">Архив<i id="cArch"></i></button>
       <button class="tab" role="tab" id="tSet" aria-selected="false" aria-controls="pSet" type="button">Настройки</button>
     </div>
@@ -349,7 +350,23 @@ select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--li
         <label class="f"><span>Алерт со звуком 2 (murr1000.mp3) каждые … поглаживаний</span><input type="number" id="sBig" min="10" max="10000000" step="10" inputmode="numeric"></label>
         <p>Особый алерт. Например 1 000: на 1 000, 2 000… Если отметки совпали (1 000 кратно и 500, и 1 000) — играет звук 2.</p>
       </div>
+      <div class="setc">
+        <label class="f"><span>Серии просмотров: показывать на сайте от скольких стримов подряд</span><input type="number" id="sStreak" min="1" max="50" step="1" inputmode="numeric"></label>
+        <p>Например 3 — в окошко «Серии просмотров» попадают те, кто посмотрел 3 стрима подряд и больше. Поставьте 1, чтобы показывать всех.</p>
+      </div>
       <div class="err" id="setErr" role="alert"></div>
+    </section>
+
+    <section class="panel" id="pStreak" role="tabpanel" aria-labelledby="tStreak" hidden>
+      <div class="ph">
+        <p>Кто сколько стримов подряд смотрел. Серии считаются с момента запуска — прошлые просмотры система не знает, поэтому постоянным зрителям серию можно выдать вручную. «Активна» = был на последнем стриме; у неактивных серия прервётся, когда они вернутся. На сайте показываются серии от порога (вкладка «Настройки»). Отметки сохраняются сразу.</p>
+        <div class="ofilt">
+          <button class="btn btn-line btn-sm" id="stAdd" type="button">+ Выдать серию зрителю</button>
+          <button class="btn btn-line btn-sm" id="stRef" type="button">Обновить</button>
+        </div>
+        <label class="f search"><span>Поиск по нику</span><input type="search" id="stQ" placeholder="например: netfil0" autocomplete="off"></label>
+      </div>
+      <div class="dlist" id="streakList"></div>
     </section>
   </main>
 </div>
@@ -527,11 +544,12 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
       donors=(j.donors||[]).map(function(r){return [r[0]||'',r[1]||''];});
       archive=j.archive||[];renderArch();
       orders=j.orders||[];renderOrders();
+      streaksAdmin=j.allStreaks||[];renderStreaksAdmin();
       ADM_LOGIN=String(j.login||'').toLowerCase();
       pinShow(j.note||'');addrsShow(j.addrs||[]);
       $('addrGeo').hidden=ADM_LOGIN!=='0hayoooo';
       cmsLoad(j.content||{});
-      var st=j.settings||{};$('sPet').value=st.petSub||2;$('sStep').value=st.alertStep||500;$('sBig').value=st.alertBig||1000;
+      var st=j.settings||{};$('sPet').value=st.petSub||2;$('sStep').value=st.alertStep||500;$('sBig').value=st.alertBig||1000;$('sStreak').value=st.streakMin||3;
       if(!$('meName').textContent){$('meName').textContent=j.login;$('meAv').hidden=true;$('me').hidden=false;}
       var dr=null;try{dr=JSON.parse(sessionStorage.getItem('admDraft')||'null');sessionStorage.removeItem('admDraft');}catch(e){}
       if(dr&&dr.price&&dr.donors){price=dr.price;donors=dr.donors;}
@@ -552,7 +570,7 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   $('logout').onclick=function(){if(dirty&&!window.confirm('Есть несохранённые изменения. Всё равно выйти?'))return;revoke(TOK);setTok('');dirty=false;$('me').hidden=true;$('meName').textContent='';show('sLogin');};
 
   /* ---------- вкладки ---------- */
-  var TABS={site:['tSite','pSite'],ord:['tOrd','pOrd'],price:['tPrice','pPrice'],don:['tDon','pDon'],arch:['tArch','pArch'],set:['tSet','pSet']};
+  var TABS={site:['tSite','pSite'],ord:['tOrd','pOrd'],price:['tPrice','pPrice'],don:['tDon','pDon'],streak:['tStreak','pStreak'],arch:['tArch','pArch'],set:['tSet','pSet']};
   function tab(which){
     if(!TABS[which]) which='price';
     Object.keys(TABS).forEach(function(k){$(TABS[k][0]).setAttribute('aria-selected',k===which);$(TABS[k][1]).hidden=k!==which;});
@@ -562,6 +580,9 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   $('tDon').onclick=function(){tab('don');};
   $('tArch').onclick=function(){tab('arch');};
   $('tOrd').onclick=function(){tab('ord');refreshOrders();};
+  $('tStreak').onclick=function(){tab('streak');refreshStreaks();};
+  $('stRef').onclick=function(){refreshStreaks();};
+  $('stQ').addEventListener('input',renderStreaksAdmin);
   $('tSite').onclick=function(){tab('site');};
   $('siteQ').addEventListener('input',function(){if(CMS.ready)cmsRender();});
 
@@ -998,19 +1019,58 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
       .catch(function(e){b.disabled=false;status('bad',e.message==='bad_action'?'Скрипт в таблице старый: обновите его и разверните новую версию.':'Заметка не сохранилась: '+why(e));});
   };
 
+  /* ---------- серии просмотров ---------- */
+  var streaksAdmin=[];
+  function plStream(n){n=Math.abs(n)%100;var d=n%10;return n>10&&n<20?'стримов':d===1?'стрим':d>=2&&d<=4?'стрима':'стримов';}
+  function renderStreaksAdmin(){
+    var box=$('streakList');if(!box)return;box.textContent='';
+    var q=$('stQ').value.trim().toLowerCase();
+    var list=streaksAdmin.filter(function(x){return !q||String(x.name).toLowerCase().indexOf(q)>=0||String(x.login).toLowerCase().indexOf(q)>=0;});
+    $('cStreak').textContent=streaksAdmin.length||'';
+    if(!list.length){box.appendChild(el('p','ph',q?'Никого с таким ником.':'Серий пока нет. Выдайте вручную или дождитесь, пока зрители посмотрят стримы.'));return;}
+    list.forEach(function(x){
+      var row=el('div','orow'+(x.active?'':' st-cancel'));
+      var info=el('div','oinfo');
+      var top=el('div','otop');top.appendChild(el('b',null,'🔥 '+x.streak));top.appendChild(el('span','osvc',x.name));
+      if(x.best>x.streak)top.appendChild(el('span','oprice','рекорд '+x.best));
+      info.appendChild(top);
+      info.appendChild(el('small',null,[x.streak+' '+plStream(x.streak)+' подряд', x.active?'активна':'прервана', x.last?('посл. '+x.last):''].filter(Boolean).join(' · ')));
+      row.appendChild(info);
+      var act=el('div','oact');
+      var inp=el('input');inp.type='text';inp.inputMode='numeric';inp.value=String(x.streak);inp.setAttribute('aria-label','Серия для '+x.name);inp.style.cssText='max-width:80px;padding:8px 10px';
+      var bt=el('button','btn btn-sm btn-done','Задать');bt.type='button';
+      function go(){var v=parseInt(inp.value,10);if(!(v>=0&&v<=100000)){inp.focus();return;}bt.disabled=true;setStreak(x.login,v,x.name);}
+      inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();go();}});
+      bt.onclick=go;
+      act.appendChild(inp);act.appendChild(bt);row.appendChild(act);box.appendChild(row);
+    });
+  }
+  function setStreak(login,val,name){
+    api({action:'streakSet',login:login,streak:val,name:name}).then(function(j){streaksAdmin=j.allStreaks||streaksAdmin;renderStreaksAdmin();status('ok',name+': серия '+val+'. На сайте обновится в течение минуты.');})
+      .catch(function(e){renderStreaksAdmin();status('bad',e.message==='bad_action'?'Скрипт в таблице старый: обновите его и разверните новую версию.':'Не сохранилось: '+why(e));});
+  }
+  $('stAdd').onclick=function(){
+    var nick=(window.prompt&&window.prompt('Ник зрителя на Twitch (латиницей):'))||'';nick=nick.trim();
+    if(!nick)return; if(!/^[A-Za-z0-9_]{2,25}$/.test(nick)){status('bad','Ник только латиница, цифры и _, 2–25 символов.');return;}
+    var v=(window.prompt&&window.prompt('Сколько стримов подряд засчитать '+nick+'?','5'))||'';v=parseInt(v,10);
+    if(!(v>=0&&v<=100000)){status('bad','Число от 0 до 100000.');return;}
+    setStreak(nick,v,nick);tab('streak');
+  };
+  function refreshStreaks(){if(!TOK||$('sEdit').hidden)return;api({action:'streaksAll'}).then(function(j){streaksAdmin=j.allStreaks||[];renderStreaksAdmin();}).catch(function(){});}
+
   /* ---------- сохранение ---------- */
   function status(cls,txt){var s=$('st');s.className='st'+(cls?' '+cls:'');s.textContent=txt;}
   function setDirty(v){dirty=v;$('save').disabled=!v||busy;if(v)status('dirty','Есть несохранённые изменения');}
   $('save').onclick=function(){
     var bad=price.filter(function(r){return !r[0].trim();}).length+donors.filter(function(r){return !r[0].trim();}).length;
-    var sp=parseInt($('sPet').value,10), ss=parseInt($('sStep').value,10), sb=parseInt($('sBig').value,10);
-    if(!(sp>=1&&sp<=100)||!(ss>=10&&ss<=1000000)||!(sb>=10&&sb<=10000000)){tab('set');$('setErr').textContent='Проверьте настройки: бонус от 1 до 100, шаги алертов от 10.';status('bad','Не сохранено: ошибка в настройках.');return;}
+    var sp=parseInt($('sPet').value,10), ss=parseInt($('sStep').value,10), sb=parseInt($('sBig').value,10), sm=parseInt($('sStreak').value,10);
+    if(!(sp>=1&&sp<=100)||!(ss>=10&&ss<=1000000)||!(sb>=10&&sb<=10000000)||!(sm>=1&&sm<=50)){tab('set');$('setErr').textContent='Проверьте настройки: бонус 1–100, шаги алертов от 10, порог серий 1–50.';status('bad','Не сохранено: ошибка в настройках.');return;}
     $('setErr').textContent='';
     busy=true;$('save').disabled=true;status('','Сохраняю…');
     applyAdds(donors);renderDon();
     sortDon();var keep=donors.filter(function(r){return r[0].trim();});
     var goneRows=keep.slice(TOP_N).map(function(r){return [r[0],r[1]];}),gone=goneRows.map(function(r){return r[0];});keep=keep.slice(0,TOP_N);
-    api({action:'save',price:price,donors:keep,gone:goneRows,settings:{petSub:sp,alertStep:ss,alertBig:sb},content:CMS.ready?cmsOverrides():undefined,archDel:Object.keys(archDel).map(function(k){return [archDel[k]];})}).then(function(j){
+    api({action:'save',price:price,donors:keep,gone:goneRows,settings:{petSub:sp,alertStep:ss,alertBig:sb,streakMin:(sm>=1&&sm<=50?sm:3)},content:CMS.ready?cmsOverrides():undefined,archDel:Object.keys(archDel).map(function(k){return [archDel[k]];})}).then(function(j){
       donors=keep;var nDel=Object.keys(archDel).length;archDel={};if(j.archive){archive=j.archive;}renderArch();
       var oldSrv=!j.archive&&gone.length;
       busy=false;
