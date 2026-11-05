@@ -63,7 +63,7 @@ h1{font-family:var(--display);font-weight:400;font-size:clamp(46px,9vw,96px);lin
 .btn-cyan:hover{box-shadow:0 0 22px rgba(44,241,255,.45)}
 
 /* ---------- ticker ---------- */
-.ticker{margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));border-block:1px solid var(--line);overflow:hidden;background:rgba(20,13,37,.7)}
+.ticker{margin-inline:0;border-block:1px solid var(--line);overflow:hidden;max-width:100%;background:rgba(20,13,37,.7)}
 .ticker-track{display:flex;width:max-content;gap:28px;padding-block:12px;font:400 15px/1 var(--display);letter-spacing:.08em;color:var(--fg);animation:run 26s linear infinite}
 .ticker-track span{white-space:nowrap}
 .ticker-track i{font-style:normal;color:var(--pink)}
@@ -327,12 +327,12 @@ a,button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation
 .topbar .livebox:has(.is-on){box-shadow:0 0 16px rgba(61,255,138,.25)}
 .topbar .live{flex:none}
 .topbar #streamTitle{-webkit-line-clamp:1;font-size:12.5px}
-.wrap{padding-top:96px}
+.wrap{padding-top:28px}
 .kfeed{top:calc(72px + env(safe-area-inset-top,0px))!important}
 .pet button{min-height:48px;padding-inline:24px}
 
 @media (max-width:620px){
-  .wrap{padding-top:84px!important}
+  .wrap{padding-top:18px!important}
   .topbar #streamTitle{display:none}
   .topbar .live small{display:none}
   .avatar{max-width:230px;margin-inline:auto}
@@ -896,14 +896,21 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
 .pick-note.hot{color:var(--pink)!important;font-weight:700}
 .pick.lock:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
 
-/* ---------- ВК-раскладка: меню слева, один раздел справа ---------- */
+/* ---------- ВК-раскладка: слева профиль + меню, справа один раздел ---------- */
 .vk{display:flex;gap:30px;align-items:flex-start}
-.vk-side{flex:0 0 240px;position:sticky;top:max(14px,env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:6px;padding:64px 12px 14px;border-radius:20px;background:rgba(20,13,37,.72);border:1px solid var(--line);backdrop-filter:blur(8px)}
-.vk-tab{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font:600 14.5px/1.25 var(--body);color:var(--muted);background:transparent;border:1px solid transparent;border-radius:13px;padding:11px 13px;cursor:pointer;transition:background .18s,color .18s,border-color .18s,box-shadow .18s}
+.vk-side{flex:0 0 272px;position:sticky;top:max(14px,env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:22px;background:rgba(20,13,37,.72);border:1px solid var(--line);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.vk-head{display:flex;flex-direction:column;gap:10px}
+.vk-head .profile{position:static;top:auto;left:auto;width:100%;max-width:100%;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(11,7,22,.72);min-height:52px}
+.vk-head .livebox{position:static;top:auto;right:auto;width:100%;max-width:100%;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(11,7,22,.72)}
+.vk-sep{height:1px;background:var(--line)}
+.vk-tabs{display:flex;flex-direction:column;gap:7px}
+.vk-tab{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:650 16.5px/1.25 var(--body);color:var(--muted);background:transparent;border:1px solid transparent;border-radius:14px;padding:14px 15px;cursor:pointer;transition:background .18s,color .18s,border-color .18s,box-shadow .18s}
 .vk-tab:hover{color:var(--fg);background:rgba(255,62,165,.07);border-color:rgba(255,62,165,.28)}
 .vk-tab.on{color:var(--fg);background:linear-gradient(90deg,rgba(255,62,165,.18),rgba(44,241,255,.08));border-color:var(--pink);box-shadow:0 0 22px rgba(255,62,165,.22),inset 0 0 0 1px rgba(255,62,165,.25)}
-.vk-tab.on::before{content:"";flex:none;width:4px;height:18px;border-radius:3px;background:var(--pink);box-shadow:0 0 10px var(--pink);margin-left:-4px}
-.vk-main{flex:1 1 auto;min-width:0}
+.vk-tab.on::before{content:"";flex:none;width:4px;height:20px;border-radius:3px;background:var(--pink);box-shadow:0 0 10px var(--pink);margin-left:-4px}
+.vk-burger{display:none}
+.vk-main{flex:1 1 auto;min-width:0;max-width:100%;overflow-x:clip}
+.vk{min-width:0}
 .vk-main > .panel{display:none;animation:vkIn .25s ease}
 .vk-main > .panel.on{display:block}
 @keyframes vkIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -911,13 +918,25 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
 .adm-frame{display:block;width:100%;height:78vh;min-height:520px;border:0;background:#0b0718}
 .adm-foot{margin:10px 2px 0;font:500 13px var(--body);color:var(--muted)}
 .adm-foot a{color:var(--cyan)}
-.vk-tab.vk-adm{margin-top:8px;border-style:dashed;color:var(--yellow)}
+.vk-tab.vk-adm{margin-top:6px;border-style:dashed;color:var(--yellow)}
 .vk-tab.vk-adm.on{border-style:solid}
+.home-panel>section+section{margin-top:30px}
+.hero h1{font-size:clamp(40px,7.2vw,72px);overflow-wrap:normal}
 @media(max-width:760px){
-  .vk{flex-direction:column;gap:20px}
-  .vk-side{flex:0 0 auto;flex-direction:row;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;width:100%;gap:8px;padding:10px;position:sticky;top:max(0px,env(safe-area-inset-top,0px));z-index:6;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-  .vk-side::-webkit-scrollbar{display:none}
-  .vk-tab{flex:0 0 auto;width:auto;white-space:nowrap;padding:10px 14px;font-size:13.5px}
+  .vk{flex-direction:column;gap:14px}
+  .vk-side{flex:0 0 auto;position:static;width:100%;padding:12px;gap:10px}
+  .vk-main{overflow-x:clip}
+  .ticker-track{width:auto}
+  .vk-head{gap:8px}
+  .vk-head .profile,.vk-head .livebox{max-width:100%}
+  .vk-burger{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font:800 16.5px/1.2 var(--body);color:var(--fg);background:rgba(20,13,37,.95);border:1.6px solid var(--pink);border-radius:15px;padding:15px 16px;cursor:pointer;box-shadow:0 0 18px rgba(255,62,165,.18)}
+  .vk-burger .vb-ic{font-size:18px}
+  .vk-burger .vb-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .vk-burger .vb-caret{margin-left:auto;transition:transform .22s}
+  .vk.menu-open .vk-burger .vb-caret{transform:rotate(180deg)}
+  .vk-tabs{max-height:0;overflow:hidden;opacity:0;gap:8px;margin-top:0;transition:max-height .28s ease,opacity .18s,margin .2s}
+  .vk.menu-open .vk-tabs{max-height:85vh;overflow:auto;opacity:1;margin-top:4px}
+  .vk-tab{font-size:17px;padding:16px;white-space:normal}
   .vk-tab.on::before{display:none}
 }
 </style>
@@ -986,17 +1005,6 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
   size(); if(RM) draw(0); else start();
 })();
 </script>
-<header class="topbar">
-<button type="button" class="profile" id="profileBtn" aria-label="Профиль Twitch">
-  <span class="pf-av" aria-hidden="true">ฅ</span>
-  <span class="pf-txt"><small>Вы вошли как</small><b id="pfNick">Гость</b></span>
-  <span class="pf-edit" aria-hidden="true">✎</span>
-</button>
-<a id="liveBox" class="livebox" href="https://www.twitch.tv/0hayoooo" target="_blank" rel="noopener" aria-label="Статус стрима на Twitch">
-  <span id="live" class="live" aria-live="polite"><i></i><b>проверяю…</b><small>twitch</small></span>
-  <span id="streamTitle" hidden></span>
-</a>
-</header>
 
 <div class="hello" id="hello" role="dialog" aria-modal="true" aria-labelledby="helloH" hidden>
   <form class="hello-card" id="helloForm">
@@ -1023,6 +1031,25 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
 </div>
 
 <main class="wrap">
+
+  <div class="vk">
+    <aside class="vk-side">
+      <div class="vk-head">
+        <button type="button" class="profile" id="profileBtn" aria-label="Профиль Twitch">
+          <span class="pf-av" aria-hidden="true">ฅ</span>
+          <span class="pf-txt"><small>Вы вошли как</small><b id="pfNick">Гость</b></span>
+          <span class="pf-edit" aria-hidden="true">✎</span>
+        </button>
+        <a id="liveBox" class="livebox" href="https://www.twitch.tv/0hayoooo" target="_blank" rel="noopener" aria-label="Статус стрима на Twitch">
+          <span id="live" class="live" aria-live="polite"><i></i><b>проверяю…</b><small>twitch</small></span>
+          <span id="streamTitle" hidden></span>
+        </a>
+      </div>
+      <button type="button" class="vk-burger" id="vkBurger" aria-expanded="false" aria-controls="vkNav"><span class="vb-ic" aria-hidden="true">☰</span><span class="vb-label">Меню</span><span class="vb-caret" aria-hidden="true">▾</span></button>
+      <div class="vk-sep" aria-hidden="true"></div>
+      <nav class="vk-tabs" id="vkNav" aria-label="Разделы сайта"></nav>
+    </aside>
+    <div class="vk-main">
 
   <!-- HERO -->
   <header class="hero">
@@ -1073,12 +1100,9 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
     </div>
   </div>
 
-  <div class="vk">
-    <nav class="vk-side" id="vkNav" aria-label="Разделы сайта"></nav>
-    <div class="vk-main">
-
   <!-- FOLLOWER GOAL -->
-  <section class="goal panel" data-panel="goal" data-tab="🐾 Команда" aria-labelledby="goal-h">
+  <div class="panel home-panel" data-panel="home" data-tab="🏠 Главная">
+  <section class="goal" aria-labelledby="goal-h">
     <div class="goal-top">
       <div>
         <div class="goal-eye">фолловеры на twitch</div>
@@ -1093,8 +1117,8 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
     </div>
   </section>
 
-  <!-- LINKS -->
-  <section class="panel" data-panel="links" data-tab="🔗 Где меня найти" aria-labelledby="links-h">
+  <!-- LINKS (в «Главной») -->
+  <section aria-labelledby="links-h">
     <div class="sec-head">
       <h2 id="links-h">Где <em>меня найти</em></h2>
       <p>Стримы на Twitch, ролики в TikTok и Instagram, новости и анонсы в Telegram.</p>
@@ -1128,6 +1152,7 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
       <div class="copy"><code id="u-ig">https://www.instagram.com/0hayoooo_/</code><button type="button" data-copy="u-ig">Копировать</button></div>
     </div>
   </section>
+  </div>
 
   <!-- DONATE -->
   <section class="panel" id="donate" data-panel="donate" data-tab="💸 Донат" aria-labelledby="don-h">
@@ -1315,7 +1340,7 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
         <div class="rk-block rk-exp" id="rkExp">
           <div class="rk-name">Опыт в CS</div>
           <div class="exp-grid">
-            <div class="exp"><small>играю с</small><b id="expYear">—</b><span id="expYearSub">года</span></div>
+            <div class="exp"><small>играю с</small><b id="expYear">2018</b><span id="expYearSub">года</span></div>
             <div class="exp"><small>наиграно</small><b id="expHours">—</b><span id="expHoursSub">часов</span></div>
           </div>
           <small class="exp-note" id="expNote" hidden></small>
@@ -1604,7 +1629,7 @@ function twMe(){try{var u=JSON.parse(localStorage.getItem('twUser')||'null');ret
     else{b.textContent='Тебя пока нет в топе';msg=' Чтобы попасть в топ-25, нужно от '+rub(vals[24]+1)+' донатов.';}
     t.appendChild(b);t.appendChild(document.createTextNode(msg));box.appendChild(t);
     if(idx!==0){var a=el('a','tm-btn','Задонатить ♡');a.href='#donate';box.appendChild(a);
-      a.addEventListener('click',function(e){var d=document.getElementById('donate');if(!d)return;e.preventDefault();var r=d.getBoundingClientRect();window.scrollTo({top:Math.max(0,r.top+window.scrollY-(window.innerHeight-r.height)/2-100),behavior:'smooth'});});}
+      a.addEventListener('click',function(e){e.preventDefault();if(window.vkGo)window.vkGo('donate');else location.hash='donate';});}
   }
   window.topMeRefresh=function(){render(LAST);};
   /* сумма доната в рублях: складываем все числа перед «₽» (донат + скины, рубли из скобок у валюты) */
@@ -1755,6 +1780,7 @@ var CMS_CORE=(function(){
   };
   function apply(v){
     window.CMS_VAL=v||{};
+    if(window.cmsHoursApply) window.cmsHoursApply();
     S.forEach(function(d){
       if(d.type==='special') return;
       if(d.type==='list'){C.writeList(document,d,V(v,d.k),TPL[d.k]);return;}
@@ -1963,7 +1989,7 @@ var CMS_CORE=(function(){
     t.appendChild(el('b',null,name));
     document.body.appendChild(t); clearTimeout(toastT); toastT=setTimeout(function(){t.remove();},5000);
   }
-  function toDonate(){var d=document.getElementById('donate');if(d)d.scrollIntoView({behavior:'smooth',block:'start'});}
+  function toDonate(){if(window.vkGo)window.vkGo('donate');else location.hash='donate';}
   function render(rows){
     grid.textContent=''; goals.textContent='';
     /* прайс всегда по возрастанию цены; «договорная» и прочий текст — в конце */
@@ -2111,12 +2137,8 @@ var CMS_CORE=(function(){
 })();
 document.querySelectorAll('a[href="#donate"]').forEach(function(a){
   a.addEventListener('click',function(e){
-    var t=document.getElementById('donate'); if(!t) return;
     e.preventDefault();
-    var smooth=!window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var r=t.getBoundingClientRect();
-    var top=r.top+window.scrollY-(window.innerHeight-r.height)/2-100;
-    window.scrollTo({top:Math.max(0,top),behavior:smooth?'smooth':'auto'});
+    if(window.vkGo) window.vkGo('donate'); else location.hash='donate';
   });
 });
 window.bindCopy=function(b){
@@ -2578,11 +2600,14 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
     var sub=document.getElementById('expHoursSub'); if(sub) sub.textContent=plural(Math.round(h),'час','часа','часов');
     if(note){note.hidden=!(recent>0);if(recent>0)note.textContent='+'+Math.round(recent)+' '+plural(Math.round(recent),'час','часа','часов')+' за последние 2 недели';}
   }
-  var manual=parseInt(String((window.CMS_VAL&&window.CMS_VAL.cs_hours)||'').replace(/\D/g,''),10);
-  if(manual>0) show(manual,0);
+  function manualHours(){return parseInt(String((window.CMS_VAL&&window.CMS_VAL.cs_hours)||'').replace(/\D/g,''),10);}
+  var steamShown=false;
+  /* перерисовать ручные часы, когда данные со страницы создателя подгрузятся (если Steam не перебил) */
+  window.cmsHoursApply=function(){if(steamShown)return;var m=manualHours();if(m>0)show(m,0);};
+  window.cmsHoursApply();
   if(!API) return;
   fetch(API+'?sheet=steam&t='+Math.floor(Date.now()/600000),{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json();})
-    .then(function(j){if(j&&j.hours>0)show(j.hours,j.recent||0);}).catch(function(){});
+    .then(function(j){if(j&&j.hours>0){steamShown=true;show(j.hours,j.recent||0);}else{window.cmsHoursApply();}}).catch(function(){window.cmsHoursApply();});
 })();
 </script>
 <script>
@@ -2645,6 +2670,10 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
     b.addEventListener('click',function(){ if(location.hash.replace('#','')===k) show(k); else location.hash=k; });
     nav.appendChild(b); btns[k]=b;
   });
+  var vk=document.querySelector('.vk'), burger=document.getElementById('vkBurger');
+  function menuOpen(o){ if(vk) vk.classList.toggle('menu-open',o); if(burger) burger.setAttribute('aria-expanded',o?'true':'false'); }
+  function burgerLabel(k){ if(!burger) return; var l=burger.querySelector('.vb-label'); if(l) l.textContent=(btns[k]?btns[k].textContent:'Меню'); }
+  if(burger) burger.addEventListener('click',function(){ menuOpen(!(vk&&vk.classList.contains('menu-open'))); });
   function tabHidden(p){ var k=p.getAttribute('data-panel'); if(k==='admin') return !window.__siteAdmin; return k==='streaks' && p.hasAttribute('hidden'); }
   function syncVis(){ panels.forEach(function(p){ var k=p.getAttribute('data-panel'); if(btns[k]) btns[k].hidden=tabHidden(p); }); }
   function resolve(){
@@ -2657,12 +2686,14 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
     if(k==='admin'){var ifr=main.querySelector('.adm-frame'); if(ifr&&!ifr.getAttribute('src')&&ifr.getAttribute('data-src'))ifr.setAttribute('src',ifr.getAttribute('data-src'));}
     panels.forEach(function(p){ p.classList.toggle('on',p.getAttribute('data-panel')===k); });
     Object.keys(btns).forEach(function(x){ var on=x===k; btns[x].classList.toggle('on',on); btns[x].setAttribute('aria-current',on?'page':'false'); });
+    burgerLabel(k); menuOpen(false);
     try{document.querySelector('.vk').scrollIntoView({block:'start',behavior:'smooth'});}catch(e){}
   }
   window.addEventListener('hashchange',function(){ show(resolve()); });
   var streaks=main.querySelector('[data-panel="streaks"]');
   if(streaks&&window.MutationObserver){ new MutationObserver(function(){ syncVis(); if(resolve()!==curKey()) {} }).observe(streaks,{attributes:true,attributeFilter:['hidden']}); }
   function curKey(){ var on=main.querySelector('.panel.on'); return on?on.getAttribute('data-panel'):def; }
+  window.vkGo=function(k){ if(!btns[k])return; if((location.hash||'').replace('#','')===k) show(k); else location.hash=k; };
   window.vkRevealAdmin=function(on){ window.__siteAdmin=!!on; syncVis(); if(!on&&curKey()==='admin'){location.hash=def;} };
   syncVis(); show(resolve());
 })();
