@@ -243,6 +243,22 @@ select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--li
 .ny-sub{margin-top:8px;font:800 clamp(20px,5vw,34px)/1 var(--body);letter-spacing:.3em;color:var(--cyan);text-shadow:0 0 16px rgba(44,241,255,.6)}
 @media (prefers-reduced-motion:reduce){.ny,.ny-card{transition:none}}
 .btn.arm{background:#ff4d5e;color:#fff;border-color:#ff4d5e}
+.vis-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.vis-st{display:grid;gap:4px;padding:14px 16px;border-radius:16px;background:rgba(20,13,37,.88);border:1px solid var(--line)}
+.vis-st small{font:700 11px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.vis-st b{font:800 30px/1.1 var(--mono);color:var(--fg);font-variant-numeric:tabular-nums}
+.vis-st span{font-size:13px;color:var(--muted)}
+.vis-st.vs-today{border-color:rgba(255,62,165,.55);box-shadow:0 0 18px rgba(255,62,165,.15)}.vis-st.vs-today b{color:var(--pink)}
+.vis-chart{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:4px;align-items:end;height:150px;padding:12px;border-radius:16px;background:rgba(20,13,37,.88);border:1px solid var(--line)}
+.vis-chart .vc{display:grid;grid-template-rows:auto 1fr auto;justify-items:center;gap:3px;height:100%;min-width:0}
+.vis-chart .vc i{align-self:end;width:70%;min-height:3px;border-radius:5px 5px 2px 2px;background:linear-gradient(180deg,var(--cyan),rgba(44,241,255,.35))}
+.vis-chart .vc.on i{background:linear-gradient(180deg,var(--pink),rgba(255,62,165,.4))}
+.vis-chart .vc b{font:700 11px/1 var(--mono);color:var(--fg)}
+.vis-chart .vc small{font:600 10px/1 var(--mono);color:var(--muted);white-space:nowrap;overflow:hidden;max-width:100%}
+.vis-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.vis-tabs .btn[aria-pressed="true"]{border-color:var(--pink);color:var(--pink)}
+#pVis{display:grid;gap:12px}#pVis[hidden]{display:none}
+@media(max-width:560px){.vis-stats{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.vis-st b{font-size:24px}.vis-chart{height:120px;gap:2px;padding:8px}.vis-chart .vc small{font-size:8px}.vis-chart .vc b{font-size:9px}}
 </style>
 </head>
 <body>
@@ -294,6 +310,7 @@ select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--li
       <button class="tab" role="tab" id="tStreak" aria-selected="false" aria-controls="pStreak" type="button">Серии<i id="cStreak"></i></button>
       <button class="tab" role="tab" id="tArch" aria-selected="false" aria-controls="pArch" type="button">Архив<i id="cArch"></i></button>
       <button class="tab" role="tab" id="tCoin" aria-selected="false" aria-controls="pCoin" type="button">Монетки<i id="cCoin"></i></button>
+      <button class="tab" role="tab" id="tVis" aria-selected="false" aria-controls="pVis" type="button">Посетители<i id="cVis"></i></button>
       <button class="tab" role="tab" id="tSet" aria-selected="false" aria-controls="pSet" type="button">Настройки</button>
     </div>
 
@@ -358,6 +375,19 @@ select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--li
         <div class="ach-adm" id="achList"></div>
         <div class="ofilt"><button class="btn btn-pink btn-sm" id="achSave" type="button">Сохранить награды</button></div>
       </div>
+    </section>
+
+    <section class="panel" id="pVis" role="tabpanel" aria-labelledby="tVis" hidden>
+      <div class="ph"><p>Кто заходил на сайт через Twitch. Гости без входа сюда не попадают. Повторный заход засчитывается, если с прошлого прошло больше 30 минут.</p><button class="btn btn-line btn-sm" id="visRef" type="button">Обновить</button></div>
+      <div class="vis-stats">
+        <div class="vis-st"><small>за всё время</small><b id="visTotal">—</b><span>зрителей</span></div>
+        <div class="vis-st vs-today"><small>сегодня</small><b id="visToday">—</b><span id="visTodayD">зрителей</span></div>
+        <div class="vis-st"><small>за 7 дней</small><b id="visWeek">—</b><span>посещений</span></div>
+      </div>
+      <div class="vis-chart" id="visChart" aria-label="Зрители по дням за 2 недели"></div>
+      <div class="vis-tabs"><button class="btn btn-sm" id="visModeAll" type="button" aria-pressed="true">Все зрители</button><button class="btn btn-sm" id="visModeToday" type="button" aria-pressed="false">Сегодня</button></div>
+      <label class="f search"><span>Поиск по нику</span><input type="search" id="visQ" placeholder="например: netfil0" autocomplete="off" spellcheck="false"></label>
+      <div class="dlist" id="visList"><p class="ph">Загружаю…</p></div>
     </section>
 
     <section class="panel" id="pSet" role="tabpanel" aria-labelledby="tSet" hidden>
@@ -647,7 +677,7 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   $('logout').onclick=function(){if(dirty&&!window.confirm('Есть несохранённые изменения. Всё равно выйти?'))return;revoke(TOK);setTok('');dirty=false;$('me').hidden=true;$('meName').textContent='';show('sLogin');};
 
   /* ---------- вкладки ---------- */
-  var TABS={site:['tSite','pSite'],ord:['tOrd','pOrd'],price:['tPrice','pPrice'],don:['tDon','pDon'],streak:['tStreak','pStreak'],arch:['tArch','pArch'],coins:['tCoin','pCoin'],set:['tSet','pSet']};
+  var TABS={site:['tSite','pSite'],ord:['tOrd','pOrd'],price:['tPrice','pPrice'],don:['tDon','pDon'],streak:['tStreak','pStreak'],arch:['tArch','pArch'],coins:['tCoin','pCoin'],vis:['tVis','pVis'],set:['tSet','pSet']};
   function tab(which){
     if(!TABS[which]) which='price';
     Object.keys(TABS).forEach(function(k){$(TABS[k][0]).setAttribute('aria-selected',k===which);$(TABS[k][1]).hidden=k!==which;});
@@ -697,6 +727,44 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   setInterval(function(){if(!document.hidden)refreshOrders();},30000);
   $('tCoin').onclick=function(){tab('coins');renderCoins();};
   $('tSet').onclick=function(){tab('set');};
+  /* ---------- посетители ---------- */
+  var VIS=null, visMode='all';
+  function plV(n){n=Math.abs(n)%100;var d=n%10;return n>10&&n<20?'зрителей':d===1?'зритель':d>=2&&d<=4?'зрителя':'зрителей';}
+  function fmtD(s){var m=String(s||'').match(/^(\d{4})-(\d{2})-(\d{2})(?: (\d{2}:\d{2}))?/);return m?(m[3]+'.'+m[2]+(m[4]?' '+m[4]:'')):String(s||'');}
+  function renderVis(){
+    var box=$('visList'); if(!box) return; box.textContent='';
+    if(!VIS){box.appendChild(el('p','ph','Загружаю…'));return;}
+    $('visTotal').textContent=VIS.total.toLocaleString('ru-RU'); $('visToday').textContent=VIS.today.toLocaleString('ru-RU'); $('visTodayD').textContent=plV(VIS.today);
+    var wk=0; VIS.days.slice(-7).forEach(function(d){wk+=d[1];}); $('visWeek').textContent=wk.toLocaleString('ru-RU');
+    if($('cVis')) $('cVis').textContent=VIS.today||'';
+    var ch=$('visChart'); ch.textContent=''; var mx=Math.max(1,Math.max.apply(null,VIS.days.map(function(d){return d[1];})));
+    VIS.days.forEach(function(d){ var c=el('div','vc'+(d[0]===VIS.day?' on':'')); var bar=el('i'); bar.style.height=Math.max(3,Math.round(d[1]/mx*100))+'%'; c.appendChild(el('b',null,String(d[1]))); c.appendChild(bar); c.appendChild(el('small',null,fmtD(d[0]))); c.title=fmtD(d[0])+': '+d[1]+' '+plV(d[1]); ch.appendChild(c); });
+    var q=$('visQ').value.trim().toLowerCase(), shown=0;
+    var src=visMode==='today'?VIS.todayList.slice().reverse():VIS.list;
+    src.forEach(function(x){
+      if(q&&String(x.login).toLowerCase().indexOf(q)<0&&String(x.name).toLowerCase().indexOf(q)<0) return; shown++;
+      var row=el('div','orow'+(String(x.last||'').slice(0,10)===VIS.day||visMode==='today'?' st-new':''));
+      var info=el('div','oinfo'), top=el('div','otop');
+      top.appendChild(el('span','osvc',x.name)); top.appendChild(el('b',null,'@'+x.login));
+      if(visMode!=='today') top.appendChild(el('span','oprice',x.days+' дн. · '+x.visits+' заход.'));
+      info.appendChild(top);
+      info.appendChild(el('small',null,visMode==='today'?('сегодня впервые в '+x.time):('первый раз: '+fmtD(x.first)+' · последний: '+fmtD(x.last))));
+      row.appendChild(info);
+      var a=el('a','btn btn-line btn-sm','Twitch ↗'); a.href='https://www.twitch.tv/'+encodeURIComponent(x.login); a.target='_blank'; a.rel='noopener'; row.appendChild(a);
+      box.appendChild(row);
+    });
+    if(!src.length) box.appendChild(el('p','ph',visMode==='today'?'Сегодня через Twitch ещё никто не заходил.':'Пока никто не заходил через Twitch (учёт начался с этой версии).'));
+    else if(!shown) box.appendChild(el('p','ph','Нет ника «'+$('visQ').value.trim()+'».'));
+  }
+  function refreshVis(){ if(!TOK||$('sEdit').hidden) return; api({action:'visitors'}).then(function(j){ VIS=j.visitors||null; renderVis(); })
+    .catch(function(e){ var box=$('visList'); box.textContent=''; box.appendChild(el('p','ph',e.message==='bad_action'?'Скрипт в таблице старый: обновите его и разверните новую версию.':'Не загрузилось: '+why(e))); }); }
+  $('tVis').onclick=function(){tab('vis');refreshVis();};
+  $('visRef').onclick=refreshVis;
+  $('visQ').addEventListener('input',renderVis);
+  function visSetMode(m){visMode=m;$('visModeAll').setAttribute('aria-pressed',m==='all');$('visModeToday').setAttribute('aria-pressed',m==='today');renderVis();}
+  $('visModeAll').onclick=function(){visSetMode('all');};
+  $('visModeToday').onclick=function(){visSetMode('today');};
+  setInterval(function(){ if(!document.hidden&&!$('pVis').hidden) refreshVis(); },60000);
   /* любое поле во вкладке «Настройки» (числа и списки) включает «Сохранить» */
   ['input','change'].forEach(function(ev){$('pSet').addEventListener(ev,function(e){if(e.target&&/^(INPUT|SELECT)$/.test(e.target.tagName))setDirty(true);});});
   try{tab(localStorage.getItem('admTab')||'price');}catch(e){}
