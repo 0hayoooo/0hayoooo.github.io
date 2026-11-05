@@ -162,9 +162,12 @@ html,body{margin:0;background:transparent!important;overflow:hidden;height:100%}
     stage.appendChild(el); chime(a.n,a.big);
     setTimeout(function(){el.remove(); busy=false; setTimeout(next,600);},7100);
   }
-  function next(){ if(!busy&&queue.length) show(queue.shift()); }
+  function next(){ while(queue.length&&queue[0].at&&Date.now()-queue[0].at>FRESH) queue.shift(); if(!busy&&queue.length) show(queue.shift()); }
 
-  function accept(raw){
+  /* алерт живёт 30 секунд: всё, что старше (OBS был выключен, переподключение, очередь), выбрасываем */
+  var FRESH=30000;
+  function accept(raw,srvTime){
+    if(srvTime&&Math.abs(Date.now()-srvTime*1000)>FRESH+15000) return;
     var d; try{d=JSON.parse(raw);}catch(e){return;}
     if(!d||typeof d!=='object') return;
     var n=Number(d.n);
@@ -173,12 +176,12 @@ html,body{margin:0;background:transparent!important;overflow:hidden;height:100%}
     var key=nick.toLowerCase()+':'+n;
     if(seen[key]) return; seen[key]=1;
     if(queue.length>=5) return;
-    queue.push({nick:nick,n:n,big:typeof d.big==='boolean'?d.big:undefined}); next();
+    queue.push({nick:nick,n:n,big:typeof d.big==='boolean'?d.big:undefined,at:Date.now()}); next();
   }
 
   function connect(){
     var es=new EventSource('https://ntfy.sh/'+TOPIC+'/sse');
-    es.onmessage=function(e){ try{var m=JSON.parse(e.data); if(m.event==='message') accept(m.message);}catch(x){} };
+    es.onmessage=function(e){ try{var m=JSON.parse(e.data); if(m.event==='message') accept(m.message,m.time);}catch(x){} };
   }
   connect();
 
