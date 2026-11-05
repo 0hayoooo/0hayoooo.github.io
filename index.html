@@ -869,6 +869,30 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
 .streak-nick{font-weight:800;overflow-wrap:anywhere}
 .streak-txt small{font:600 11.5px/1 var(--mono);color:var(--muted)}
 .streak.is-me .streak-nick::after{content:" · это ты";color:var(--yellow);font-weight:800}
+
+/* рамки профиля + выбор котика */
+.fr-gold{border-color:#ffd23f!important;box-shadow:0 0 0 2px #ffd23f,0 0 12px rgba(255,210,63,.7)!important}
+.fr-neon{border-color:#ff3ea5!important;box-shadow:0 0 0 2px #ff3ea5,0 0 12px rgba(44,241,255,.8)!important}
+.fr-rainbow{border-color:#fff!important;box-shadow:0 0 0 2px #ff3ea5,0 0 0 4px #2cf1ff,0 0 12px rgba(255,210,63,.6)!important}
+.fr-ice{border-color:#8fdfff!important;box-shadow:0 0 0 2px #8fdfff,0 0 12px rgba(140,230,255,.8)!important}
+.fr-fire{border-color:#ff7a3d!important;box-shadow:0 0 0 2px #ff7a3d,0 0 12px rgba(255,120,40,.8)!important}
+.pf-av .cat-svg{width:100%;height:100%;display:block}
+.picker{display:grid;gap:14px;text-align:left;max-height:320px;overflow:auto;padding:2px;margin:2px 0}
+.pick-sec{display:grid;gap:6px}
+.pick-h{font:800 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.pick-h small{font-weight:600;letter-spacing:0;text-transform:none;color:var(--yellow)}
+.pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(60px,1fr));gap:8px}
+.pick{position:relative;display:grid;gap:4px;justify-items:center;padding:8px 4px;border-radius:12px;background:var(--bg);border:1.5px solid var(--line);cursor:pointer;color:inherit;font:inherit}
+.pick:hover{border-color:var(--cyan)}
+.pick.sel{border-color:var(--pink);box-shadow:0 0 12px rgba(255,62,165,.4)}
+.pick.lock{opacity:.55;cursor:not-allowed;filter:grayscale(.85)}
+.pick.lock::after{content:"🔒";position:absolute;top:3px;right:5px;font-size:11px;filter:none;opacity:1}
+.pick .av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;overflow:hidden;background:rgba(255,255,255,.04);border:1.5px solid var(--line)}
+.pick small{font:600 10px/1.1 var(--body);color:var(--muted);text-align:center;overflow:hidden;text-overflow:ellipsis;max-width:100%;white-space:nowrap}
+.pick-note{color:var(--yellow)!important;font-size:12px;margin:0;text-align:left}
+
+.pick-note.hot{color:var(--pink)!important;font-weight:700}
+.pick.lock:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -954,6 +978,11 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
     <h2 id="helloH">Укажите ваш Twitch ник</h2>
     <p id="helloP">Каждые 500 поглаживаний котика на стриме вылезает алерт с твоим ником.</p>
     <div class="hello-me" id="helloMe" hidden></div>
+    <div class="picker" id="picker" hidden>
+      <div class="pick-sec"><span class="pick-h">Твой котик</span><div class="pick-grid" id="avGrid"></div></div>
+      <div class="pick-sec"><span class="pick-h">Рамка <small>— топ-5 донатеров</small></span><div class="pick-grid" id="frGrid"></div></div>
+      <p class="pick-note" id="pickNote" hidden></p>
+    </div>
     <button type="button" class="tw-login" id="twLogin" hidden><svg aria-hidden="true"><use href="#i-twitch"/></svg>Войти через Twitch</button>
     <input id="helloNick" type="text" maxlength="25" autocomplete="off" spellcheck="false" placeholder="например, reiz" aria-label="Twitch ник">
     <small id="helloErr" aria-live="polite"></small>
@@ -1474,6 +1503,8 @@ function twMe(){try{var u=JSON.parse(localStorage.getItem('twUser')||'null');ret
     /* топ сам встаёт по сумме в рублях; при равной сумме сохраняется порядок из таблицы */
     LAST=list;
     list=list.map(function(r,k){return {r:r,k:k,v:amount(r[1])};}).sort(function(a,b){return b.v-a.v||a.k-b.k;}).map(function(x){return x.r;}).slice(0,25);
+    window.TOP5=list.slice(0,5).map(function(r){return String(r[0]).trim().toLowerCase();});
+    if(window.cosmeticsRegrey)window.cosmeticsRegrey();
     var me=twMe(), ME=me?[String(me.login).toLowerCase(),String(me.name||'').toLowerCase()]:[];
     function isMe(n){n=String(n).trim().toLowerCase();return !!n&&ME.indexOf(n)>=0;}
     meBanner(list,me,isMe);
@@ -2125,7 +2156,8 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
     }
     if(P.length)requestAnimationFrame(loop);else{running=false;ctx.clearRect(0,0,cv.width,cv.height);}
   }
-  function add(p){P.push(p);if(!running){running=true;requestAnimationFrame(loop);}}
+  var PCAP=360;
+  function add(p){if(P.length>=PCAP)return;P.push(p);if(!running){running=true;requestAnimationFrame(loop);}}
   function pick(a){return a[Math.floor(Math.random()*a.length)];}
   function burst(x,y,chars,colors,cnt,sp){for(var i=0;i<cnt;i++){var a=Math.random()*Math.PI*2,v=sp*(.4+Math.random()*.8);add({x:x,y:y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-2,g:.12,life:90+Math.random()*50,ch:pick(chars),c:pick(colors),s:14+Math.random()*16,r:0,vr:(Math.random()-.5)*.2});}}
   function rain(chars,colors,cnt){for(var i=0;i<cnt;i++)add({x:Math.random()*innerWidth,y:-20-Math.random()*innerHeight*.9,vx:(Math.random()-.5),vy:2+Math.random()*3,g:.02,life:420,ch:pick(chars),c:pick(colors),s:14+Math.random()*18,r:0,vr:(Math.random()-.5)*.08});}
@@ -2170,20 +2202,29 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
     var st=document.getElementById('petStep');if(st)st.textContent=S.alertStep.toLocaleString('ru-RU');};
   if(window.SITE_SET_READY)window.SITE_SET_READY.then(function(x){S=x;window.petBonusRefresh();});
   window.petBonusRefresh();
+  var _lastSquish=0,_lastBurst=0,_lastMs=0,_saveT=0,_alertT=0,_alertPend=null;
+  function _flushSave(){_saveT=0;try{localStorage.setItem(petKey(),String(n));}catch(e){}}
+  function _flushAlert(){_alertT=0;if(!_alertPend)return;var a=_alertPend;_alertPend=null;sendAlert(a[0],a[1]);}
   btn.addEventListener('click',function(){
+    var now=(window.performance&&performance.now)?performance.now():Date.now();
     var prev=n; n+=bonus();render();
-    btn.classList.remove('squish'); void btn.offsetWidth; btn.classList.add('squish');
+    /* сквиш перезапускаем не чаще раза в 90мс — иначе форс-рефлоу на каждом клике вешает страницу */
+    if(now-_lastSquish>90){_lastSquish=now;btn.classList.remove('squish'); void btn.offsetWidth; btn.classList.add('squish');}
     btn.classList.add('happy'); clearTimeout(btn._ht); btn._ht=setTimeout(function(){btn.classList.remove('happy');},700);
-    try{localStorage.setItem(petKey(),String(n));}catch(e){}
-    if(!RM){var b=bc();burst(b[0],b[1],['ฅ','♡','✦'],[PINK,CYAN,YEL],5,4);}
+    /* запись в localStorage — пачкой, не на каждый клик */
+    if(!_saveT)_saveT=setTimeout(_flushSave,250);
+    if(!RM&&now-_lastBurst>70){_lastBurst=now;var b=bc();burst(b[0],b[1],['ฅ','♡','✦'],[PINK,CYAN,YEL],5,4);}
     /* с бонусом счётчик прыгает на несколько — ловим пересечённые отметки */
     var best=0;for(var j=prev+1;j<=n;j++)if(MS[j]||(j>2000&&j%1000===0))best=j;
-    if(best)milestone(best);
-    /* два алерта: обычный (звук 1) и особый (звук 2); если оба — играет особый */
+    /* отметки показываем не чаще раза в 650мс — тяжёлые дожди частиц не копятся */
+    if(best&&now-_lastMs>650){_lastMs=now;milestone(best);}
+    /* два алерта: обычный (звук 1) и особый (звук 2); если оба — играет особый; шлём не чаще раза в 1.2с, только последний */
     var step=Math.max(10,S.alertStep|0), big=Math.max(10,S.alertBig|0);
-    if(n>=big&&Math.floor(n/big)>Math.floor(prev/big)) sendAlert(Math.floor(n/big)*big,true);
-    else if(n>=step&&Math.floor(n/step)>Math.floor(prev/step)) sendAlert(Math.floor(n/step)*step,false);
+    if(n>=big&&Math.floor(n/big)>Math.floor(prev/big)) _alertPend=[Math.floor(n/big)*big,true];
+    else if(n>=step&&Math.floor(n/step)>Math.floor(prev/step)) _alertPend=[Math.floor(n/step)*step,false];
+    if(_alertPend&&!_alertT)_alertT=setTimeout(_flushAlert,1200);
   });
+  window.addEventListener('beforeunload',function(){if(_saveT)_flushSave();});
 
   /* алерт на стрим (через ntfy.sh) */
   var TOPIC='0hayoooo-murk-f3c841f12959';
@@ -2212,6 +2253,98 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
     if(window.SITE_SET_READY)window.SITE_SET_READY.then(function(S){HINT='Каждые '+S.alertStep.toLocaleString('ru-RU')+' поглаживаний котика на стриме вылезает алерт с твоим ником.';});
     var mode='', editing=false;
 
+    /* ===== котики-аватарки и рамки профиля ===== */
+    var COS_API=(typeof ADMIN_API==='string')?ADMIN_API.trim():'';
+    var AVATARS=[
+      {id:'cream',name:'кремовый',fur:'#f3d9b1',eye:'#2a9'},{id:'grey',name:'серый',fur:'#aeb8c7',eye:'#58c'},
+      {id:'black',name:'чёрный',fur:'#4a4560',eye:'#8ef'},{id:'orange',name:'рыжий',fur:'#ff9d4d',eye:'#3b7'},
+      {id:'pink',name:'розовый',fur:'#ff9ecb',eye:'#a25'},{id:'mint',name:'мятный',fur:'#9ff0d0',eye:'#37a'},
+      {id:'lilac',name:'сиреневый',fur:'#c6a8ff',eye:'#639'},{id:'snow',name:'снежный',fur:'#f4f6ff',eye:'#f6a'},
+      {id:'neon',name:'неон',premium:1,grad:['#ff3ea5','#2cf1ff'],eye:'#fff'},
+      {id:'galaxy',name:'галактика',premium:1,grad:['#6a2a9c','#2cf1ff'],star:1,eye:'#fff'},
+      {id:'gold',name:'король',premium:1,fur:'#ffd23f',crown:1,eye:'#7a5'},
+      {id:'angel',name:'ангел',premium:1,fur:'#ffffff',halo:1,eye:'#8cf'},
+      {id:'devil',name:'дьяволёнок',premium:1,fur:'#2a1030',horns:1,eye:'#f55'},
+      {id:'rainbow',name:'радуга',premium:1,grad:['#ff3ea5','#ffd23f','#3dff8a','#2cf1ff'],eye:'#fff'},
+      {id:'fire',name:'огонёк',premium:1,grad:['#ff3d2e','#ff9d3d'],flame:1,eye:'#ffe'},
+      {id:'ice',name:'ледяной',premium:1,grad:['#8fdfff','#ffffff'],frost:1,eye:'#2a7fd0'},
+      {id:'unicorn',name:'единорог',premium:1,grad:['#ffd1f5','#c6a8ff'],horn:1,star:1,eye:'#8a4cff'},
+      {id:'ninja',name:'ниндзя',premium:1,fur:'#2b2b3a',band:1,eye:'#fff'},
+      {id:'cyber',name:'кибер',premium:1,grad:['#2cf1ff','#6a2a9c'],visor:1,eye:'#0ff'},
+      {id:'vampire',name:'вампир',premium:1,fur:'#3a1020',fangs:1,eye:'#ff3b5c'},
+      {id:'heart',name:'влюблённый',premium:1,fur:'#ff8ec0',hearteyes:1,eye:'#fff'},
+      {id:'star',name:'звёздный',premium:1,grad:['#2b1a5e','#ff3ea5'],star:1,crown:1,eye:'#ffe98a'}
+    ];
+    var AV_BY_ID={}; AVATARS.forEach(function(a){AV_BY_ID[a.id]=a;});
+    var FRAMES=[{id:'',name:'без рамки'},{id:'fr-gold',name:'золото',premium:1},{id:'fr-neon',name:'неон',premium:1},{id:'fr-rainbow',name:'радуга',premium:1},{id:'fr-ice',name:'лёд',premium:1},{id:'fr-fire',name:'огонь',premium:1}];
+    var FR_IDS=FRAMES.map(function(f){return f.id;});
+    function catSVG(a){
+      if(!a)a=AV_BY_ID.cream;
+      var gid='cg_'+a.id, fur=a.grad?'url(#'+gid+')':a.fur, eye=a.eye||'#333';
+      var stops=''; if(a.grad){for(var gi=0;gi<a.grad.length;gi++)stops+='<stop offset="'+(gi/(a.grad.length-1)).toFixed(3)+'" stop-color="'+a.grad[gi]+'"/>';}
+      var defs=a.grad?'<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="1" y2="1">'+stops+'</linearGradient></defs>':'';
+      var above='';
+      if(a.crown)above+='<path d="M15 12 L19 16 L24 10 L29 16 L33 12 L31 19 L17 19 Z" fill="#ffd23f" stroke="#b8860b" stroke-width="1"/>';
+      if(a.halo)above+='<ellipse cx="24" cy="7" rx="9" ry="2.6" fill="none" stroke="#ffe98a" stroke-width="2"/>';
+      if(a.horns)above+='<path d="M15 14 Q12 7 16 6 Q16 11 19 13 Z" fill="#ff4d5e"/><path d="M33 14 Q36 7 32 6 Q32 11 29 13 Z" fill="#ff4d5e"/>';
+      if(a.horn)above+='<path d="M24 3 L26 14 L22 14 Z" fill="#ffe08a" stroke="#e0b24a" stroke-width=".8"/>';
+      if(a.flame)above+='<path d="M24 3 Q28 9 24 14 Q20 9 24 3 Z" fill="#ffd23f"/><path d="M24 6 Q26.5 9.5 24 13 Q21.5 9.5 24 6 Z" fill="#ff6a2e"/>';
+      if(a.star||a.frost){var col=a.frost?'#bfefff':'#fff';above+='<g fill="'+col+'"><circle cx="14" cy="21" r="1"/><circle cx="34" cy="18" r="1.2"/><circle cx="31" cy="31" r="1"/></g>';}
+      var over='';
+      if(a.band)over+='<rect x="11" y="24.5" width="26" height="5" rx="1" fill="#e0344e"/><path d="M35 24 l6 -2 l-1 5.5 Z" fill="#c02540"/>';
+      if(a.visor)over+='<rect x="14" y="24.2" width="20" height="5.2" rx="2.6" fill="#0b0716" stroke="#2cf1ff" stroke-width="1"/><rect x="16" y="26" width="16" height="1.8" rx="1" fill="#2cf1ff" opacity=".85"/>';
+      var eyes;
+      if(a.band||a.visor)eyes='';
+      else if(a.hearteyes)eyes='<path d="M19.5 25.6 a1.3 1.3 0 0 1 2.2 1 c0 1-1.1 1.8-2.2 2.6 c-1.1-.8-2.2-1.6-2.2-2.6 a1.3 1.3 0 0 1 2.2-1 Z" fill="'+eye+'"/><path d="M28.5 25.6 a1.3 1.3 0 0 1 2.2 1 c0 1-1.1 1.8-2.2 2.6 c-1.1-.8-2.2-1.6-2.2-2.6 a1.3 1.3 0 0 1 2.2-1 Z" fill="'+eye+'"/>';
+      else eyes='<circle cx="19.5" cy="27" r="2.3" fill="'+eye+'"/><circle cx="28.5" cy="27" r="2.3" fill="'+eye+'"/>';
+      var mouth='<path d="M22.6 31 L25.4 31 L24 33 Z" fill="#ff7aa8"/><path d="M24 33 Q24 35 21.2 35 M24 33 Q24 35 26.8 35" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1"/>';
+      if(a.fangs)over+='<path d="M22 33 l1.1 2.4 l1 -2 Z" fill="#fff"/><path d="M25 33 l1 2 l1.1 -2.4 Z" fill="#fff"/>';
+      return '<svg viewBox="0 0 48 48" class="cat-svg" aria-hidden="true">'+defs+above+
+        '<path d="M11 23 L14 13 L22 20 Q24 19 26 20 L34 13 L37 23 Q39 37 24 41 Q9 37 11 23 Z" fill="'+fur+'" stroke="rgba(0,0,0,.22)" stroke-width="1"/>'+
+        eyes+mouth+over+'</svg>';
+    }
+    function isTop5(u){if(!u)return false;var t=window.TOP5||[];return t.indexOf(String(u.login||'').toLowerCase())>=0||t.indexOf(String(u.name||'').toLowerCase())>=0;}
+    function lockNote(nm){var n=document.getElementById('pickNote');if(n){n.hidden=false;n.classList.add('hot');n.textContent='🔒 «'+nm+'» откроется в топ-5 донатеров — попади в топ-5, чтобы выбрать.';}}
+    function restoreNote(){var n=document.getElementById('pickNote');if(!n)return;n.classList.remove('hot');var top=isTop5(getUser());n.hidden=top;if(!top)n.textContent='Премиум-котики и рамки — для топ-5 донатеров. Наведи на замок — покажу, как открыть.';}
+    function renderPicker(u){
+      var pk=document.getElementById('picker'); if(!pk||!u)return;
+      var top=isTop5(u), note=document.getElementById('pickNote');
+      function tile(grid,item,isFrame){
+        var locked=item.premium&&!top, sel=isFrame?((u.frame||'')===item.id):((u.cat||'')===item.id);
+        var t=document.createElement(locked?'span':'button'); if(!locked)t.type='button';
+        t.className='pick'+(sel?' sel':'')+(locked?' lock':'');
+        t.title=locked?'Чтобы открыть — попади в топ-5 донатеров':item.name;
+        if(locked){t.setAttribute('tabindex','0');
+          t.addEventListener('mouseenter',function(){lockNote(item.name);});t.addEventListener('focus',function(){lockNote(item.name);});
+          t.addEventListener('mouseleave',restoreNote);t.addEventListener('blur',restoreNote);}
+        var av=document.createElement('span'); av.className='av'+(isFrame&&item.id?(' '+item.id):'');
+        av.innerHTML=catSVG(isFrame?(AV_BY_ID[u.cat]||AV_BY_ID.cream):item);
+        var nm=document.createElement('small'); nm.textContent=item.name;
+        t.appendChild(av); t.appendChild(nm);
+        if(!locked)t.onclick=function(){ if(isFrame)u.frame=item.id; else u.cat=item.id; saveCosmetics(u); renderPicker(u); };
+        grid.appendChild(t);
+      }
+      var ag=document.getElementById('avGrid'); ag.textContent=''; AVATARS.forEach(function(a){tile(ag,a,false);});
+      var fg=document.getElementById('frGrid'); fg.textContent=''; FRAMES.forEach(function(f){tile(fg,f,true);});
+      restoreNote();
+    }
+    window.cosmeticsRegrey=function(){var pk=document.getElementById('picker');if(pk&&!pk.hidden){var u=getUser();if(u)renderPicker(u);}};
+    function saveCosmetics(u){
+      setUser(u); paint();
+      if(!COS_API||!u||!u.login)return;
+      fetch(COS_API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'cosmeticsSet',login:u.login,name:u.name||u.login,cat:u.cat||'',frame:u.frame||''})})
+        .then(function(r){return r.ok?r.json():null;}).catch(function(){});
+    }
+    var cosSynced=false;
+    function syncCosmetics(u){
+      if(cosSynced||!COS_API||!u||!u.login)return; cosSynced=true;
+      fetch(COS_API+'?sheet=cosmetics&t='+Math.floor(Date.now()/60000),{cache:'no-store'})
+        .then(function(r){return r.ok?r.json():null;})
+        .then(function(map){ if(!map)return; var m=map[String(u.login).toLowerCase()]; if(!m)return;
+          var cur=getUser(); if(!cur||String(cur.login||'').toLowerCase()!==String(u.login).toLowerCase())return;
+          if((m.cat||'')!==(cur.cat||'')||(m.frame||'')!==(cur.frame||'')){cur.cat=m.cat||'';cur.frame=m.frame||'';setUser(cur);paint();var pk=document.getElementById('picker');if(pk&&!pk.hidden)renderPicker(cur);} })
+        .catch(function(){});
+    }
     function getUser(){try{return JSON.parse(localStorage.getItem('twUser')||'null');}catch(e){return null;}}
     function setUser(u){try{u?localStorage.setItem('twUser',JSON.stringify(u)):localStorage.removeItem('twUser');}catch(e){}}
     function setNick(v){nickIn.value=v||'';try{localStorage.setItem('petNick',nickIn.value);}catch(e){}loadCount();}
@@ -2229,8 +2362,11 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
       pBtn.classList.toggle('is-verified',!!u);
       pBtn.classList.toggle('is-follower',!!(u&&u.follows));
       pBtn.classList.toggle('is-sub',!!(u&&u.sub));
+      pAv.className='pf-av'+(u&&u.frame&&FR_IDS.indexOf(u.frame)>=0?' '+u.frame:'');
       pAv.textContent='';
-      if(u&&u.avatar){var im=document.createElement('img');im.src=u.avatar;im.alt='';pAv.appendChild(im);}else pAv.textContent='ฅ';
+      if(u&&u.cat&&AV_BY_ID[u.cat]){pAv.innerHTML=catSVG(AV_BY_ID[u.cat]);}
+      else if(u&&u.avatar){var im=document.createElement('img');im.src=u.avatar;im.alt='';pAv.appendChild(im);}
+      else pAv.textContent='ฅ';
     }
     function show(el,on){el.hidden=!on;}
     /* стаж на канале, ачивки и саб — в окне профиля */
@@ -2266,6 +2402,7 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
       if(m==='manual'){hh.textContent='Укажите ваш Twitch ник';hp.textContent=HINT;inp.value=edit?nickIn.value:'';}
       if(m==='login'){hh.textContent='Войдите через Twitch';hp.textContent=HINT+' Пароль вводится только на сайте Twitch, этот сайт его не видит.';}
       meStats(m==='account'?u:null);
+      var pk=document.getElementById('picker'); if(pk){show(pk,m==='account'); if(m==='account'){renderPicker(u);syncCosmetics(u);}}
       if(m==='account'){
         var rl=roleOf(u);
         if(rl==='хозяйка канала'){hh.textContent='Привет, хозяйка ♛';hp.textContent='Ты вошла как владелица канала и сайта. Всё редактируется на странице создателя.';}
@@ -2302,6 +2439,7 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
           var d=j&&j.data&&j.data[0]; if(!d||!d.login) throw 0;
           var name=/^[A-Za-z0-9_]{1,25}$/.test(d.display_name||'')?d.display_name:d.login;
           var u0={id:d.id,login:d.login,name:name,avatar:d.profile_image_url||''};
+          var prevU=getUser(); if(prevU&&String(prevU.login||'').toLowerCase()===String(d.login||'').toLowerCase()){u0.cat=prevU.cat;u0.frame=prevU.frame;}
           return fetch('https://api.twitch.tv/helix/channels/followed?user_id='+encodeURIComponent(d.id)+'&broadcaster_id=1002649611',{headers:{'Authorization':'Bearer '+tok,'Client-Id':CID}})
             .then(function(r){return r.ok?r.json():null;})
             .catch(function(){return null;})
