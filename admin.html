@@ -41,6 +41,8 @@ body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 var(--body);
 .brand h1 em{font-style:normal;color:var(--yellow);text-shadow:0 0 14px rgba(255,210,63,.5)}
 .me{display:flex;align-items:center;gap:10px;padding:6px 6px 6px 8px;border-radius:999px;background:rgba(20,13,37,.85);border:1px solid var(--line)}
 .me img{width:30px;height:30px;border-radius:50%;object-fit:cover;border:1.5px solid var(--yellow)}
+#meCat{width:30px;height:30px;border-radius:50%;overflow:hidden;border:1.5px solid var(--yellow);display:grid;place-items:center;background:rgba(255,62,165,.10)}
+#meCat svg{width:100%;height:100%;display:block}
 .me b{font-weight:800;font-size:14px}
 .me b::after{content:" ♛";color:var(--yellow)}
 
@@ -241,7 +243,7 @@ select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--li
 <div class="wrap">
   <header class="top">
     <div class="brand"><small>0hayoooo.github.io</small><h1>Страница <em>создателя</em></h1></div>
-    <div class="me" id="me" hidden><img id="meAv" alt=""><b id="meName"></b><button class="btn btn-line btn-sm" id="logout" type="button">Выйти</button></div>
+    <div class="me" id="me" hidden><img id="meAv" alt=""><span id="meCat" aria-hidden="true" hidden></span><b id="meName"></b><button class="btn btn-line btn-sm" id="logout" type="button">Выйти</button></div>
   </header>
 
   <section class="card" id="sSetup" hidden>
@@ -532,6 +534,15 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   function setTok(t){TOK=t||'';try{t?localStorage.setItem('admTok',t):localStorage.removeItem('admTok');}catch(e){}}
   function revoke(t){if(!t)return;try{fetch('https://id.twitch.tv/oauth2/revoke',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'client_id='+encodeURIComponent(CID)+'&token='+encodeURIComponent(t)}).catch(function(){});}catch(e){}}
 
+  /* аватарка в шапке: котик, выбранный на сайте (кэш того же сайта), иначе фото из Twitch */
+  function meCatAv(login){
+    var mc=$('meCat'); if(!mc||!login) return; var c=null;
+    try{c=JSON.parse(localStorage.getItem('avCache:'+String(login).toLowerCase())||'null');}catch(e){}
+    var svg=c&&typeof c.svg==='string'?c.svg:'';
+    if(svg&&/^<svg[\s>]/.test(svg)&&!/<script|\son\w+\s*=|javascript:/i.test(svg)){ mc.innerHTML=svg; mc.hidden=false; $('meAv').hidden=true; }
+    else { mc.hidden=true; mc.textContent=''; if($('meAv').getAttribute('src')) $('meAv').hidden=false; }
+  }
+  window.addEventListener('storage',function(e){ if(e.key&&e.key.indexOf('avCache:')===0){ var nm=$('meName').textContent; if(ADM_LOGIN) meCatAv(ADM_LOGIN); } });
   function api(body){
     body.token=TOK;
     return fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)})
@@ -569,7 +580,7 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
     fetch('https://api.twitch.tv/helix/users',{headers:{'Authorization':'Bearer '+TOK,'Client-Id':CID}})
       .then(function(r){return r.ok?r.json():null;}).then(function(j){
         var d=j&&j.data&&j.data[0]; if(!d) return;
-        $('meName').textContent=d.display_name||d.login; if(d.profile_image_url)$('meAv').src=d.profile_image_url; else $('meAv').hidden=true;
+        $('meName').textContent=d.display_name||d.login; if(d.profile_image_url)$('meAv').src=d.profile_image_url; else $('meAv').hidden=true; meCatAv(d.login);
         $('me').hidden=false;
       }).catch(function(){});
   }
@@ -590,6 +601,7 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
       $('sCoinTop1').value=st.coinTop1!=null?st.coinTop1:5000;$('sCoinTop2').value=st.coinTop2!=null?st.coinTop2:4000;$('sCoinTop3').value=st.coinTop3!=null?st.coinTop3:3000;$('sCoinTop4').value=st.coinTop4!=null?st.coinTop4:2000;$('sCoinTop5').value=st.coinTop5!=null?st.coinTop5:1000;
       coins=j.coins||[];renderCoins();
       if(!$('meName').textContent){$('meName').textContent=j.login;$('meAv').hidden=true;$('me').hidden=false;}
+      meCatAv(j.login);
       var dr=null;try{dr=JSON.parse(sessionStorage.getItem('admDraft')||'null');sessionStorage.removeItem('admDraft');}catch(e){}
       if(dr&&dr.price&&dr.donors){price=dr.price;donors=dr.donors;}
       try{sessionStorage.removeItem('admAuto');}catch(x){}

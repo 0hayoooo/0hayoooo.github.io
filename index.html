@@ -879,6 +879,11 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
 .fr-ice{border-color:#8fdfff!important;box-shadow:0 0 0 2px #8fdfff,0 0 12px rgba(140,230,255,.8)!important}
 .fr-fire{border-color:#ff7a3d!important;box-shadow:0 0 0 2px #ff7a3d,0 0 12px rgba(255,120,40,.8)!important}
 .pf-av .cat-svg{width:100%;height:100%;display:block}
+.hello-cat{display:grid;place-items:center;overflow:hidden;background:rgba(255,62,165,.10)}
+.hello-cat svg{width:100%;height:100%;display:block}
+.pick .av.tw-photo{overflow:hidden;display:grid;place-items:center}
+.pick .av.tw-photo img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.pick .av.tw-photo b{font:700 22px/1 var(--mono);color:var(--pink)}
 .picker{display:grid;gap:14px;text-align:left;max-height:320px;overflow:auto;padding:2px;margin:2px 0}
 .pick-sec{display:grid;gap:6px}
 .pick-h{font:800 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
@@ -1015,6 +1020,7 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
   <form class="hello-card" id="helloForm">
     <div class="hello-cat" aria-hidden="true">ฅ^•ﻌ•^ฅ</div>
     <img class="hello-av" id="helloAv" alt="" hidden>
+    <span class="hello-av hello-cat" id="helloCat" aria-hidden="true" hidden></span>
     <h2 id="helloH">Укажите ваш Twitch ник</h2>
     <p id="helloP">Каждые 500 поглаживаний котика на стриме вылезает алерт с твоим ником.</p>
     <div class="hello-me" id="helloMe" hidden></div>
@@ -2393,7 +2399,13 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
         if(!locked)t.onclick=function(){ if(isFrame)u.frame=item.id; else u.cat=item.id; saveCosmetics(u); renderPicker(u); };
         grid.appendChild(t);
       }
-      var ag=document.getElementById('avGrid'); ag.textContent=''; AVATARS.forEach(function(a){tile(ag,a,false);});
+      var ag=document.getElementById('avGrid'); ag.textContent='';
+      (function(){ var t=document.createElement('button'); t.type='button'; t.className='pick'+(!u.cat?' sel':''); t.title='Без котика — фото из Twitch';
+        var a=document.createElement('span'); a.className='av tw-photo';
+        if(u.avatar){var im=document.createElement('img');im.src=u.avatar;im.alt='';a.appendChild(im);} else {var b=document.createElement('b');b.textContent='ฅ';a.appendChild(b);}
+        var nm=document.createElement('small'); nm.textContent='фото из Twitch';
+        t.appendChild(a); t.appendChild(nm); t.onclick=function(){ u.cat=''; saveCosmetics(u); renderPicker(u); }; ag.appendChild(t); })();
+      AVATARS.forEach(function(a){tile(ag,a,false);});
       var fg=document.getElementById('frGrid'); fg.textContent=''; FRAMES.forEach(function(f){tile(fg,f,true);});
       restoreNote();
     }
@@ -2438,6 +2450,15 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
       if(u&&u.cat&&AV_BY_ID[u.cat]){pAv.innerHTML=catSVG(AV_BY_ID[u.cat]);}
       else if(u&&u.avatar){var im=document.createElement('img');im.src=u.avatar;im.alt='';pAv.appendChild(im);}
       else pAv.textContent='ฅ';
+      /* кэш для шапки админки (тот же сайт): выбранный котик или пусто = фото из Twitch */
+      if(u&&u.login){try{localStorage.setItem('avCache:'+String(u.login).toLowerCase(),JSON.stringify({svg:(u.cat&&AV_BY_ID[u.cat])?catSVG(AV_BY_ID[u.cat]):'',frame:u.frame||''}));}catch(e){}}
+      var hb=document.getElementById('hello'); if(!av.hidden||!document.getElementById('helloCat').hidden) heroAv(u);
+    }
+    /* аватарка в окне приветствия: выбранный котик, иначе фото из Twitch */
+    function heroAv(u){
+      var hc=document.getElementById('helloCat'); if(!hc) return;
+      if(u&&u.cat&&AV_BY_ID[u.cat]){ hc.innerHTML=catSVG(AV_BY_ID[u.cat]); hc.className='hello-av hello-cat'+(u.frame&&FR_IDS.indexOf(u.frame)>=0?' '+u.frame:''); hc.hidden=false; av.hidden=true; }
+      else { hc.hidden=true; hc.textContent=''; var ok=!!(u&&u.avatar); av.hidden=!ok; if(ok) av.src=u.avatar; }
     }
     function show(el,on){el.hidden=!on;}
     /* стаж на канале, ачивки и саб — в окне профиля */
@@ -2466,7 +2487,7 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
     function open(m,edit){
       mode=m; editing=edit; err.textContent='';
       var u=getUser();
-      show(av,m==='account'&&!!(u&&u.avatar)); if(m==='account'&&u&&u.avatar) av.src=u.avatar;
+      heroAv(m==='account'?u:null);
       show(inp,m==='manual'); show(ok,m==='manual'); show(twb,m==='login'); show(out,m==='account');
       var adm=document.getElementById('helloAdm'); if(adm) show(adm,m==='account'&&!!u&&['netfil0','0hayoooo'].indexOf(String(u.login||'').toLowerCase())>=0);
       twb.disabled=false;
