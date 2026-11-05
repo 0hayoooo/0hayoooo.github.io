@@ -74,6 +74,9 @@ h2{font-family:var(--display);font-weight:400;font-size:clamp(28px,4.4vw,40px);l
 h2 em{font-style:normal;color:var(--cyan);text-shadow:0 0 14px rgba(44,241,255,.5)}
 .sec-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;margin-bottom:24px}
 .sec-head p{margin:0;color:var(--muted);max-width:48ch}
+/* подзаголовок — сразу под заголовком, а не на другом краю */
+.vk-main .sec-head{flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:8px}
+.vk-main .sec-head p{max-width:72ch}
 
 /* links */
 .links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
@@ -311,7 +314,8 @@ footer a{color:var(--pink);text-decoration:none}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
-  .ticker-track{flex-wrap:wrap;width:auto}
+  /* бегущая строка бежит всегда (просьба хозяйки), только медленнее */
+  .ticker-track{animation:run 44s linear infinite!important}
 }
 
 /* ===== top bar + mobile tuning ===== */
@@ -928,15 +932,107 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
 .vk-tab.vk-adm.on{border-style:solid}
 .home-panel>section+section{margin-top:30px}
 .hero h1{font-size:clamp(40px,7.2vw,72px);overflow-wrap:normal}
+.vk-main>.ticker{margin-block:26px 38px}
+.tama{display:grid;grid-template-columns:minmax(220px,300px) minmax(0,1fr);gap:26px;align-items:center;padding:24px;border-radius:22px;background:var(--surface);border:1px solid var(--line);box-shadow:0 0 40px rgba(255,62,165,.10)}
+.tama-stage{position:relative;aspect-ratio:1;max-width:100%;border-radius:20px;display:grid;place-items:center;background:radial-gradient(circle at 50% 60%,rgba(255,62,165,.18),transparent 65%),rgba(11,7,22,.55);border:1px solid var(--line);overflow:hidden}
+.tama-pet{width:calc(100% * var(--k,.7));aspect-ratio:1;transition:width .6s cubic-bezier(.2,1.4,.4,1);animation:tamaIdle 3.2s ease-in-out infinite}
+.tama-pet svg{width:100%;height:100%;display:block}
+.tama-stage.is-hungry .tama-pet{animation:tamaSad 2.6s ease-in-out infinite;filter:saturate(.7)}
+.tama-pet.nom{animation:tamaNom .5s ease}
+.tama-mood{position:absolute;top:12px;right:14px;font-size:30px;line-height:1}
+@keyframes tamaIdle{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes tamaSad{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+@keyframes tamaNom{30%{transform:scale(1.12)}60%{transform:scale(.95)}}
+.tama-info{display:grid;gap:14px;min-width:0}
+.tama-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.tama-h b{font:700 22px/1.2 var(--body);color:var(--fg)}
+.tama-lv{font:700 13px/1 var(--mono);color:var(--yellow);padding:5px 9px;border:1px solid rgba(255,210,63,.5);border-radius:999px}
+.tama-st{margin:0;color:var(--muted)}
+.tama-bt{display:flex;justify-content:space-between;gap:10px;font:600 13px/1.3 var(--body);color:var(--muted);margin-bottom:6px}
+.tama-tr{height:12px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden}
+.tama-tr i{display:block;height:100%;border-radius:999px;transition:width .6s ease}
+.b-xp .tama-tr i{background:linear-gradient(90deg,var(--pink),var(--cyan))}
+.b-sat .tama-tr i{background:linear-gradient(90deg,#ffb84d,var(--yellow))}
+.tama-food{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.tama-f{display:grid;justify-items:center;gap:4px;padding:14px 8px;border-radius:16px;background:rgba(11,7,22,.6);border:1px solid var(--line);color:var(--fg);cursor:pointer;font:inherit;transition:transform .15s,border-color .15s,box-shadow .15s}
+.tama-f:hover:not(:disabled){transform:translateY(-2px);border-color:var(--pink);box-shadow:0 0 16px rgba(255,62,165,.25)}
+.tama-f:disabled{opacity:.45;cursor:not-allowed}
+.tf-e{font-size:30px;line-height:1}
+.tama-f b{font:700 15px/1.2 var(--body)}
+.tama-f small{font:600 12px/1.3 var(--body);color:var(--muted);text-align:center}
+.tama-note{margin:0;color:var(--muted);font-size:14px}
+.tama-note.hot{color:var(--yellow)}
+.tama-guest{display:grid;gap:14px;justify-items:start;padding:24px;border-radius:22px;background:var(--surface);border:1px solid var(--line)}
+.tama-guest p{margin:0;color:var(--muted)}
+@media(max-width:760px){.tama{grid-template-columns:minmax(0,1fr);padding:16px}.tama-stage{max-width:300px;width:100%;justify-self:center}.tama-food{grid-template-columns:repeat(2,minmax(0,1fr))}.vk-main>.ticker{margin-block:20px 28px}}
+@media (prefers-reduced-motion:reduce){.tama-pet,.tama-stage.is-hungry .tama-pet,.tama-pet.nom{animation:none}}
+.ach-sum{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin:0 0 16px;color:var(--muted);font:600 15px/1.4 var(--body)}
+.ach-sum b{color:var(--fg)}
+.ach-sum .ach-ttl{color:var(--yellow)}
+.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.ach{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;align-items:start;padding:14px;border-radius:16px;background:var(--surface);border:1px solid var(--line);position:relative}
+.ach .ae{grid-row:span 3;font-size:34px;line-height:1;width:48px;height:48px;display:grid;place-items:center;border-radius:14px;background:rgba(255,210,63,.10);border:1px solid rgba(255,210,63,.35)}
+.ach b{font:700 15px/1.25 var(--body);color:var(--fg)}
+.ach small{font:500 13px/1.35 var(--body);color:var(--muted)}
+.ach .ar{font:700 12px/1 var(--mono);color:var(--yellow)}
+.ach.got{border-color:rgba(255,210,63,.55);box-shadow:0 0 18px rgba(255,210,63,.12)}
+.ach.got .ar::after{content:"  · получено ✓";color:#7dffb2}
+.ach.lock .ae{filter:grayscale(1);opacity:.45;background:rgba(255,255,255,.04);border-color:var(--line)}
+.ach.lock b{color:var(--muted)}
+.ach .ap{grid-column:1/-1;margin-top:8px}
+.ach .ap span{display:block;font:600 12px/1.3 var(--body);color:var(--muted);margin-bottom:5px}
+.ach .ap i{display:block;height:7px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden}
+.ach .ap i::before{content:"";display:block;height:100%;width:var(--p,0%);border-radius:999px;background:linear-gradient(90deg,var(--pink),var(--cyan))}
+.ach-hint{margin:14px 0 0;color:var(--muted)}
+.ach-toast{position:fixed;left:0;right:0;margin-inline:auto;width:fit-content;bottom:max(18px,env(safe-area-inset-bottom,0px));transform:translateY(140%);z-index:300;display:flex;align-items:center;gap:12px;max-width:min(440px,calc(100vw - 32px));padding:12px 16px;border-radius:16px;background:rgba(20,13,37,.97);border:1.5px solid var(--yellow);box-shadow:0 0 28px rgba(255,210,63,.35);color:var(--fg);font:600 14px/1.35 var(--body);transition:transform .35s cubic-bezier(.2,1.3,.4,1)}
+.ach-toast.on{transform:translateY(0)}
+.ach-toast .te{font-size:30px;line-height:1}
+.ach-toast b{display:block;color:var(--yellow);font:700 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+@media (prefers-reduced-motion:reduce){.ach-toast{transition:none}}
+.hub-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;align-items:start}
+.hub{padding:16px;border-radius:18px;background:var(--surface);border:1px solid var(--line);min-width:0}
+.hub h3{margin:0 0 4px;font:700 17px/1.2 var(--body);color:var(--fg)}
+.hub .hsub{margin:0 0 10px;color:var(--muted);font:500 13px/1.3 var(--body)}
+.hub ol{list-style:none;margin:0;padding:0;display:grid;gap:3px}
+.hub li{display:grid;grid-template-columns:30px 28px minmax(0,1fr) auto;align-items:center;gap:8px;padding:6px 8px;border-radius:10px}
+.hub li .hr{font:700 13px/1 var(--mono);color:var(--muted);text-align:center}
+.hub li .hr.m{font-size:19px}
+.hub li .hav{width:28px;height:28px;border-radius:50%;overflow:hidden;background:rgba(255,62,165,.10);display:grid;place-items:center}
+.hub li .hav svg{width:100%;height:100%;display:block}
+.hub li .hn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:600 14px/1.3 var(--body);color:var(--fg)}
+.hub li .hv{font:700 13px/1 var(--mono);color:var(--yellow);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hub li.me{background:rgba(255,62,165,.14);box-shadow:inset 0 0 0 1px rgba(255,62,165,.55)}
+.hub .hme{margin:8px 0 0;padding:8px 10px;border-radius:10px;border:1px dashed rgba(255,62,165,.55);color:var(--fg);font:600 13px/1.35 var(--body)}
+.hub .hempty{color:var(--muted);margin:6px 0 0;font-size:14px}
+.hub-note{color:var(--muted);margin:14px 0 0}
+.season-fx{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.season-fx i{position:absolute;top:-40px;font-style:normal;line-height:1;opacity:.75;will-change:transform;animation:seasonFall linear infinite}
+@keyframes seasonFall{0%{transform:translate3d(0,-40px,0) rotate(0deg)}50%{transform:translate3d(var(--sx,20px),50vh,0) rotate(160deg)}100%{transform:translate3d(0,108vh,0) rotate(320deg)}}
+.season-banner{display:flex;align-items:center;gap:12px;margin:0 0 18px;padding:12px 14px 12px 18px;border-radius:16px;background:rgba(20,13,37,.9);background:linear-gradient(90deg,color-mix(in srgb,var(--sa,#ff3ea5) 22%,transparent),rgba(20,13,37,.85));border:1.5px solid var(--sa,#ff3ea5);box-shadow:0 0 22px color-mix(in srgb,var(--sa,#ff3ea5) 35%,transparent);color:var(--fg);font:700 16px/1.35 var(--body)}
+.season-banner span{flex:1;min-width:0}
+.season-banner button{flex:none;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:rgba(11,7,22,.6);color:var(--muted);font:700 16px/1 var(--body);cursor:pointer}
+.season-banner button:hover{color:var(--fg)}
+body.season-ny{--sa:#9ee7ff}body.season-hw{--sa:#ff8a1f}body.season-val{--sa:#ff4f9a}body.season-spring{--sa:#ffb3d9}body.season-bday{--sa:#ffd23f}
+body[class*="season-"] .vk-main>.ticker{border-color:var(--sa)}
+body[class*="season-"] .vk-tab.on{border-color:var(--sa);box-shadow:0 0 22px color-mix(in srgb,var(--sa) 35%,transparent)}
+@media (prefers-reduced-motion:reduce){.season-fx{display:none}}
+.don-tip{display:flex;gap:14px;align-items:flex-start;margin:0 0 22px;padding:16px 18px;border-radius:18px;background:linear-gradient(100deg,rgba(255,210,63,.16),rgba(255,62,165,.10) 70%);border:1.5px solid rgba(255,210,63,.65);box-shadow:0 0 26px rgba(255,210,63,.14)}
+.don-tip .dt-ic{flex:none;width:44px;height:44px;display:grid;place-items:center;border-radius:13px;background:rgba(255,210,63,.18);border:1px solid rgba(255,210,63,.45);font-size:22px;line-height:1}
+.don-tip .dt-body{min-width:0}
+.don-tip .dt-h{display:block;font:700 12px/1.2 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--yellow);margin:3px 0 6px}
+.don-tip .dt-t{margin:0;color:var(--fg);font:500 15.5px/1.55 var(--body)}
+.don-tip .dt-t b{color:var(--yellow);font-weight:700}
+@media(max-width:620px){.don-tip{padding:14px;gap:12px}.don-tip .dt-ic{width:38px;height:38px;font-size:19px}.don-tip .dt-t{font-size:14.5px}}
 .coinbar{display:flex;align-items:center;gap:8px;width:100%;padding:11px 14px;border-radius:14px;background:linear-gradient(90deg,rgba(255,210,63,.14),rgba(255,62,165,.10));border:1px solid rgba(255,210,63,.45);font:700 15px var(--body);color:var(--fg);box-shadow:0 0 16px rgba(255,210,63,.12)}
 .coinbar .ci{font-size:18px}
+.coin-relogin{display:flex;align-items:center;gap:8px;width:100%;padding:11px 14px;border-radius:14px;background:rgba(145,70,255,.16);border:1px dashed #9146ff;color:var(--fg);font:700 13px/1.35 var(--body);text-align:left;cursor:pointer}
+.coin-relogin:hover{background:rgba(145,70,255,.28)}
 .coinbar b{color:var(--yellow);font-variant-numeric:tabular-nums}
 .coinbar small{color:var(--muted);font-weight:600}
 @media(max-width:760px){
   .vk{flex-direction:column;gap:14px}
   .vk-side{flex:0 0 auto;position:static;width:100%;padding:12px;gap:10px}
   .vk-main{overflow-x:clip}
-  .ticker-track{width:auto}
   .vk-head{gap:8px}
   .vk-head .profile,.vk-head .livebox{max-width:100%}
   .vk-burger{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font:800 16.5px/1.2 var(--body);color:var(--fg);background:rgba(20,13,37,.95);border:1.6px solid var(--pink);border-radius:15px;padding:15px 16px;cursor:pointer;box-shadow:0 0 18px rgba(255,62,165,.18)}
@@ -1171,6 +1267,10 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
       <h2 id="don-h">Кошелёк <em>или кусь</em></h2>
       <p>Донаты, которые читаются на стриме, и скины в трейд. Выбирай, как удобнее.</p>
     </div>
+    <div class="don-tip" role="note">
+      <span class="dt-ic" aria-hidden="true">⭐</span>
+      <div class="dt-body"><b class="dt-h">Важно для топа</b><p class="dt-t"><b>Рекомендуем</b> при донате вписывать <b>свой ник с Twitch</b> — так все ваши донаты суммируются под одним ником. Даже если вы выпадете из топа, сумма сохранится в архиве, и вы всегда сможете <b>продвинуться обратно в топ</b>.</p></div>
+    </div>
     <div class="donate">
       <a class="don" href="https://pay.cloudtips.ru/p/7250e315" target="_blank" rel="noopener"><span class="fee"><b>5%</b> комиссия</span><strong>CloudTips</strong><small>pay.cloudtips.ru</small><span class="note"><i class="ok"></i><span class="nt">высветится на стриме</span></span><span class="don-go">ДОНАТ →</span></a>
       <a class="don" href="https://donatty.com/0hayoooo" target="_blank" rel="noopener"><span class="fee"><b>8%</b> комиссия</span><strong>Donatty</strong><small>donatty.com/0hayoooo</small><span class="note"><i class="ok"></i><span class="nt">высветится на стриме</span></span><span class="don-go">ДОНАТ →</span></a>
@@ -1292,6 +1392,24 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
   </section>
 
   <!-- CROSSHAIR -->
+  <!-- ТАМАГОЧИ -->
+  <section class="panel" data-panel="tama" data-tab="🍼 Мой котик" aria-labelledby="tama-h">
+    <div class="sec-head"><h2 id="tama-h">Мой <em>котик</em></h2><p>Корми мур-монетками — котик растёт и меняется. Сытость падает со временем, так что заглядывай покормить.</p></div>
+    <div id="tamaBox"></div>
+  </section>
+
+  <!-- АЧИВКИ -->
+  <section class="panel" data-panel="ach" data-tab="🏅 Ачивки" aria-labelledby="ach-h">
+    <div class="sec-head"><h2 id="ach-h">Ачивки</h2><p>Значки за то, что ты делаешь на сайте и на стримах. Каждый даёт мур-монетки — один раз.</p></div>
+    <div id="achBox"></div>
+  </section>
+
+  <!-- ХАБ РЕКОРДОВ -->
+  <section class="panel" data-panel="hub" data-tab="🏆 Рекорды" aria-labelledby="hub-h">
+    <div class="sec-head"><h2 id="hub-h">Рекорды <em>мурканутых</em></h2><p>Кто больше всех накопил, нагладил, насмотрел и вырастил. Обновляется само.</p></div>
+    <div id="hubBox"></div>
+  </section>
+
   <section class="panel" data-panel="xh" data-tab="🎯 Прицел и ранги" aria-labelledby="xh-h">
     <div class="sec-head">
       <h2 id="xh-h">Прицел и <em>ранги</em></h2>
@@ -1466,7 +1584,7 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
     <span><a href="https://www.twitch.tv/0hayoooo" target="_blank" rel="noopener">twitch</a> · <a href="https://t.me/+QWcnmKqeBA1iMTIy" target="_blank" rel="noopener">telegram</a></span>
   </footer>
 </main>
-<script type="application/json" id="cmsSchema">[{"k":"page_title","label":"Название вкладки","sel":"","type":"special","group":"Вкладка браузера","def":"0hayoooo · кошелёк или кусь"},{"k":"page_desc","label":"Описание для поиска и превью ссылки","sel":"","type":"special","area":1,"group":"Вкладка браузера","def":"Кошка-девушка Вика играет в CS2: Премьер, ММ, FACEIT, дуэли 1х1 и 5×5 с чатом. Twitch, Telegram и донаты."},{"k":"bg_url","label":"Картинка фона (ссылка на картинку или fon.jpg)","sel":"","type":"special","group":"Фон сайта","def":"fon.jpg"},{"k":"bg_dark","label":"Затемнение фона, % (0 — без затемнения, 95 — почти чёрный)","sel":"","type":"special","num":[0,95],"group":"Фон сайта","def":"80"},{"k":"bg_blink","label":"Моргание девочки на фоне (работает только с fon.jpg)","sel":"","type":"special","options":{"да":"да","нет":"нет"},"group":"Фон сайта","def":"да"},{"k":"bg_stars","label":"Летающие звёздочки на фоне","sel":"","type":"special","options":{"да":"да","нет":"нет"},"group":"Фон сайта","def":"да"},{"k":"bg_stars_n","label":"Сколько звёздочек (0–200)","sel":"","type":"special","num":[0,200],"group":"Фон сайта","def":"70"},{"k":"hero_tag","label":"Значок над котом","sel":".avatar .tag","type":"text","group":"Шапка"},{"k":"hero_eyebrow","label":"Строка над ником","sel":".hero .eyebrow","type":"text","group":"Шапка"},{"k":"hero_name","label":"Ник крупно","sel":".hero h1","type":"text","group":"Шапка"},{"k":"hero_motto","label":"Девиз (жёлтым)","sel":".hero .motto","type":"text","group":"Шапка"},{"k":"hero_lead","label":"Описание","sel":".hero .lead","type":"rich","group":"Шапка"},{"k":"hero_b1","label":"Кнопка 1 — текст","sel":".hero .cta a:nth-of-type(1) .bt","type":"text","group":"Шапка"},{"k":"hero_b1h","label":"Кнопка 1 — ссылка","sel":".hero .cta a:nth-of-type(1)","type":"href","group":"Шапка"},{"k":"hero_b2","label":"Кнопка 2 — текст","sel":".hero .cta a:nth-of-type(2) .bt","type":"text","group":"Шапка"},{"k":"hero_b2h","label":"Кнопка 2 — ссылка","sel":".hero .cta a:nth-of-type(2)","type":"href","group":"Шапка"},{"k":"hero_b3","label":"Кнопка 3 — текст","sel":".hero .cta a:nth-of-type(3) .bt","type":"text","group":"Шапка"},{"k":"ticker","label":"Фразы бегущей строки","sel":"","type":"special","strlist":1,"group":"Бегущая строка"},{"k":"goal_eye","label":"Подпись сверху","sel":".goal-eye","type":"text","group":"Фолловеры"},{"k":"goal_h","label":"Заголовок","sel":"#goal-h","type":"rich","group":"Фолловеры"},{"k":"goal_cta","label":"Призыв для гостя","sel":"","type":"special","group":"Фолловеры","def":"Присоединяйтесь в команду мурканутых,"},{"k":"goal_cta_link","label":"Текст ссылки в призыве","sel":"","type":"special","group":"Фолловеры","def":"жмяк сюда"},{"k":"goal_cta_href","label":"Куда ведёт ссылка","sel":"","type":"special","href":1,"group":"Фолловеры","def":"https://www.twitch.tv/0hayoooo"},{"k":"links_h","label":"Заголовок","sel":"#links-h","type":"rich","group":"Где меня найти"},{"k":"links_p","label":"Подзаголовок","sel":"section[aria-labelledby=links-h] .sec-head p","type":"text","group":"Где меня найти"},{"k":"links","label":"Карточки соцсетей","sel":".links","type":"list","item":".link","copyrow":1,"fields":[{"f":"t","label":"Название","sel":"strong","type":"text"},{"f":"s","label":"Подпись","sel":"small","type":"text"},{"f":"href","label":"Ссылка","sel":"","type":"href"},{"f":"go","label":"Кнопка","sel":".go","type":"text"},{"f":"kind","label":"Иконка и цвет","sel":"","type":"choice","base":"link","options":{"tw":"Twitch","tg":"Telegram","tt":"TikTok","ig":"Instagram","yt":"YouTube","ds":"Discord","vk":"VK","web":"Сайт"},"icon":{"tw":"i-twitch","tg":"i-tg","tt":"i-tt","ig":"i-ig","yt":"i-yt","ds":"i-ds","vk":"i-vk","web":"i-web"}}],"group":"Где меня найти"},{"k":"don_h","label":"Заголовок","sel":"#don-h","type":"rich","group":"Донаты"},{"k":"don_p","label":"Подзаголовок","sel":"section[aria-labelledby=don-h] .sec-head p","type":"text","group":"Донаты"},{"k":"dons","label":"Карточки донатов","sel":".donate","type":"list","item":".don","fields":[{"f":"fee","label":"Комиссия (**жирное** — крупно)","sel":".fee","type":"rich"},{"f":"name","label":"Название","sel":"strong","type":"text"},{"f":"small","label":"Подпись","sel":"small","type":"text"},{"f":"note","label":"Пометка","sel":".nt","type":"text"},{"f":"note_i","label":"Точка у пометки","sel":".note i","type":"choice","base":"","options":{"ok":"розовая (видно на стриме)","no":"серая (не видно)","sk":"голубая (скины)"}},{"f":"cur","label":"Валюты через запятую (можно пусто)","sel":".cur","type":"chips","tag":"em","opt":1},{"f":"href","label":"Ссылка","sel":"","type":"href"},{"f":"go","label":"Кнопка","sel":".don-go","type":"text"},{"f":"kind","label":"Цвет карточки","sel":"","type":"choice","base":"don","options":{"":"обычная","don-zero":"зелёная (без комиссии)","don-steam":"голубая (Steam)"}}],"group":"Донаты"},{"k":"quiet_h","label":"Тихий донатик — заголовок","sel":".quiet-head b","type":"text","group":"Донаты"},{"k":"quiet_sub","label":"Тихий донатик — подпись","sel":".quiet-head span","type":"text","group":"Донаты"},{"k":"quiet","label":"Реквизиты (копируются кнопкой)","sel":".quiet","type":"list","item":".quiet-row","copyid":"q","fields":[{"f":"k","label":"Название","sel":".qt","type":"text"},{"f":"sub","label":"Мелкая подпись (можно пусто)","sel":".q-k small","type":"text","opt":1},{"f":"code","label":"Номер / адрес","sel":"code","type":"text"}],"group":"Донаты"},{"k":"price_h","label":"Прайс — заголовок","sel":"#price-h","type":"rich","group":"Прайс и топ"},{"k":"price_p","label":"Прайс — подзаголовок","sel":"section[aria-labelledby=price-h] .sec-head p","type":"text","group":"Прайс и топ"},{"k":"top_h","label":"Топ — заголовок","sel":"#top-h","type":"rich","group":"Прайс и топ"},{"k":"top_p","label":"Топ — подзаголовок","sel":"section[aria-labelledby=top-h] .sec-head p","type":"rich","group":"Прайс и топ"},{"k":"top_titles","label":"Титулы №1, №2, №3","sel":"","type":"special","strlist":1,"fixed":3,"group":"Прайс и топ","def":["легенда мурлыканья","мастер почесушек","хранитель вкусняшек"]},{"k":"tiers","label":"Уровни топа (название и от какой суммы)","sel":"","type":"special","tiers":1,"group":"Прайс и топ","def":[{"name":"мур-король","min":"10000"},{"name":"мур-принц","min":"5000"},{"name":"котёночек","min":"0"}]},{"k":"streak_h","label":"Заголовок","sel":"#streak-h","type":"rich","group":"Серии просмотров"},{"k":"streak_p","label":"Подзаголовок","sel":"#streak-p","type":"rich","group":"Серии просмотров"},{"k":"about_h","label":"Заголовок","sel":"#about-h","type":"rich","group":"Обо мне"},{"k":"about_p1","label":"Абзац 1","sel":".about-text > p:not(.muted)","type":"rich","group":"Обо мне"},{"k":"about_p2","label":"Абзац 2 (серым)","sel":".about-text > p.muted","type":"rich","group":"Обо мне"},{"k":"pet_cap","label":"Надпись на котике-сосиске","sel":".s-cap","type":"text","group":"Обо мне"},{"k":"pc_eye","label":"Подпись сверху","sel":".pc-eye","type":"text","group":"Карточка игрока"},{"k":"pc_name","label":"Ник","sel":".pc-name","type":"text","group":"Карточка игрока"},{"k":"pc_sub","label":"Под ником","sel":".pc-sub","type":"text","group":"Карточка игрока"},{"k":"pc_stats","label":"Плитки","sel":".pc-stats","type":"list","item":".pc-stat","fields":[{"f":"l","label":"Подпись","sel":".pc-l","type":"text"},{"f":"t","label":"Значение","sel":"b","type":"text"},{"f":"s","label":"Мелко снизу (можно пусто)","sel":"small:not(.pc-l)","type":"text","opt":1},{"f":"c","label":"Цвет","sel":"","type":"choice","base":"pc-stat","options":{"s-pink":"розовый","s-cyan":"голубой","s-yel":"жёлтый"}}],"group":"Карточка игрока"},{"k":"pc_r1l","label":"Строка 1 — подпись","sel":".pc-list > .pc-row:nth-child(1) dt","type":"text","group":"Карточка игрока"},{"k":"pc_r1","label":"Строка 1 — значение","sel":".pc-list > .pc-row:nth-child(1) dd","type":"text","group":"Карточка игрока"},{"k":"pc_r2l","label":"Строка 2 — подпись","sel":".pc-list > .pc-row:nth-child(2) dt","type":"text","group":"Карточка игрока"},{"k":"pc_r2","label":"Строка 2 — значение","sel":".pc-list > .pc-row:nth-child(2) dd","type":"text","group":"Карточка игрока"},{"k":"pc_r3l","label":"Режимы — подпись","sel":".pc-list > .pc-row:nth-child(3) dt","type":"text","group":"Карточка игрока"},{"k":"pc_modes","label":"Режимы через запятую","sel":".pc-list > .pc-row:nth-child(3) dd","type":"chips","tag":"span","colors":["c-pink","c-cyan","c-orange","c-violet","c-yel","c-green"],"group":"Карточка игрока"},{"k":"pc_r4l","label":"Девиз — подпись","sel":".pc-list > .pc-row:nth-child(4) dt","type":"text","group":"Карточка игрока"},{"k":"pc_r4","label":"Девиз","sel":".pc-list > .pc-row:nth-child(4) dd","type":"text","group":"Карточка игрока"},{"k":"pc_r5l","label":"Новости — подпись","sel":".pc-list > .pc-row:nth-child(5) dt","type":"text","group":"Карточка игрока"},{"k":"pc_news","label":"Новости — текст","sel":".pc-list > .pc-row:nth-child(5) a","type":"text","group":"Карточка игрока"},{"k":"pc_newsh","label":"Новости — ссылка","sel":".pc-list > .pc-row:nth-child(5) a","type":"href","group":"Карточка игрока"},{"k":"pc_r6l","label":"Донат — подпись","sel":".pc-list > .pc-row:nth-child(6) dt","type":"text","group":"Карточка игрока"},{"k":"pc_dons","label":"Донат-кнопки через запятую","sel":".pc-list > .pc-row:nth-child(6) dd","type":"chips","tag":"a","href":"#donate","colors":["c-yel","c-yel","c-yel","c-green","c-cyan"],"group":"Карточка игрока"},{"k":"xh_h","label":"Заголовок","sel":"#xh-h","type":"rich","group":"Прицел и ранги"},{"k":"xh_code","label":"Код прицела","sel":"#c-xhair","type":"text","group":"Прицел и ранги"},{"k":"steam_h","label":"Ссылка на Steam","sel":".rk-links a:nth-of-type(1)","type":"href","group":"Прицел и ранги"},{"k":"faceit_h","label":"Ссылка на FACEIT","sel":".rk-links a:nth-of-type(2)","type":"href","group":"Прицел и ранги"},{"k":"faceit_nick","label":"Ник на FACEIT (для ELO и статистики)","sel":"","type":"special","group":"Прицел и ранги","def":"0haYo"},{"k":"cs_since","label":"Играю в CS с … (год)","sel":"#expYear","type":"text","group":"Прицел и ранги"},{"k":"cs_since_sub","label":"Подпись под годом","sel":"#expYearSub","type":"text","group":"Прицел и ранги"},{"k":"cs_hours","label":"Часы вручную (если Steam не отдаёт — например, профиль закрыт)","sel":"","type":"special","group":"Прицел и ранги","def":""},{"k":"art_h","label":"Заголовок","sel":"#art-h","type":"rich","group":"Арты"},{"k":"art_p","label":"Подзаголовок","sel":"section[aria-labelledby=art-h] .sec-head p","type":"text","group":"Арты"},{"k":"art1","label":"Арт 1 — название","sel":".gallery figure:nth-of-type(1) figcaption b","type":"text","group":"Арты"},{"k":"art1s","label":"Арт 1 — подпись","sel":".gallery figure:nth-of-type(1) figcaption span","type":"text","group":"Арты"},{"k":"art2","label":"Арт 2 — название","sel":".gallery figure:nth-of-type(2) figcaption b","type":"text","group":"Арты"},{"k":"art2s","label":"Арт 2 — подпись","sel":".gallery figure:nth-of-type(2) figcaption span","type":"text","group":"Арты"},{"k":"art3","label":"Арт 3 — название","sel":".gallery figure:nth-of-type(3) figcaption b","type":"text","group":"Арты"},{"k":"art3s","label":"Арт 3 — подпись","sel":".gallery figure:nth-of-type(3) figcaption span","type":"text","group":"Арты"},{"k":"art4","label":"Арт 4 — название","sel":".gallery figure:nth-of-type(4) figcaption b","type":"text","group":"Арты"},{"k":"art4s","label":"Арт 4 — подпись","sel":".gallery figure:nth-of-type(4) figcaption span","type":"text","group":"Арты"},{"k":"art5","label":"Арт 5 — название","sel":".gallery figure:nth-of-type(5) figcaption b","type":"text","group":"Арты"},{"k":"art5s","label":"Арт 5 — подпись","sel":".gallery figure:nth-of-type(5) figcaption span","type":"text","group":"Арты"},{"k":"art6","label":"Арт 6 — название","sel":".gallery figure:nth-of-type(6) figcaption b","type":"text","group":"Арты"},{"k":"art6s","label":"Арт 6 — подпись","sel":".gallery figure:nth-of-type(6) figcaption span","type":"text","group":"Арты"},{"k":"foot","label":"Текст внизу","sel":"footer > span:first-child","type":"text","group":"Подвал"},{"k":"foot_tw","label":"Ссылка «twitch»","sel":"footer a:nth-of-type(1)","type":"href","group":"Подвал"},{"k":"foot_tg","label":"Ссылка «telegram»","sel":"footer a:nth-of-type(2)","type":"href","group":"Подвал"}]</script>
+<script type="application/json" id="cmsSchema">[{"k":"page_title","label":"Название вкладки","sel":"","type":"special","group":"Вкладка браузера","def":"0hayoooo · кошелёк или кусь"},{"k":"page_desc","label":"Описание для поиска и превью ссылки","sel":"","type":"special","area":1,"group":"Вкладка браузера","def":"Кошка-девушка Вика играет в CS2: Премьер, ММ, FACEIT, дуэли 1х1 и 5×5 с чатом. Twitch, Telegram и донаты."},{"k":"bg_url","label":"Картинка фона (ссылка на картинку или fon.jpg)","sel":"","type":"special","group":"Фон сайта","def":"fon.jpg"},{"k":"bg_dark","label":"Затемнение фона, % (0 — без затемнения, 95 — почти чёрный)","sel":"","type":"special","num":[0,95],"group":"Фон сайта","def":"80"},{"k":"bg_blink","label":"Моргание девочки на фоне (работает только с fon.jpg)","sel":"","type":"special","options":{"да":"да","нет":"нет"},"group":"Фон сайта","def":"да"},{"k":"bg_stars","label":"Летающие звёздочки на фоне","sel":"","type":"special","options":{"да":"да","нет":"нет"},"group":"Фон сайта","def":"да"},{"k":"bg_stars_n","label":"Сколько звёздочек (0–200)","sel":"","type":"special","num":[0,200],"group":"Фон сайта","def":"70"},{"k":"hero_tag","label":"Значок над котом","sel":".avatar .tag","type":"text","group":"Шапка"},{"k":"hero_eyebrow","label":"Строка над ником","sel":".hero .eyebrow","type":"text","group":"Шапка"},{"k":"hero_name","label":"Ник крупно","sel":".hero h1","type":"text","group":"Шапка"},{"k":"hero_motto","label":"Девиз (жёлтым)","sel":".hero .motto","type":"text","group":"Шапка"},{"k":"hero_lead","label":"Описание","sel":".hero .lead","type":"rich","group":"Шапка"},{"k":"hero_b1","label":"Кнопка 1 — текст","sel":".hero .cta a:nth-of-type(1) .bt","type":"text","group":"Шапка"},{"k":"hero_b1h","label":"Кнопка 1 — ссылка","sel":".hero .cta a:nth-of-type(1)","type":"href","group":"Шапка"},{"k":"hero_b2","label":"Кнопка 2 — текст","sel":".hero .cta a:nth-of-type(2) .bt","type":"text","group":"Шапка"},{"k":"hero_b2h","label":"Кнопка 2 — ссылка","sel":".hero .cta a:nth-of-type(2)","type":"href","group":"Шапка"},{"k":"hero_b3","label":"Кнопка 3 — текст","sel":".hero .cta a:nth-of-type(3) .bt","type":"text","group":"Шапка"},{"k":"ticker","label":"Фразы бегущей строки","sel":"","type":"special","strlist":1,"group":"Бегущая строка"},{"k":"goal_eye","label":"Подпись сверху","sel":".goal-eye","type":"text","group":"Фолловеры"},{"k":"goal_h","label":"Заголовок","sel":"#goal-h","type":"rich","group":"Фолловеры"},{"k":"goal_cta","label":"Призыв для гостя","sel":"","type":"special","group":"Фолловеры","def":"Присоединяйтесь в команду мурканутых,"},{"k":"goal_cta_link","label":"Текст ссылки в призыве","sel":"","type":"special","group":"Фолловеры","def":"жмяк сюда"},{"k":"goal_cta_href","label":"Куда ведёт ссылка","sel":"","type":"special","href":1,"group":"Фолловеры","def":"https://www.twitch.tv/0hayoooo"},{"k":"links_h","label":"Заголовок","sel":"#links-h","type":"rich","group":"Где меня найти"},{"k":"links_p","label":"Подзаголовок","sel":"section[aria-labelledby=links-h] .sec-head p","type":"text","group":"Где меня найти"},{"k":"links","label":"Карточки соцсетей","sel":".links","type":"list","item":".link","copyrow":1,"fields":[{"f":"t","label":"Название","sel":"strong","type":"text"},{"f":"s","label":"Подпись","sel":"small","type":"text"},{"f":"href","label":"Ссылка","sel":"","type":"href"},{"f":"go","label":"Кнопка","sel":".go","type":"text"},{"f":"kind","label":"Иконка и цвет","sel":"","type":"choice","base":"link","options":{"tw":"Twitch","tg":"Telegram","tt":"TikTok","ig":"Instagram","yt":"YouTube","ds":"Discord","vk":"VK","web":"Сайт"},"icon":{"tw":"i-twitch","tg":"i-tg","tt":"i-tt","ig":"i-ig","yt":"i-yt","ds":"i-ds","vk":"i-vk","web":"i-web"}}],"group":"Где меня найти"},{"k":"don_h","label":"Заголовок","sel":"#don-h","type":"rich","group":"Донаты"},{"k":"don_p","label":"Подзаголовок","sel":"section[aria-labelledby=don-h] .sec-head p","type":"text","group":"Донаты"},{"k":"don_tip_h","label":"Плашка над донатами — заголовок","sel":".don-tip .dt-h","type":"text","group":"Донаты"},{"k":"don_tip","label":"Плашка над донатами — текст (**жирное** выделяется жёлтым)","sel":".don-tip .dt-t","type":"rich","group":"Донаты"},{"k":"dons","label":"Карточки донатов","sel":".donate","type":"list","item":".don","fields":[{"f":"fee","label":"Комиссия (**жирное** — крупно)","sel":".fee","type":"rich"},{"f":"name","label":"Название","sel":"strong","type":"text"},{"f":"small","label":"Подпись","sel":"small","type":"text"},{"f":"note","label":"Пометка","sel":".nt","type":"text"},{"f":"note_i","label":"Точка у пометки","sel":".note i","type":"choice","base":"","options":{"ok":"розовая (видно на стриме)","no":"серая (не видно)","sk":"голубая (скины)"}},{"f":"cur","label":"Валюты через запятую (можно пусто)","sel":".cur","type":"chips","tag":"em","opt":1},{"f":"href","label":"Ссылка","sel":"","type":"href"},{"f":"go","label":"Кнопка","sel":".don-go","type":"text"},{"f":"kind","label":"Цвет карточки","sel":"","type":"choice","base":"don","options":{"":"обычная","don-zero":"зелёная (без комиссии)","don-steam":"голубая (Steam)"}}],"group":"Донаты"},{"k":"quiet_h","label":"Тихий донатик — заголовок","sel":".quiet-head b","type":"text","group":"Донаты"},{"k":"quiet_sub","label":"Тихий донатик — подпись","sel":".quiet-head span","type":"text","group":"Донаты"},{"k":"quiet","label":"Реквизиты (копируются кнопкой)","sel":".quiet","type":"list","item":".quiet-row","copyid":"q","fields":[{"f":"k","label":"Название","sel":".qt","type":"text"},{"f":"sub","label":"Мелкая подпись (можно пусто)","sel":".q-k small","type":"text","opt":1},{"f":"code","label":"Номер / адрес","sel":"code","type":"text"}],"group":"Донаты"},{"k":"price_h","label":"Прайс — заголовок","sel":"#price-h","type":"rich","group":"Прайс и топ"},{"k":"price_p","label":"Прайс — подзаголовок","sel":"section[aria-labelledby=price-h] .sec-head p","type":"text","group":"Прайс и топ"},{"k":"top_h","label":"Топ — заголовок","sel":"#top-h","type":"rich","group":"Прайс и топ"},{"k":"top_p","label":"Топ — подзаголовок","sel":"section[aria-labelledby=top-h] .sec-head p","type":"rich","group":"Прайс и топ"},{"k":"top_titles","label":"Титулы №1, №2, №3","sel":"","type":"special","strlist":1,"fixed":3,"group":"Прайс и топ","def":["легенда мурлыканья","мастер почесушек","хранитель вкусняшек"]},{"k":"tiers","label":"Уровни топа (название и от какой суммы)","sel":"","type":"special","tiers":1,"group":"Прайс и топ","def":[{"name":"мур-король","min":"10000"},{"name":"мур-принц","min":"5000"},{"name":"котёночек","min":"0"}]},{"k":"streak_h","label":"Заголовок","sel":"#streak-h","type":"rich","group":"Серии просмотров"},{"k":"streak_p","label":"Подзаголовок","sel":"#streak-p","type":"rich","group":"Серии просмотров"},{"k":"about_h","label":"Заголовок","sel":"#about-h","type":"rich","group":"Обо мне"},{"k":"about_p1","label":"Абзац 1","sel":".about-text > p:not(.muted)","type":"rich","group":"Обо мне"},{"k":"about_p2","label":"Абзац 2 (серым)","sel":".about-text > p.muted","type":"rich","group":"Обо мне"},{"k":"pet_cap","label":"Надпись на котике-сосиске","sel":".s-cap","type":"text","group":"Обо мне"},{"k":"pc_eye","label":"Подпись сверху","sel":".pc-eye","type":"text","group":"Карточка игрока"},{"k":"pc_name","label":"Ник","sel":".pc-name","type":"text","group":"Карточка игрока"},{"k":"pc_sub","label":"Под ником","sel":".pc-sub","type":"text","group":"Карточка игрока"},{"k":"pc_stats","label":"Плитки","sel":".pc-stats","type":"list","item":".pc-stat","fields":[{"f":"l","label":"Подпись","sel":".pc-l","type":"text"},{"f":"t","label":"Значение","sel":"b","type":"text"},{"f":"s","label":"Мелко снизу (можно пусто)","sel":"small:not(.pc-l)","type":"text","opt":1},{"f":"c","label":"Цвет","sel":"","type":"choice","base":"pc-stat","options":{"s-pink":"розовый","s-cyan":"голубой","s-yel":"жёлтый"}}],"group":"Карточка игрока"},{"k":"pc_r1l","label":"Строка 1 — подпись","sel":".pc-list > .pc-row:nth-child(1) dt","type":"text","group":"Карточка игрока"},{"k":"pc_r1","label":"Строка 1 — значение","sel":".pc-list > .pc-row:nth-child(1) dd","type":"text","group":"Карточка игрока"},{"k":"pc_r2l","label":"Строка 2 — подпись","sel":".pc-list > .pc-row:nth-child(2) dt","type":"text","group":"Карточка игрока"},{"k":"pc_r2","label":"Строка 2 — значение","sel":".pc-list > .pc-row:nth-child(2) dd","type":"text","group":"Карточка игрока"},{"k":"pc_r3l","label":"Режимы — подпись","sel":".pc-list > .pc-row:nth-child(3) dt","type":"text","group":"Карточка игрока"},{"k":"pc_modes","label":"Режимы через запятую","sel":".pc-list > .pc-row:nth-child(3) dd","type":"chips","tag":"span","colors":["c-pink","c-cyan","c-orange","c-violet","c-yel","c-green"],"group":"Карточка игрока"},{"k":"pc_r4l","label":"Девиз — подпись","sel":".pc-list > .pc-row:nth-child(4) dt","type":"text","group":"Карточка игрока"},{"k":"pc_r4","label":"Девиз","sel":".pc-list > .pc-row:nth-child(4) dd","type":"text","group":"Карточка игрока"},{"k":"pc_r5l","label":"Новости — подпись","sel":".pc-list > .pc-row:nth-child(5) dt","type":"text","group":"Карточка игрока"},{"k":"pc_news","label":"Новости — текст","sel":".pc-list > .pc-row:nth-child(5) a","type":"text","group":"Карточка игрока"},{"k":"pc_newsh","label":"Новости — ссылка","sel":".pc-list > .pc-row:nth-child(5) a","type":"href","group":"Карточка игрока"},{"k":"pc_r6l","label":"Донат — подпись","sel":".pc-list > .pc-row:nth-child(6) dt","type":"text","group":"Карточка игрока"},{"k":"pc_dons","label":"Донат-кнопки через запятую","sel":".pc-list > .pc-row:nth-child(6) dd","type":"chips","tag":"a","href":"#donate","colors":["c-yel","c-yel","c-yel","c-green","c-cyan"],"group":"Карточка игрока"},{"k":"xh_h","label":"Заголовок","sel":"#xh-h","type":"rich","group":"Прицел и ранги"},{"k":"xh_code","label":"Код прицела","sel":"#c-xhair","type":"text","group":"Прицел и ранги"},{"k":"steam_h","label":"Ссылка на Steam","sel":".rk-links a:nth-of-type(1)","type":"href","group":"Прицел и ранги"},{"k":"faceit_h","label":"Ссылка на FACEIT","sel":".rk-links a:nth-of-type(2)","type":"href","group":"Прицел и ранги"},{"k":"faceit_nick","label":"Ник на FACEIT (для ELO и статистики)","sel":"","type":"special","group":"Прицел и ранги","def":"0haYo"},{"k":"cs_since","label":"Играю в CS с … (год)","sel":"#expYear","type":"text","group":"Прицел и ранги"},{"k":"cs_since_sub","label":"Подпись под годом","sel":"#expYearSub","type":"text","group":"Прицел и ранги"},{"k":"cs_hours","label":"Часы вручную (если Steam не отдаёт — например, профиль закрыт)","sel":"","type":"special","group":"Прицел и ранги","def":""},{"k":"art_h","label":"Заголовок","sel":"#art-h","type":"rich","group":"Арты"},{"k":"art_p","label":"Подзаголовок","sel":"section[aria-labelledby=art-h] .sec-head p","type":"text","group":"Арты"},{"k":"art1","label":"Арт 1 — название","sel":".gallery figure:nth-of-type(1) figcaption b","type":"text","group":"Арты"},{"k":"art1s","label":"Арт 1 — подпись","sel":".gallery figure:nth-of-type(1) figcaption span","type":"text","group":"Арты"},{"k":"art2","label":"Арт 2 — название","sel":".gallery figure:nth-of-type(2) figcaption b","type":"text","group":"Арты"},{"k":"art2s","label":"Арт 2 — подпись","sel":".gallery figure:nth-of-type(2) figcaption span","type":"text","group":"Арты"},{"k":"art3","label":"Арт 3 — название","sel":".gallery figure:nth-of-type(3) figcaption b","type":"text","group":"Арты"},{"k":"art3s","label":"Арт 3 — подпись","sel":".gallery figure:nth-of-type(3) figcaption span","type":"text","group":"Арты"},{"k":"art4","label":"Арт 4 — название","sel":".gallery figure:nth-of-type(4) figcaption b","type":"text","group":"Арты"},{"k":"art4s","label":"Арт 4 — подпись","sel":".gallery figure:nth-of-type(4) figcaption span","type":"text","group":"Арты"},{"k":"art5","label":"Арт 5 — название","sel":".gallery figure:nth-of-type(5) figcaption b","type":"text","group":"Арты"},{"k":"art5s","label":"Арт 5 — подпись","sel":".gallery figure:nth-of-type(5) figcaption span","type":"text","group":"Арты"},{"k":"art6","label":"Арт 6 — название","sel":".gallery figure:nth-of-type(6) figcaption b","type":"text","group":"Арты"},{"k":"art6s","label":"Арт 6 — подпись","sel":".gallery figure:nth-of-type(6) figcaption span","type":"text","group":"Арты"},{"k":"foot","label":"Текст внизу","sel":"footer > span:first-child","type":"text","group":"Подвал"},{"k":"foot_tw","label":"Ссылка «twitch»","sel":"footer a:nth-of-type(1)","type":"href","group":"Подвал"},{"k":"foot_tg","label":"Ссылка «telegram»","sel":"footer a:nth-of-type(2)","type":"href","group":"Подвал"},{"k":"season_mode","label":"Режим сезонных тем","sel":"","type":"special","group":"Сезонные темы","def":"auto","options":{"auto":"по датам (автоматически)","off":"выключены","ny":"всегда: Новый год","hw":"всегда: Хэллоуин","val":"всегда: День влюблённых","spring":"всегда: Весна и 8 Марта","bday":"всегда: День рождения канала"}},{"k":"season_ny_on","label":"🎄 Новый год — включена","sel":"","type":"special","group":"Сезонные темы","def":"да","options":{"да":"да","нет":"нет"}},{"k":"season_ny_dates","label":"🎄 Новый год — даты (дд.мм–дд.мм)","sel":"","type":"special","group":"Сезонные темы","def":"20.12–14.01"},{"k":"season_ny_text","label":"🎄 Новый год — поздравление до полуночи 31 декабря","sel":"","type":"special","group":"Сезонные темы","def":"С наступающим, мурканутые! 🎄"},{"k":"season_ny_text2","label":"🎄 Новый год — поздравление с 1 января (с 00:00 по Москве)","sel":"","type":"special","group":"Сезонные темы","def":"С Наступившим, мурканутые! 🎄"},{"k":"season_hw_on","label":"🎃 Хэллоуин — включена","sel":"","type":"special","group":"Сезонные темы","def":"да","options":{"да":"да","нет":"нет"}},{"k":"season_hw_dates","label":"🎃 Хэллоуин — даты (дд.мм–дд.мм)","sel":"","type":"special","group":"Сезонные темы","def":"25.10–01.11"},{"k":"season_hw_text","label":"🎃 Хэллоуин — поздравление сверху","sel":"","type":"special","group":"Сезонные темы","def":"Кошелёк или кусь — хэллоуинская версия 🎃"},{"k":"season_val_on","label":"♡ День влюблённых — включена","sel":"","type":"special","group":"Сезонные темы","def":"да","options":{"да":"да","нет":"нет"}},{"k":"season_val_dates","label":"♡ День влюблённых — даты (дд.мм–дд.мм)","sel":"","type":"special","group":"Сезонные темы","def":"10.02–15.02"},{"k":"season_val_text","label":"♡ День влюблённых — поздравление сверху","sel":"","type":"special","group":"Сезонные темы","def":"Мур-валентинки всем мурканутым ♡"},{"k":"season_spring_on","label":"🌸 Весна и 8 Марта — включена","sel":"","type":"special","group":"Сезонные темы","def":"да","options":{"да":"да","нет":"нет"}},{"k":"season_spring_dates","label":"🌸 Весна и 8 Марта — даты (дд.мм–дд.мм)","sel":"","type":"special","group":"Сезонные темы","def":"05.03–09.03"},{"k":"season_spring_text","label":"🌸 Весна и 8 Марта — поздравление сверху","sel":"","type":"special","group":"Сезонные темы","def":"С весной и 8 Марта! 🌸"},{"k":"season_bday_on","label":"🎂 День рождения канала — включена","sel":"","type":"special","group":"Сезонные темы","def":"нет","options":{"да":"да","нет":"нет"}},{"k":"season_bday_dates","label":"🎂 День рождения канала — даты (дд.мм–дд.мм)","sel":"","type":"special","group":"Сезонные темы","def":"01.06–03.06"},{"k":"season_bday_text","label":"🎂 День рождения канала — поздравление сверху","sel":"","type":"special","group":"Сезонные темы","def":"У канала день рождения — спасибо, что вы с нами! 🎂"}]</script>
 
 <script>
 /* ============================================================
@@ -1811,6 +1929,10 @@ var CMS_CORE=(function(){
       blinkReady();
     }
     if(window.starsSet) window.starsSet(String(V(v,'bg_stars'))!=='нет',parseInt(V(v,'bg_stars_n'),10));
+    if(window.seasonApply) window.seasonApply();
+    /* рекомендация про ник теперь в отдельной плашке — из подзаголовка донатов её убираем */
+    var dp=document.querySelector('section[aria-labelledby=don-h] .sec-head p');
+    if(dp){var dt=dp.textContent, ix=dt.search(/рекомендуем/i); if(ix>0) dp.textContent=dt.slice(0,ix).trim();}
     /* бегущая строка: последовательность дважды — для бесшовной прокрутки */
     var tk=V(v,'ticker'), tr=document.querySelector('.ticker-track');
     if(tr&&Array.isArray(tk)&&tk.length){
@@ -2351,6 +2473,7 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
       {id:'star',name:'звёздный',premium:1,grad:['#2b1a5e','#ff3ea5'],star:1,crown:1,eye:'#ffe98a'}
     ];
     var AV_BY_ID={}; AVATARS.forEach(function(a){AV_BY_ID[a.id]=a;});
+    window.catSVGFor=function(id){return catSVG(AV_BY_ID[id]||AV_BY_ID.cream);};
     var FRAMES=[{id:'',name:'без рамки'},{id:'fr-gold',name:'золото',premium:1},{id:'fr-neon',name:'неон',premium:1},{id:'fr-rainbow',name:'радуга',premium:1},{id:'fr-ice',name:'лёд',premium:1},{id:'fr-fire',name:'огонь',premium:1}];
     var FR_IDS=FRAMES.map(function(f){return f.id;});
     function catSVG(a){
@@ -2413,7 +2536,7 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
     function saveCosmetics(u){
       setUser(u); paint();
       if(!COS_API||!u||!u.login)return;
-      fetch(COS_API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'cosmeticsSet',login:u.login,name:u.name||u.login,cat:u.cat||'',frame:u.frame||''})})
+      fetch(COS_API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'cosmeticsSet',sess:(window.twSess?window.twSess():''),login:u.login,name:u.name||u.login,cat:u.cat||'',frame:u.frame||''})})
         .then(function(r){return r.ok?r.json():null;}).catch(function(){});
     }
     var cosSynced=false;
@@ -2450,6 +2573,8 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
       if(u&&u.cat&&AV_BY_ID[u.cat]){pAv.innerHTML=catSVG(AV_BY_ID[u.cat]);}
       else if(u&&u.avatar){var im=document.createElement('img');im.src=u.avatar;im.alt='';pAv.appendChild(im);}
       else pAv.textContent='ฅ';
+      if(window.tamaReload) window.tamaReload();
+      if(window.achReload) window.achReload();
       /* кэш для шапки админки (тот же сайт): выбранный котик или пусто = фото из Twitch */
       if(u&&u.login){try{localStorage.setItem('avCache:'+String(u.login).toLowerCase(),JSON.stringify({svg:(u.cat&&AV_BY_ID[u.cat])?catSVG(AV_BY_ID[u.cat]):'',frame:u.frame||''}));}catch(e){}}
       var hb=document.getElementById('hello'); if(!av.hidden||!document.getElementById('helloCat').hidden) heroAv(u);
@@ -2508,6 +2633,19 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
     function close(){box.hidden=true;if(editing)pBtn.focus();}
 
     /* --- вход через Twitch (implicit grant: без сервера, токен сразу отзываем) --- */
+    /* пропуск зрителя: выдаёт сервер после проверки входа у Twitch; без него монетки, котик и аватарка не сохраняются */
+    window.twSess=function(){try{var s=JSON.parse(localStorage.getItem('twSess')||'null'),u=JSON.parse(localStorage.getItem('twUser')||'null');
+      if(!s||!u||!s.k||String(s.l).toLowerCase()!==String(u.login).toLowerCase()||(s.e&&s.e<Date.now()))return '';return s.k;}catch(e){return '';}};
+    window.twSessDrop=function(){try{localStorage.removeItem('twSess');}catch(e){} if(window.coinAfterLogin)window.coinAfterLogin(); if(window.tamaReload)window.tamaReload();};
+    window.twRelogin=function(){startLogin();};
+    function startSess(tok){
+      if(!COS_API) return Promise.resolve();
+      return fetch(COS_API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'sessionStart',token:tok})})
+        .then(function(r){return r.json();})
+        .then(function(j){ if(j&&j.ok&&j.key){ try{localStorage.setItem('twSess',JSON.stringify({k:j.key,l:j.login,e:j.expires}));}catch(e){} } })
+        .catch(function(){})
+        .then(function(){ var u=getUser(); if(u&&(u.cat||u.frame)) saveCosmetics(u); if(window.coinAfterLogin)window.coinAfterLogin(); if(window.tamaReload)window.tamaReload(); var lv=document.getElementById('live'); if(window.cmsWatchPing&&lv&&lv.classList.contains('is-on'))window.cmsWatchPing(); });
+    }
     function startLogin(){
       var st=''; try{var a=new Uint8Array(16);crypto.getRandomValues(a);st=Array.prototype.map.call(a,function(x){return('0'+x.toString(16)).slice(-2);}).join('');}catch(e){st=String(Math.random()).slice(2);}
       try{sessionStorage.setItem('twState',st);}catch(e){}
@@ -2546,6 +2684,7 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
                   u0.checked=Date.now();
                   setUser(u0); setNick(d.login); paint(); close(); renderFollow();
                   if(window.topMeRefresh)window.topMeRefresh(); if(window.petBonusRefresh)window.petBonusRefresh(); if(window.streakRefresh)window.streakRefresh();
+                  return startSess(tok);
                 });
             });
         })
@@ -2591,7 +2730,7 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
       if(LOGIN) open(getUser()?'account':'login',true); else open('manual',true);
     });
     twb.addEventListener('click',startLogin);
-    out.addEventListener('click',function(){setUser(null);setNick('');paint();close();renderFollow();if(window.topMeRefresh)window.topMeRefresh();if(window.petBonusRefresh)window.petBonusRefresh();if(window.streakRefresh)window.streakRefresh();});
+    out.addEventListener('click',function(){try{localStorage.removeItem('twSess');}catch(e){}setUser(null);setNick('');paint();close();renderFollow();if(window.topMeRefresh)window.topMeRefresh();if(window.petBonusRefresh)window.petBonusRefresh();if(window.streakRefresh)window.streakRefresh();});
     inp.addEventListener('input',function(){
       var c=inp.value.replace(/[^A-Za-z0-9_]/g,'').slice(0,25);
       err.textContent=(c!==inp.value)?'Только латиница, цифры и _ (как на Twitch)':'';
@@ -2671,11 +2810,12 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
   }
   window.cmsWatchPing=function(){
     var u=twMe(); if(!API||!u||!u.login) return;
+    var sess=(window.twSess?window.twSess():''); if(!sess) return;
     var day=streamDay(), key='watchPing:'+String(u.login).toLowerCase()+':'+day;
     try{if(localStorage.getItem(key))return;}catch(e){}
-    fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'watchPing',login:u.login,name:u.name||u.login,date:day})})
+    fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'watchPing',sess:sess,login:u.login,name:u.name||u.login,date:day})})
       .then(function(r){return r.ok?r.json():null;})
-      .then(function(res){try{localStorage.setItem(key,'1');}catch(e){} if(res&&res.ok&&Array.isArray(res.streaks))render(res.streaks);else load();})
+      .then(function(res){if(res&&res.error==='no_session'){if(window.twSessDrop)window.twSessDrop();return;}if(res&&res.ach&&window.achToast)window.achToast(res.ach);if(res&&typeof res.balance==='number'&&window.coinSetBalance)window.coinSetBalance(res.balance);try{localStorage.setItem(key,'1');}catch(e){} if(res&&res.ok&&Array.isArray(res.streaks))render(res.streaks);else load();})
       .catch(function(){});
   };
   window.streakRefresh=load;
@@ -2760,13 +2900,18 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
   /* бейдж баланса в левой колонке (под профилем), виден только вошедшим */
   var bar=document.createElement('div'); bar.className='coinbar'; bar.hidden=true;
   bar.innerHTML='<span class="ci" aria-hidden="true">🪙</span><b class="coin-n">0</b><small>мур-монеток</small>';
-  var head=document.querySelector('.vk-head'); if(head) head.appendChild(bar); else document.body.appendChild(bar);
+  var rl=document.createElement('button'); rl.type='button'; rl.className='coin-relogin'; rl.hidden=true;
+  rl.innerHTML='🔐 <span>Подтвердите вход через Twitch, чтобы копить мур-монетки</span>';
+  rl.onclick=function(){ if(window.twRelogin) window.twRelogin(); };
+  var head=document.querySelector('.vk-head'); if(head){ head.appendChild(bar); head.appendChild(rl); } else { document.body.appendChild(bar); document.body.appendChild(rl); }
   function render(){
     var u=cu();
-    bar.hidden=!u;
+    var need=!!u&&!(window.twSess&&window.twSess());
+    bar.hidden=!u||need; rl.hidden=!need;
     var el=bar.querySelector('.coin-n'); if(el) el.textContent=(haveBal?bal:0).toLocaleString('ru-RU');
   }
-  function setBal(v){ if(typeof v==='number'&&isFinite(v)){ bal=Math.max(0,Math.round(v)); haveBal=true; render(); } }
+  function setBal(v){ if(typeof v==='number'&&isFinite(v)){ bal=Math.max(0,Math.round(v)); haveBal=true; render(); if(window.tamaOnBal) window.tamaOnBal(); } }
+  window.coinSetBalance=setBal; window.coinGetBalance=function(){return haveBal?bal:null;};
   function fetchBal(){
     if(!API) return; var u=cu(); if(!u) { render(); return; }
     fetch(API+'?sheet=coins&t='+Math.floor(Date.now()/15000),{cache:'no-store'}).then(function(r){return r.json();}).then(function(list){
@@ -2777,14 +2922,15 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
   }
   function post(action,extra){
     if(!API) return Promise.resolve(null); var u=cu(); if(!u) return Promise.resolve(null);
-    var body=Object.assign({action:action,login:u.login,name:u.name||u.login},extra||{});
+    var sess=(window.twSess?window.twSess():''); if(!sess) return Promise.resolve(null);
+    var body=Object.assign({action:action,sess:sess,login:u.login,name:u.name||u.login},extra||{});
     return fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)})
-      .then(function(r){return r.json();}).then(function(j){ if(j&&typeof j.balance==='number') setBal(j.balance); return j; }).catch(function(){return null;});
+      .then(function(r){return r.json();}).then(function(j){ if(j&&j.error==='no_session'){ if(window.twSessDrop)window.twSessDrop(); return j; } if(j&&typeof j.balance==='number') setBal(j.balance); if(j&&j.ach&&window.achToast) window.achToast(j.ach); return j; }).catch(function(){return null;});
   }
   /* ежедневный вход — раз в день (сервер сам не даст больше) */
   function daily(){ var u=cu(); if(!u) return; var key='coinDaily:'+String(u.login).toLowerCase(), day=mskDay();
     try{ if(localStorage.getItem(key)===day){ return; } }catch(e){}
-    post('coinDaily',{date:day}).then(function(j){ try{localStorage.setItem(key,day);}catch(e){} });
+    post('coinDaily',{date:day}).then(function(j){ if(j&&j.ok){ try{localStorage.setItem(key,day);}catch(e){} } });
   }
   /* поглаживания: копим дельту и шлём пачкой */
   var pend=0, petTimer=0;
@@ -2796,8 +2942,227 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
   window.addEventListener('pagehide',function(){ if(petTimer){clearTimeout(petTimer);petTimer=0;} flushPet(); });
   /* дать знать баллансу обновиться после пинга просмотра */
   window.coinRefresh=fetchBal;
+  window.coinAfterLogin=function(){ render(); fetchBal(); daily(); };
   render(); fetchBal(); daily();
   setInterval(function(){ var u=cu(); if(u){ if(pend&&!petTimer) schedulePet(); } }, 20000);
+})();
+</script>
+<script>
+/* ================= ТАМАГОЧИ ================= */
+(function(){
+  var API=(typeof ADMIN_API==='string')?ADMIN_API.trim():'';
+  var box=document.getElementById('tamaBox'); if(!box) return;
+  var FOOD=[{e:'🐟',n:'рыбка',xp:10,p:10},{e:'🥛',n:'молочко',xp:30,p:25},{e:'🍣',n:'суши',xp:70,p:50},{e:'🎂',n:'тортик',xp:250,p:150}];
+  var STAGES=[{min:0,n:'котёнок',k:.62},{min:100,n:'малыш',k:.72},{min:400,n:'подросток',k:.82},{min:1000,n:'взрослый кот',k:.92},{min:2500,n:'большой котяра',k:1.02},{min:6000,n:'легенда мурлыканья',k:1.12}];
+  var me=null, busy=false, loadedFor='';
+  function cu(){try{return JSON.parse(localStorage.getItem('twUser')||'null');}catch(e){return null;}}
+  function sat(st){ if(!st) return 0; var h=Math.max(0,(Date.now()-(st.ts||0))/3600000); return Math.max(0,Math.min(100,(st.sat||0)-4*h)); }
+  function stageOf(xp){var i=0;for(var k=0;k<STAGES.length;k++)if(xp>=STAGES[k].min)i=k;return i;}
+  function lvl(xp){return 1+Math.floor(Math.sqrt(xp/8));}
+  function mood(s){return s>=70?['сыт и доволен','😻']:s>=35?['всё хорошо','😺']:s>=10?['проголодался','🙀']:['очень голоден — покорми','😿'];}
+  function E(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
+  function bal(){return window.coinGetBalance?window.coinGetBalance():null;}
+  function bar(label,val,max,cls,right){var w=E('div','tama-bar '+cls),top=E('div','tama-bt');top.appendChild(E('span',null,label));top.appendChild(E('span',null,right));w.appendChild(top);var tr=E('div','tama-tr'),fi=E('i');fi.style.width=Math.max(0,Math.min(100,max?val/max*100:0))+'%';tr.appendChild(fi);w.appendChild(tr);return w;}
+  function render(msg){
+    var u=cu(); box.textContent='';
+    if(!u){ var g=E('div','tama-guest'); g.appendChild(E('p',null,'Войди через Twitch — и у тебя появится свой котик. Корми его мур-монетками, и он будет расти.'));
+      var b=E('button','btn btn-pink','Войти и завести котика'); b.type='button'; b.onclick=function(){var p=document.getElementById('profileBtn');if(p)p.click();}; g.appendChild(b); box.appendChild(g); return; }
+    if(!(window.twSess&&window.twSess())){ var g2=E('div','tama-guest'); g2.appendChild(E('p',null,'Подтверди вход через Twitch — так твоего котика и твои мур-монетки никто чужой не тронет. Это один клик.'));
+      var b2=E('button','btn btn-pink','🔐 Подтвердить вход'); b2.type='button'; b2.onclick=function(){if(window.twRelogin)window.twRelogin();}; g2.appendChild(b2); box.appendChild(g2); return; }
+    var st=me||{xp:0,sat:0,ts:0,c:0}, xp=st.xp||0, si=stageOf(xp), S=STAGES[si], nx=STAGES[si+1], s=sat(st), md=mood(s);
+    var card=E('div','tama'), stage=E('div','tama-stage'+(s<35?' is-hungry':'')), pet=E('div','tama-pet');
+    pet.style.setProperty('--k',S.k); pet.innerHTML=window.catSVGFor?window.catSVGFor(u.cat):''; pet.setAttribute('role','img'); pet.setAttribute('aria-label','Котик: '+S.n+', '+md[0]);
+    stage.appendChild(pet); stage.appendChild(E('div','tama-mood',md[1])); card.appendChild(stage);
+    var info=E('div','tama-info'), h=E('div','tama-h');
+    h.appendChild(E('b',null,'Котик '+(u.name||u.login))); h.appendChild(E('span','tama-lv','ур. '+lvl(xp))); info.appendChild(h);
+    info.appendChild(E('p','tama-st',S.n+' · опыт '+xp.toLocaleString('ru-RU')+(st.c?' · покормлен '+st.c+' '+((st.c%10>=2&&st.c%10<=4&&(st.c%100<12||st.c%100>14))?'раза':'раз'):' · ещё ни разу не кормили')));
+    info.appendChild(nx?bar('до стадии «'+nx.n+'»',xp-S.min,nx.min-S.min,'b-xp',(xp-S.min)+' / '+(nx.min-S.min)):bar('максимальная стадия',1,1,'b-xp','легенда ♛'));
+    info.appendChild(bar('сытость: '+md[0],s,100,'b-sat',Math.round(s)+'%'));
+    var foods=E('div','tama-food'), b0=bal();
+    FOOD.forEach(function(f,i){ var btn=E('button','tama-f'); btn.type='button';
+      btn.appendChild(E('span','tf-e',f.e)); btn.appendChild(E('b',null,f.n)); btn.appendChild(E('small',null,'🪙 '+f.p+' · +'+f.xp+' опыта'));
+      var poor=(b0!=null&&b0<f.p); btn.disabled=busy||poor; if(poor) btn.title='Не хватает мур-монеток';
+      btn.onclick=function(){feed(i);}; foods.appendChild(btn); });
+    info.appendChild(foods);
+    var note=E('p','tama-note',msg||('Баланс: 🪙 '+(b0==null?'…':b0.toLocaleString('ru-RU'))+'. Монетки копятся за вход, поглаживания и просмотр стрима.'));
+    if(msg) note.classList.add('hot'); note.setAttribute('aria-live','polite');
+    info.appendChild(note); card.appendChild(info); box.appendChild(card);
+  }
+  function load(){ var u=cu(); if(!u||!API){me=null;loadedFor='';render();return;}
+    var key=String(u.login).toLowerCase(); if(loadedFor!==key) me=null; loadedFor=key; render();
+    fetch(API+'?sheet=tama&t='+Math.floor(Date.now()/15000),{cache:'no-store'}).then(function(r){return r.json();})
+      .then(function(m){ if(!busy){ me=(m&&m[key])||me; render(); } }).catch(function(){}); }
+  function feed(i){ var u=cu(); if(!u||busy||!API) return; busy=true; render('Кормлю…');
+    fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'tamaFeed',sess:(window.twSess?window.twSess():''),login:u.login,name:u.name||u.login,item:i})})
+      .then(function(r){return r.json();}).then(function(j){ busy=false;
+        if(j&&j.ok){ var prev=stageOf((me&&me.xp)||0); me={xp:j.xp,sat:j.sat,ts:j.ts,c:j.c};
+          if(typeof j.price==='number') FOOD[i].p=j.price;
+          var up=stageOf(j.xp)>prev; if(window.coinSetBalance) window.coinSetBalance(j.balance); if(j.ach&&window.achToast) window.achToast(j.ach);
+          render(up?('🎉 Котик вырос — теперь он «'+STAGES[stageOf(j.xp)].n+'»!'):(FOOD[i].e+' Ням! +'+FOOD[i].xp+' опыта.'));
+          var pet=box.querySelector('.tama-pet'); if(pet){pet.classList.remove('nom');void pet.offsetWidth;pet.classList.add('nom');} }
+        else if(j&&j.error==='no_coins'){ if(typeof j.price==='number') FOOD[i].p=j.price; if(window.coinSetBalance&&typeof j.balance==='number') window.coinSetBalance(j.balance); render('Не хватает мур-монеток: нужно '+FOOD[i].p+'.'); }
+        else if(j&&j.error==='no_session'){ if(window.twSessDrop) window.twSessDrop(); else render(); }
+        else if(j&&j.error==='slow'){ render('Не так быстро — котик ещё жуёт.'); }
+        else render('Не получилось покормить. Попробуй ещё раз.');
+      }).catch(function(){busy=false;render('Сервер не ответил. Попробуй ещё раз.');});
+  }
+  if(API) fetch(API+'?sheet=settings&t='+Math.floor(Date.now()/60000),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){
+    String(t).split(/\r?\n/).forEach(function(l){var m=l.match(/^"?tamaFood([1-4])"?\s*,\s*"?(\d+)/);if(m)FOOD[+m[1]-1].p=Math.max(1,parseInt(m[2],10));}); if(!busy) render(); }).catch(function(){});
+  window.tamaOnBal=function(){ if(!busy) render(); };
+  window.tamaReload=load;
+  setInterval(function(){ if(!busy) render(); },60000);
+  load();
+})();
+</script>
+<script>
+/* ================= АЧИВКИ ================= */
+(function(){
+  var API=(typeof ADMIN_API==='string')?ADMIN_API.trim():'';
+  var box=document.getElementById('achBox'); if(!box) return;
+  var UNIT={days:'дн. входа',pets:'поглаживаний',feeds:'кормлений',xp:'опыта котика',streak:'стримов подряд',balance:'мур-монеток'};
+  var data=null;
+  function cu(){try{return JSON.parse(localStorage.getItem('twUser')||'null');}catch(e){return null;}}
+  function E(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
+  function fmt(v){return Math.round(v).toLocaleString('ru-RU');}
+  function render(){
+    box.textContent=''; if(!data) { box.appendChild(E('p','ach-hint','Загружаю ачивки…')); return; }
+    var u=cu(), have=data.have||[], st=data.stats, got=0, earned=0;
+    data.defs.forEach(function(a){ if(have.indexOf(a.id)>=0){got++;earned+=a.r||0;} });
+    var sum=E('p','ach-sum');
+    var t1=E('span');t1.appendChild(document.createTextNode('Получено '));t1.appendChild(E('b',null,got+' из '+data.defs.length));sum.appendChild(t1);
+    if(u){var t2=E('span','ach-ttl','заработано 🪙 '+fmt(earned));sum.appendChild(t2);}
+    box.appendChild(sum);
+    var g=E('div','ach-grid');
+    data.defs.forEach(function(a){
+      var ok=have.indexOf(a.id)>=0, c=E('div','ach '+(ok?'got':'lock'));
+      c.appendChild(E('span','ae',a.e)); c.appendChild(E('b',null,a.n)); c.appendChild(E('small',null,a.d)); c.appendChild(E('span','ar','🪙 +'+fmt(a.r||0)));
+      if(!ok&&st){
+        var cur=Math.min(st[a.stat]||0,a.need), p=E('div','ap');
+        p.appendChild(E('span',null,a.stat==='top'?'пока не в топ-5':(fmt(cur)+' / '+fmt(a.need)+' '+(UNIT[a.stat]||''))));
+        var bar=E('i'); bar.style.setProperty('--p',Math.round(cur/a.need*100)+'%'); p.appendChild(bar); c.appendChild(p);
+      }
+      c.setAttribute('aria-label',a.n+': '+a.d+(ok?' — получено':' — ещё не получено'));
+      g.appendChild(c);
+    });
+    box.appendChild(g);
+    if(!u) box.appendChild(E('p','ach-hint','Войди через Twitch, чтобы собирать ачивки и получать за них мур-монетки.'));
+  }
+  function load(){ if(!API){render();return;} var u=cu(), lg=u?String(u.login).toLowerCase():'';
+    fetch(API+'?sheet=ach&login='+encodeURIComponent(lg)+'&t='+Math.floor(Date.now()/10000),{cache:'no-store'})
+      .then(function(r){return r.json();}).then(function(j){ if(j&&Array.isArray(j.defs)){ data=j; render(); } }).catch(function(){ if(!data) box.textContent=''; }); }
+  /* всплывашка о новой ачивке */
+  var q=[], showing=false, toast=E('div','ach-toast'); toast.setAttribute('role','status'); toast.setAttribute('aria-live','polite'); document.body.appendChild(toast);
+  function next(){ if(!q.length){showing=false;return;} showing=true; var a=q.shift(); toast.textContent='';
+    toast.appendChild(E('span','te',a.e)); var t=E('div'); t.appendChild(E('b',null,'Ачивка!')); t.appendChild(document.createTextNode('«'+a.n+'» · +'+fmt(a.r||0)+' мур-монеток')); toast.appendChild(t);
+    toast.classList.add('on'); setTimeout(function(){ toast.classList.remove('on'); setTimeout(next,400); },4200); }
+  window.achToast=function(list){ if(!Array.isArray(list)||!list.length) return; list.forEach(function(a){q.push(a);}); if(!showing) next(); setTimeout(load,600); };
+  window.achReload=load;
+  load();
+})();
+</script>
+<script>
+/* ================= ХАБ РЕКОРДОВ ================= */
+(function(){
+  var API=(typeof ADMIN_API==='string')?ADMIN_API.trim():'';
+  var box=document.getElementById('hubBox'); if(!box) return;
+  var B=[{k:'coins',t:'🪙 Мур-монетки',s:'у кого больше всех на счету',u:function(v){return fmt(v);}},
+         {k:'pets',t:'🐾 Поглаживания',s:'кто больше всех гладил котика',u:function(v){return fmt(v);}},
+         {k:'streak',t:'🔥 Серии просмотров',s:'рекорд стримов подряд',u:function(v){return fmt(v)+' подряд';}},
+         {k:'tama',t:'🍼 Котики-тамагочи',s:'чей котик вырос больше всех',u:function(v){return fmt(v)+' опыта';}},
+         {k:'ach',t:'🏅 Ачивки',s:'кто собрал больше значков',u:function(v){return v+' из 15';}}];
+  var data=null, cosm={};
+  function fmt(v){return Math.round(v).toLocaleString('ru-RU');}
+  function cu(){try{return JSON.parse(localStorage.getItem('twUser')||'null');}catch(e){return null;}}
+  function E(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
+  function av(login){var a=E('span','hav'); var m=cosm[String(login).toLowerCase()]; var u=cu(); if(u&&String(u.login).toLowerCase()===String(login).toLowerCase()) m={cat:u.cat}; if(m&&m.cat&&window.catSVGFor) a.innerHTML=window.catSVGFor(m.cat); else a.textContent='ฅ'; a.setAttribute('aria-hidden','true'); return a;}
+  function render(){
+    box.textContent=''; if(!data){ box.appendChild(E('p','hub-note','Загружаю рекорды…')); return; }
+    var u=cu(), me=u?String(u.login).toLowerCase():'', g=E('div','hub-grid');
+    B.forEach(function(d){
+      var b=(data.boards||{})[d.k]||{top:[],me:null}, card=E('div','hub');
+      card.appendChild(E('h3',null,d.t)); card.appendChild(E('p','hsub',d.s));
+      if(!b.top.length){ card.appendChild(E('p','hempty','Пока пусто — стань первым!')); g.appendChild(card); return; }
+      var ol=E('ol');
+      b.top.forEach(function(r,i){
+        var li=E('li'+'' ,String(r[0]).toLowerCase()===me?'me':null);
+        var rk=E('span','hr'+(i<3?' m':''),i===0?'🥇':i===1?'🥈':i===2?'🥉':String(i+1));
+        li.appendChild(rk); li.appendChild(av(r[0])); li.appendChild(E('span','hn',r[1]||r[0])); li.appendChild(E('span','hv',d.u(r[2])));
+        li.setAttribute('aria-label','Место '+(i+1)+': '+(r[1]||r[0])+', '+d.u(r[2])); ol.appendChild(li);
+      });
+      card.appendChild(ol);
+      if(b.me&&b.me.rank>10) card.appendChild(E('p','hme','… ты: №'+b.me.rank+' · '+d.u(b.me.v)));
+      else if(u&&!b.me) card.appendChild(E('p','hempty','Тебя тут пока нет.'));
+      g.appendChild(card);
+    });
+    box.appendChild(g);
+    if(!u) box.appendChild(E('p','hub-note','Войди через Twitch, чтобы попасть в рекорды и видеть своё место.'));
+  }
+  function load(){
+    if(!API){render();return;} var u=cu(), lg=u?String(u.login).toLowerCase():'', t=Math.floor(Date.now()/30000);
+    fetch(API+'?sheet=hub&login='+encodeURIComponent(lg)+'&t='+t,{cache:'no-store'}).then(function(r){return r.json();})
+      .then(function(j){ if(j&&j.boards){ data=j; render(); } }).catch(function(){});
+    fetch(API+'?sheet=cosmetics&t='+Math.floor(Date.now()/60000),{cache:'no-store'}).then(function(r){return r.json();})
+      .then(function(m){ if(m&&typeof m==='object'){ cosm=m; if(data) render(); } }).catch(function(){});
+  }
+  window.hubReload=load;
+  window.addEventListener('hashchange',function(){ if((location.hash||'')==='#hub') load(); });
+  setInterval(function(){ if((location.hash||'')==='#hub') load(); },60000);
+  render(); load();
+})();
+</script>
+<script>
+/* ================= СЕЗОННЫЕ ТЕМЫ ================= */
+(function(){
+  var ORDER=['bday','ny','hw','val','spring'];
+  var FX={ny:['❄','❅','❆','✦','❄','🎄'],hw:['🎃','🦇','👻','🕸','🦇','🍬'],val:['♡','💕','💗','♡','💘','♡'],spring:['🌸','🌷','🌼','✿','🌸','🌱'],bday:['🎉','🎈','✨','🎂','🎈','🎊']};
+  var cur=null, fx=null, ban=null;
+  function V(k,d){var v=(window.CMS_VAL||{})[k];return (v===undefined||v===null||v==='')?d:String(v);}
+  var DEF={ny:['да','20.12–14.01','С наступающим, мурканутые! 🎄','С Наступившим, мурканутые! 🎄'],hw:['да','25.10–01.11','Кошелёк или кусь — хэллоуинская версия 🎃'],val:['да','10.02–15.02','Мур-валентинки всем мурканутым ♡'],spring:['да','05.03–09.03','С весной и 8 Марта! 🌸'],bday:['нет','01.06–03.06','У канала день рождения — спасибо, что вы с нами! 🎂']};
+  function today(){var d;try{d=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Moscow',month:'2-digit',day:'2-digit'}).format(new Date());}catch(e){d=new Date().toISOString().slice(5,10);} var p=d.split('-');return (+p[0])*100+(+p[1]);}
+  function range(t){var m=String(t||'').match(/(\d{1,2})\.(\d{1,2})\s*[-–—]\s*(\d{1,2})\.(\d{1,2})/);if(!m)return null;return [(+m[2])*100+(+m[1]),(+m[4])*100+(+m[3])];}
+  function inRange(r,t){if(!r)return false;return r[0]<=r[1]?(t>=r[0]&&t<=r[1]):(t>=r[0]||t<=r[1]);}
+  function pick(){
+    var mode=V('season_mode','auto');
+    if(mode==='off') return null;
+    if(FX[mode]) return mode;
+    var t=today();
+    for(var i=0;i<ORDER.length;i++){var k=ORDER[i]; if(V('season_'+k+'_on',DEF[k][0])!=='да') continue; if(inRange(range(V('season_'+k+'_dates',DEF[k][1])),t)) return k;}
+    return null;
+  }
+  /* у Нового года два поздравления: до полуночи 31.12 и с 1 января (январь–июнь = уже наступил) */
+  function textFor(k){ if(k==='ny'){ var t=today(); if(t>=101&&t<=630) return V('season_ny_text2',DEF.ny[3]); } return V('season_'+k+'_text',DEF[k][2]); }
+  function clear(){ if(fx){fx.remove();fx=null;} if(ban){ban.remove();ban=null;} ORDER.forEach(function(k){document.body.classList.remove('season-'+k);}); }
+  function build(k){
+    document.body.classList.add('season-'+k);
+    var reduce=false;try{reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+    if(!reduce){
+      fx=document.createElement('div'); fx.className='season-fx'; fx.setAttribute('aria-hidden','true');
+      var cnt=innerWidth<700?10:18, set=FX[k];
+      for(var i=0;i<cnt;i++){var e=document.createElement('i'); e.textContent=set[i%set.length];
+        e.style.left=(Math.random()*100).toFixed(1)+'%'; e.style.fontSize=(14+Math.random()*14).toFixed(0)+'px';
+        e.style.animationDuration=(10+Math.random()*10).toFixed(1)+'s'; e.style.animationDelay=(-Math.random()*20).toFixed(1)+'s';
+        e.style.setProperty('--sx',((Math.random()*80)-40).toFixed(0)+'px'); fx.appendChild(e);}
+      document.body.appendChild(fx);
+    }
+    var txt=textFor(k), year=new Date().getFullYear(), key='seasonHide:'+k+':'+year;
+    var hidden=false; try{hidden=localStorage.getItem(key)===txt;}catch(e){}
+    var main=document.querySelector('.vk-main');
+    if(txt&&!hidden&&main){
+      ban=document.createElement('div'); ban.className='season-banner'; ban.setAttribute('role','note');
+      var sp=document.createElement('span'); sp.textContent=txt; ban.appendChild(sp);
+      var x=document.createElement('button'); x.type='button'; x.textContent='×'; x.setAttribute('aria-label','Скрыть поздравление');
+      x.onclick=function(){ try{localStorage.setItem(key,txt);}catch(e){} if(ban){ban.remove();ban=null;} };
+      ban.appendChild(x); main.insertBefore(ban,main.firstChild);
+    }
+  }
+  window.seasonApply=function(){ var k=pick(), sig=k?(k+'|'+textFor(k)):'';
+    if(sig===cur) return; cur=sig; clear(); if(k) build(k); };
+  window.seasonApply();
+  /* ровно в 00:00 по Москве пересчитываем тему и поздравление (у кого сайт открыт) */
+  function msToMidnight(){ try{ var p={}; new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Moscow',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).forEach(function(x){p[x.type]=+x.value;});
+      return Math.max(1000,((24*3600-(p.hour*3600+p.minute*60+p.second))*1000)-(Date.now()%1000)+300); }catch(e){ return 60000; } }
+  (function tick(){ setTimeout(function(){ window.seasonApply(); tick(); }, msToMidnight()); })();
+  setInterval(window.seasonApply, 300000);
 })();
 </script>
 </body>

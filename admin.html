@@ -40,6 +40,11 @@ body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 var(--body);
 .brand h1{margin:0;font:400 clamp(26px,5vw,36px)/1 var(--display);text-shadow:0 0 6px var(--pink),0 0 22px rgba(255,62,165,.6)}
 .brand h1 em{font-style:normal;color:var(--yellow);text-shadow:0 0 14px rgba(255,210,63,.5)}
 .me{display:flex;align-items:center;gap:10px;padding:6px 6px 6px 8px;border-radius:999px;background:rgba(20,13,37,.85);border:1px solid var(--line)}
+.ach-adm{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:10px 0}
+.ach-adm label{display:grid;grid-template-columns:auto minmax(0,1fr) 92px;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:rgba(20,13,37,.7);border:1px solid var(--line)}
+.ach-adm .ae{font-size:22px}
+.ach-adm span small{display:block;color:var(--muted);font-size:12px;line-height:1.3}
+.ach-adm input{width:100%;box-sizing:border-box}
 .me img{width:30px;height:30px;border-radius:50%;object-fit:cover;border:1.5px solid var(--yellow)}
 #meCat{width:30px;height:30px;border-radius:50%;overflow:hidden;border:1.5px solid var(--yellow);display:grid;place-items:center;background:rgba(255,62,165,.10)}
 #meCat svg{width:100%;height:100%;display:block}
@@ -347,6 +352,11 @@ select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--li
       <div class="ph"><p>Баланс мур-монеток у зрителей. Начисляются сами: за вход раз в день, за поглаживания котика и за просмотр стрима; топ-5 донатеров получают разовый бонус (при первом попадании в топ-5, за свою ступень; сдвиг вниз ничего не доначисляет). Суммы задаются во вкладке «Настройки». Здесь можно поправить баланс вручную — изменение сохраняется сразу.</p></div>
       <label class="f search"><span>Поиск по нику</span><input type="search" id="coinQ" placeholder="например: netfil0" autocomplete="off" spellcheck="false"></label>
       <div class="dlist" id="coinList"></div>
+      <div class="setc" id="achAdm">
+        <p><b>Ачивки — награды в мур-монетках.</b> Каждая выдаётся зрителю один раз, когда он выполнит условие. Новые суммы действуют для тех, кто получит ачивку после сохранения.</p>
+        <div class="ach-adm" id="achList"></div>
+        <div class="ofilt"><button class="btn btn-pink btn-sm" id="achSave" type="button">Сохранить награды</button></div>
+      </div>
     </section>
 
     <section class="panel" id="pSet" role="tabpanel" aria-labelledby="tSet" hidden>
@@ -373,6 +383,12 @@ select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--li
       </div>
       <div class="setc">
         <label class="f"><span>Мур-монеток за одно поглаживание котика</span><input type="number" id="sCoinPet" min="0" max="1000" step="1" inputmode="numeric"></label>
+        <label class="f"><span>Максимум мур-монеток за поглаживания в сутки</span><input type="number" id="sCoinPetDay" min="0" max="1000000" step="50" inputmode="numeric"></label>
+        <p>Потолок защищает от накрутки: сверх него поглаживания в этот день монеток не дают.</p>
+      </div>
+      <div class="setc">
+        <label class="f"><span>Рекорды: создатели (0hayoooo, netfil0)</span><select id="sHubHide"><option value="1">скрывать из рекордов</option><option value="0">показывать в рекордах</option></select></label>
+        <p>Если показывать — после ручной правки баланса вы можете занять первые места во вкладке «🏆 Рекорды».</p>
       </div>
       <div class="setc">
         <label class="f"><span>Мур-монеток за просмотр стрима (раз в стрим)</span><input type="number" id="sCoinWatch" min="0" max="100000" step="1" inputmode="numeric"></label>
@@ -384,6 +400,13 @@ select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--li
         <label class="f"><span>Бонус топ-3 (№3)</span><input type="number" id="sCoinTop3" min="0" step="100" inputmode="numeric"></label>
         <label class="f"><span>Бонус топ-4 (№4)</span><input type="number" id="sCoinTop4" min="0" step="100" inputmode="numeric"></label>
         <label class="f"><span>Бонус топ-5 (№5)</span><input type="number" id="sCoinTop5" min="0" step="100" inputmode="numeric"></label>
+      </div>
+      <div class="setc">
+        <p><b>Котик-тамагочи: цены корма</b> (в мур-монетках). Чем дороже корм, тем больше опыта: рыбка +10, молочко +30, суши +70, тортик +250.</p>
+        <label class="f"><span>🐟 Рыбка</span><input type="number" id="sTama1" min="1" max="100000" step="1" inputmode="numeric"></label>
+        <label class="f"><span>🥛 Молочко</span><input type="number" id="sTama2" min="1" max="100000" step="1" inputmode="numeric"></label>
+        <label class="f"><span>🍣 Суши</span><input type="number" id="sTama3" min="1" max="100000" step="1" inputmode="numeric"></label>
+        <label class="f"><span>🎂 Тортик</span><input type="number" id="sTama4" min="1" max="100000" step="1" inputmode="numeric"></label>
       </div>
       <div class="err" id="setErr" role="alert"></div>
     </section>
@@ -597,9 +620,11 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
       $('addrGeo').hidden=ADM_LOGIN!=='0hayoooo';
       cmsLoad(j.content||{});
       var st=j.settings||{};$('sPet').value=st.petSub||2;$('sStep').value=st.alertStep||500;$('sBig').value=st.alertBig||1000;$('sStreak').value=st.streakMin||3;
-      $('sCoinDaily').value=st.coinDaily!=null?st.coinDaily:50;$('sCoinPet').value=st.coinPet!=null?st.coinPet:1;$('sCoinWatch').value=st.coinWatch!=null?st.coinWatch:100;
+      $('sCoinDaily').value=st.coinDaily!=null?st.coinDaily:50;$('sCoinPet').value=st.coinPet!=null?st.coinPet:1;$('sCoinPetDay').value=st.coinPetDay!=null?st.coinPetDay:1000;$('sHubHide').value=String(st.hubHideAdmins!=null?st.hubHideAdmins:1)==='0'?'0':'1';$('sCoinWatch').value=st.coinWatch!=null?st.coinWatch:100;
       $('sCoinTop1').value=st.coinTop1!=null?st.coinTop1:5000;$('sCoinTop2').value=st.coinTop2!=null?st.coinTop2:4000;$('sCoinTop3').value=st.coinTop3!=null?st.coinTop3:3000;$('sCoinTop4').value=st.coinTop4!=null?st.coinTop4:2000;$('sCoinTop5').value=st.coinTop5!=null?st.coinTop5:1000;
+      $('sTama1').value=st.tamaFood1||10;$('sTama2').value=st.tamaFood2||25;$('sTama3').value=st.tamaFood3||50;$('sTama4').value=st.tamaFood4||150;
       coins=j.coins||[];renderCoins();
+      achAdm=j.ach||[];renderAchAdm();
       if(!$('meName').textContent){$('meName').textContent=j.login;$('meAv').hidden=true;$('me').hidden=false;}
       meCatAv(j.login);
       var dr=null;try{dr=JSON.parse(sessionStorage.getItem('admDraft')||'null');sessionStorage.removeItem('admDraft');}catch(e){}
@@ -671,8 +696,29 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   setInterval(function(){if(!document.hidden)refreshOrders();},30000);
   $('tCoin').onclick=function(){tab('coins');renderCoins();};
   $('tSet').onclick=function(){tab('set');};
-  ['sPet','sStep','sBig'].forEach(function(id){$(id).addEventListener('input',function(){setDirty(true);});});
+  /* любое поле во вкладке «Настройки» (числа и списки) включает «Сохранить» */
+  ['input','change'].forEach(function(ev){$('pSet').addEventListener(ev,function(e){if(e.target&&/^(INPUT|SELECT)$/.test(e.target.tagName))setDirty(true);});});
   try{tab(localStorage.getItem('admTab')||'price');}catch(e){}
+
+  /* ---------- ачивки: награды ---------- */
+  var achAdm=[];
+  function renderAchAdm(){
+    var box=$('achList'); if(!box) return; box.textContent='';
+    if(!achAdm.length){ box.appendChild(el('p','ph','Обновите скрипт таблицы (Code.gs), чтобы появились ачивки.')); $('achSave').hidden=true; return; }
+    $('achSave').hidden=false;
+    achAdm.forEach(function(a){
+      var l=el('label'); l.appendChild(el('span','ae',a.e));
+      var t=el('span'); t.appendChild(document.createTextNode(a.n)); t.appendChild(el('small',null,a.d)); l.appendChild(t);
+      var i=el('input'); i.type='number'; i.min='0'; i.max='1000000'; i.step='10'; i.inputMode='numeric'; i.value=String(a.r||0); i.setAttribute('aria-label','Награда за «'+a.n+'»'); i.dataset.id=a.id;
+      l.appendChild(i); box.appendChild(l);
+    });
+  }
+  if($('achSave')) $('achSave').onclick=function(){
+    var rw={}; [].slice.call($('achList').querySelectorAll('input')).forEach(function(i){ rw[i.dataset.id]=Math.max(0,parseInt(i.value,10)||0); });
+    var b=$('achSave'); b.disabled=true; status('','Сохраняю награды…');
+    api({action:'achSet',rewards:rw}).then(function(j){ b.disabled=false; achAdm=j.ach||achAdm; renderAchAdm(); status('ok','Награды за ачивки сохранены ✓'); })
+      .catch(function(e){ b.disabled=false; status('bad','Не сохранилось: '+why(e)); });
+  };
 
   /* ---------- мур-монетки: балансы ---------- */
   var coins=[];
@@ -1161,7 +1207,7 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
     sortDon();var keep=donors.filter(function(r){return r[0].trim();});
     var goneRows=keep.slice(TOP_N).map(function(r){return [r[0],r[1]];}),gone=goneRows.map(function(r){return r[0];});keep=keep.slice(0,TOP_N);
     function ci(id){return Math.max(0,parseInt($(id).value,10)||0);}
-    api({action:'save',price:price,donors:keep,gone:goneRows,settings:{petSub:sp,alertStep:ss,alertBig:sb,streakMin:(sm>=1&&sm<=50?sm:3),coinDaily:ci('sCoinDaily'),coinPet:ci('sCoinPet'),coinWatch:ci('sCoinWatch'),coinTop1:ci('sCoinTop1'),coinTop2:ci('sCoinTop2'),coinTop3:ci('sCoinTop3'),coinTop4:ci('sCoinTop4'),coinTop5:ci('sCoinTop5')},content:CMS.ready?cmsOverrides():undefined,archDel:Object.keys(archDel).map(function(k){return [archDel[k]];})}).then(function(j){
+    api({action:'save',price:price,donors:keep,gone:goneRows,settings:{petSub:sp,alertStep:ss,alertBig:sb,streakMin:(sm>=1&&sm<=50?sm:3),coinDaily:ci('sCoinDaily'),coinPet:ci('sCoinPet'),coinPetDay:ci('sCoinPetDay'),hubHideAdmins:$('sHubHide').value==='0'?0:1,coinWatch:ci('sCoinWatch'),coinTop1:ci('sCoinTop1'),coinTop2:ci('sCoinTop2'),coinTop3:ci('sCoinTop3'),coinTop4:ci('sCoinTop4'),coinTop5:ci('sCoinTop5'),tamaFood1:Math.max(1,ci('sTama1')),tamaFood2:Math.max(1,ci('sTama2')),tamaFood3:Math.max(1,ci('sTama3')),tamaFood4:Math.max(1,ci('sTama4'))},content:CMS.ready?cmsOverrides():undefined,archDel:Object.keys(archDel).map(function(k){return [archDel[k]];})}).then(function(j){
       donors=keep;var nDel=Object.keys(archDel).length;archDel={};if(j.archive){archive=j.archive;}renderArch();
       var oldSrv=!j.archive&&gone.length;
       busy=false;
