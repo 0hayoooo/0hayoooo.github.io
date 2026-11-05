@@ -2,6 +2,8 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>0hayoooo · создатель</title>
@@ -517,14 +519,21 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   function startLogin(){
     var st='';try{var a=new Uint8Array(16);crypto.getRandomValues(a);st=Array.prototype.map.call(a,function(x){return('0'+x.toString(16)).slice(-2);}).join('');}catch(e){st=String(Math.random()).slice(2);}
     try{sessionStorage.setItem('admState',st);}catch(e){}
-    location.href='https://id.twitch.tv/oauth2/authorize?client_id='+encodeURIComponent(CID)+'&redirect_uri='+encodeURIComponent(ADMIN_URL)+
+    var framed=false;try{framed=window.top!==window.self;}catch(e){framed=true;}
+    try{localStorage.setItem('admState2',st);}catch(e){}
+    try{if(framed)localStorage.setItem('admEmbed','1');else localStorage.removeItem('admEmbed');}catch(e){}
+    var authUrl='https://id.twitch.tv/oauth2/authorize?client_id='+encodeURIComponent(CID)+'&redirect_uri='+encodeURIComponent(ADMIN_URL)+
       '&response_type=token&scope=&state='+encodeURIComponent(st);
+    /* Twitch нельзя открыть во фрейме — на время входа выходим на верхнее окно */
+    try{(framed?window.top:window).location.href=authUrl;}catch(e){location.href=authUrl;}
   }
   function fromHash(){
     var h=location.hash.replace(/^#/,''); if(!/access_token=|error=/.test(h)) return null;
     var q={};h.split('&').forEach(function(kv){var i=kv.indexOf('=');if(i>0)q[decodeURIComponent(kv.slice(0,i))]=decodeURIComponent(kv.slice(i+1).replace(/\+/g,' '));});
     try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}
     var want='';try{want=sessionStorage.getItem('admState')||'';sessionStorage.removeItem('admState');}catch(e){}
+    if(!want){try{want=localStorage.getItem('admState2')||'';}catch(e){}}
+    try{localStorage.removeItem('admState2');}catch(e){}
     if(q.error) return {err:'Вход отменён.'};
     if(!q.access_token||!want||q.state!==want) return {err:'Не удалось войти, попробуйте ещё раз.'};
     return {tok:q.access_token};
@@ -1092,7 +1101,10 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   if(!API||!CID){show('sSetup');return;}
   var h=fromHash();
   if(h&&h.err){show('sLogin');$('loginErr').textContent=h.err;return;}
-  if(h&&h.tok) setTok(h.tok); else TOK=getTok();
+  if(h&&h.tok){ setTok(h.tok);
+    var emb='';try{emb=localStorage.getItem('admEmbed');localStorage.removeItem('admEmbed');}catch(e){}
+    if(emb){try{(window.top||window).location.replace('https://0hayoooo.github.io/#admin');return;}catch(e){}}
+  } else TOK=getTok();
   if(!TOK){show('sLogin');return;}
   profile();load();
 })();

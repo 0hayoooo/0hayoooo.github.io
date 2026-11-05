@@ -2,6 +2,8 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>0hayoooo · кошелёк или кусь</title>
 <meta name="description" content="Кошка-девушка Вика играет в CS2: Премьер, ММ, FACEIT, дуэли 1х1 и 5×5 с чатом. Twitch, Telegram и донаты.">
@@ -893,6 +895,31 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
 
 .pick-note.hot{color:var(--pink)!important;font-weight:700}
 .pick.lock:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+
+/* ---------- ВК-раскладка: меню слева, один раздел справа ---------- */
+.vk{display:flex;gap:30px;align-items:flex-start}
+.vk-side{flex:0 0 240px;position:sticky;top:max(14px,env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:6px;padding:64px 12px 14px;border-radius:20px;background:rgba(20,13,37,.72);border:1px solid var(--line);backdrop-filter:blur(8px)}
+.vk-tab{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font:600 14.5px/1.25 var(--body);color:var(--muted);background:transparent;border:1px solid transparent;border-radius:13px;padding:11px 13px;cursor:pointer;transition:background .18s,color .18s,border-color .18s,box-shadow .18s}
+.vk-tab:hover{color:var(--fg);background:rgba(255,62,165,.07);border-color:rgba(255,62,165,.28)}
+.vk-tab.on{color:var(--fg);background:linear-gradient(90deg,rgba(255,62,165,.18),rgba(44,241,255,.08));border-color:var(--pink);box-shadow:0 0 22px rgba(255,62,165,.22),inset 0 0 0 1px rgba(255,62,165,.25)}
+.vk-tab.on::before{content:"";flex:none;width:4px;height:18px;border-radius:3px;background:var(--pink);box-shadow:0 0 10px var(--pink);margin-left:-4px}
+.vk-main{flex:1 1 auto;min-width:0}
+.vk-main > .panel{display:none;animation:vkIn .25s ease}
+.vk-main > .panel.on{display:block}
+@keyframes vkIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.adm-frame-wrap{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:rgba(10,7,20,.6)}
+.adm-frame{display:block;width:100%;height:78vh;min-height:520px;border:0;background:#0b0718}
+.adm-foot{margin:10px 2px 0;font:500 13px var(--body);color:var(--muted)}
+.adm-foot a{color:var(--cyan)}
+.vk-tab.vk-adm{margin-top:8px;border-style:dashed;color:var(--yellow)}
+.vk-tab.vk-adm.on{border-style:solid}
+@media(max-width:760px){
+  .vk{flex-direction:column;gap:20px}
+  .vk-side{flex:0 0 auto;flex-direction:row;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;width:100%;gap:8px;padding:10px;position:sticky;top:max(0px,env(safe-area-inset-top,0px));z-index:6;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .vk-side::-webkit-scrollbar{display:none}
+  .vk-tab{flex:0 0 auto;width:auto;white-space:nowrap;padding:10px 14px;font-size:13.5px}
+  .vk-tab.on::before{display:none}
+}
 </style>
 </head>
 <body>
@@ -1046,8 +1073,12 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
     </div>
   </div>
 
+  <div class="vk">
+    <nav class="vk-side" id="vkNav" aria-label="Разделы сайта"></nav>
+    <div class="vk-main">
+
   <!-- FOLLOWER GOAL -->
-  <section class="goal" aria-labelledby="goal-h">
+  <section class="goal panel" data-panel="goal" data-tab="🐾 Команда" aria-labelledby="goal-h">
     <div class="goal-top">
       <div>
         <div class="goal-eye">фолловеры на twitch</div>
@@ -1063,7 +1094,7 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
   </section>
 
   <!-- LINKS -->
-  <section aria-labelledby="links-h">
+  <section class="panel" data-panel="links" data-tab="🔗 Где меня найти" aria-labelledby="links-h">
     <div class="sec-head">
       <h2 id="links-h">Где <em>меня найти</em></h2>
       <p>Стримы на Twitch, ролики в TikTok и Instagram, новости и анонсы в Telegram.</p>
@@ -1099,7 +1130,7 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
   </section>
 
   <!-- DONATE -->
-  <section id="donate" aria-labelledby="don-h">
+  <section class="panel" id="donate" data-panel="donate" data-tab="💸 Донат" aria-labelledby="don-h">
     <div class="sec-head">
       <h2 id="don-h">Кошелёк <em>или кусь</em></h2>
       <p>Донаты, которые читаются на стриме, и скины в трейд. Выбирай, как удобнее.</p>
@@ -1121,7 +1152,7 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
   </section>
 
   <!-- PRICE + GOAL -->
-  <section id="price" aria-labelledby="price-h">
+  <section class="panel" id="price" data-panel="price" data-tab="🏷️ Прайс" aria-labelledby="price-h">
     <div class="sec-head">
       <h2 id="price-h">Мой <em>прайс</em></h2>
       <p>Выбирай, донать с пометкой в сообщении, и я всё сделаю.</p>
@@ -1131,7 +1162,7 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
   </section>
 
   <!-- TOP DONATORS -->
-  <section aria-labelledby="top-h">
+  <section class="panel" data-panel="top" data-tab="👑 Топ донатеров" aria-labelledby="top-h">
     <div class="sec-head">
       <h2 id="top-h">Топ моих любимых <em>мурок</em></h2>
       <p>Спасибо каждой мурке за поддержку <span class="kaomoji">ฅ^•ﻌ•^ฅ</span></p>
@@ -1142,7 +1173,7 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
   </section>
 
   <!-- WATCH STREAKS -->
-  <section aria-labelledby="streak-h" id="streaks" hidden>
+  <section class="panel" data-panel="streaks" data-tab="🔥 Серии" aria-labelledby="streak-h" id="streaks" hidden>
     <div class="sec-head">
       <h2 id="streak-h">Серии <em>просмотров</em></h2>
       <p id="streak-p">Кто смотрит стримы без пропусков. Войди через Twitch на стриме — попадёшь сюда.</p>
@@ -1151,7 +1182,7 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
   </section>
 
   <!-- ABOUT -->
-  <section class="about" aria-labelledby="about-h">
+  <section class="about panel" data-panel="about" data-tab="😺 Обо мне" aria-labelledby="about-h">
     <div class="about-text">
       <div class="sec-head"><h2 id="about-h">Обо <em>мне</em></h2></div>
       <p>Привет, я Вика, она же 0hayoooo. Играю в CS2: Премьер, ММ, FACEIT, дуэли 1х1 и катки 5×5 со зрителями, общаюсь с чатом и иногда кусаюсь, если раунд проигран по глупости.</p>
@@ -1225,7 +1256,7 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
   </section>
 
   <!-- CROSSHAIR -->
-  <section aria-labelledby="xh-h">
+  <section class="panel" data-panel="xh" data-tab="🎯 Прицел и ранги" aria-labelledby="xh-h">
     <div class="sec-head">
       <h2 id="xh-h">Прицел и <em>ранги</em></h2>
     </div>
@@ -1298,7 +1329,7 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
   </section>
 
   <!-- ART -->
-  <section aria-labelledby="art-h">
+  <section class="panel" data-panel="art" data-tab="🎨 Арты" aria-labelledby="art-h">
     <div class="sec-head">
       <h2 id="art-h">Неон-<em>арты</em></h2>
       <p>Котики, которые тоже играют в контру.</p>
@@ -1383,6 +1414,16 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
 
     </div>
   </section>
+
+  <!-- АДМИНКА: скрытая вкладка, видна только админам после входа через Twitch -->
+  <section class="panel adm-panel" data-panel="admin" data-tab="⚙️ Админка" aria-labelledby="adm-h">
+    <div class="sec-head"><h2 id="adm-h">Страница <em>создателя</em></h2></div>
+    <div class="adm-frame-wrap"><iframe class="adm-frame" title="Страница создателя" data-src="admin.html" loading="lazy"></iframe></div>
+    <p class="adm-foot">Если тесно — открыть в отдельной вкладке: <a href="admin.html" target="_blank" rel="noopener">admin.html</a></p>
+  </section>
+
+    </div>
+  </div>
 
   <footer>
     <span>© 0hayoooo · кошелёк или кусь</span>
@@ -2358,6 +2399,8 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
       pNick.textContent=u?u.name:(nickIn.value||'Гость');
       if(pSmall) pSmall.textContent=role?((role==='создатель сайта'?'♚ ':'♛ ')+role):'Вы вошли как';
       pBtn.classList.toggle('is-owner',!!role);
+      window.__siteAdmin=!!(u&&['netfil0','0hayoooo'].indexOf(String(u.login||'').toLowerCase())>=0);
+      try{if(window.vkRevealAdmin)window.vkRevealAdmin(window.__siteAdmin);}catch(e){}
       pBtn.classList.toggle('is-guest',!u&&!nickIn.value);
       pBtn.classList.toggle('is-verified',!!u);
       pBtn.classList.toggle('is-follower',!!(u&&u.follows));
@@ -2585,6 +2628,43 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
   };
   window.streakRefresh=load;
   load();
+})();
+</script>
+<script>
+/* ВК-навигация: показываем только выбранный раздел */
+(function(){
+  var main=document.querySelector('.vk-main'), nav=document.getElementById('vkNav');
+  if(!main||!nav) return;
+  var panels=[].slice.call(main.children).filter(function(e){return e.classList&&e.classList.contains('panel');});
+  if(!panels.length) return;
+  var btns={}, def=panels[0].getAttribute('data-panel');
+  panels.forEach(function(p){
+    var k=p.getAttribute('data-panel'), label=p.getAttribute('data-tab')||k;
+    var b=document.createElement('button');
+    b.type='button'; b.className='vk-tab'+(k==='admin'?' vk-adm':''); b.setAttribute('data-panel',k); b.textContent=label;
+    b.addEventListener('click',function(){ if(location.hash.replace('#','')===k) show(k); else location.hash=k; });
+    nav.appendChild(b); btns[k]=b;
+  });
+  function tabHidden(p){ var k=p.getAttribute('data-panel'); if(k==='admin') return !window.__siteAdmin; return k==='streaks' && p.hasAttribute('hidden'); }
+  function syncVis(){ panels.forEach(function(p){ var k=p.getAttribute('data-panel'); if(btns[k]) btns[k].hidden=tabHidden(p); }); }
+  function resolve(){
+    var h=(location.hash||'').replace('#','').trim();
+    var p=h&&btns[h]?main.querySelector('[data-panel="'+h+'"]'):null;
+    if(p&&!tabHidden(p)) return h;
+    return def;
+  }
+  function show(k){
+    if(k==='admin'){var ifr=main.querySelector('.adm-frame'); if(ifr&&!ifr.getAttribute('src')&&ifr.getAttribute('data-src'))ifr.setAttribute('src',ifr.getAttribute('data-src'));}
+    panels.forEach(function(p){ p.classList.toggle('on',p.getAttribute('data-panel')===k); });
+    Object.keys(btns).forEach(function(x){ var on=x===k; btns[x].classList.toggle('on',on); btns[x].setAttribute('aria-current',on?'page':'false'); });
+    try{document.querySelector('.vk').scrollIntoView({block:'start',behavior:'smooth'});}catch(e){}
+  }
+  window.addEventListener('hashchange',function(){ show(resolve()); });
+  var streaks=main.querySelector('[data-panel="streaks"]');
+  if(streaks&&window.MutationObserver){ new MutationObserver(function(){ syncVis(); if(resolve()!==curKey()) {} }).observe(streaks,{attributes:true,attributeFilter:['hidden']}); }
+  function curKey(){ var on=main.querySelector('.panel.on'); return on?on.getAttribute('data-panel'):def; }
+  window.vkRevealAdmin=function(on){ window.__siteAdmin=!!on; syncVis(); if(!on&&curKey()==='admin'){location.hash=def;} };
+  syncVis(); show(resolve());
 })();
 </script>
 </body>
