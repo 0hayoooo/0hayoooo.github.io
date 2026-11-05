@@ -242,6 +242,7 @@ select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--li
   text-shadow:0 0 10px var(--pink),0 0 34px rgba(255,62,165,.8),0 0 60px rgba(44,241,255,.5)}
 .ny-sub{margin-top:8px;font:800 clamp(20px,5vw,34px)/1 var(--body);letter-spacing:.3em;color:var(--cyan);text-shadow:0 0 16px rgba(44,241,255,.6)}
 @media (prefers-reduced-motion:reduce){.ny,.ny-card{transition:none}}
+.btn.arm{background:#ff4d5e;color:#fff;border-color:#ff4d5e}
 </style>
 </head>
 <body>
@@ -1178,8 +1179,15 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
       function go(){var v=parseInt(inp.value,10);if(!(v>=0&&v<=100000)){inp.focus();return;}bt.disabled=true;setStreak(x.login,v,x.name);}
       inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();go();}});
       bt.onclick=go;
-      act.appendChild(inp);act.appendChild(bt);row.appendChild(act);box.appendChild(row);
+      var del=el('button','btn btn-sm','🗑');del.type='button';del.title='Удалить из серий';del.setAttribute('aria-label','Удалить '+x.name+' из серий');
+      var armT=0;del.onclick=function(){ if(!del.classList.contains('arm')){ del.classList.add('arm');del.textContent='Точно удалить?';clearTimeout(armT);armT=setTimeout(function(){del.classList.remove('arm');del.textContent='🗑';},4000);return; }
+        del.disabled=true;delStreak(x.login,x.name); };
+      act.appendChild(inp);act.appendChild(bt);act.appendChild(del);row.appendChild(act);box.appendChild(row);
     });
+  }
+  function delStreak(login,name){
+    api({action:'streakDel',login:login}).then(function(j){streaksAdmin=j.allStreaks||streaksAdmin;renderStreaksAdmin();status('ok',name+' удалён из серий. На сайте пропадёт в течение минуты.');})
+      .catch(function(e){renderStreaksAdmin();status('bad',e.message==='bad_action'?'Скрипт в таблице старый: обновите его и разверните новую версию.':'Не удалилось: '+why(e));});
   }
   function setStreak(login,val,name){
     api({action:'streakSet',login:login,streak:val,name:name}).then(function(j){streaksAdmin=j.allStreaks||streaksAdmin;renderStreaksAdmin();status('ok',name+': серия '+val+'. На сайте обновится в течение минуты.');})

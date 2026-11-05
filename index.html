@@ -3032,7 +3032,7 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
     var sess=(window.twSess?window.twSess():''); if(!sess) return Promise.resolve(null);
     var body=Object.assign({action:action,sess:sess,login:u.login,name:u.name||u.login},extra||{});
     return fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)})
-      .then(function(r){return r.json();}).then(function(j){ if(j&&j.error==='no_session'){ if(window.twSessDrop)window.twSessDrop(); return j; } if(j&&typeof j.balance==='number') setBal(j.balance); if(j&&j.ach&&window.achToast) window.achToast(j.ach); if(j&&j.ok&&window.achLive) window.achLive(); return j; }).catch(function(){return null;});
+      .then(function(r){return r.json();}).then(function(j){ if(j&&j.error==='no_session'){ if(window.twSessDrop)window.twSessDrop(); return j; } if(j&&typeof j.balance==='number') setBal(j.balance); if(j&&j.ach&&window.achToast) window.achToast(j.ach); if(j&&j.ok&&window.achLive) window.achLive(); if(j&&j.ok&&window.hubLive) window.hubLive(); return j; }).catch(function(){return null;});
   }
   /* проверка ачивок при заходе (раз за открытие страницы) */
   var achLast=0, achBusy=false;
@@ -3049,7 +3049,7 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
   /* поглаживания: копим дельту и шлём пачкой */
   var pend=0, petTimer=0;
   window.coinAddPets=function(d){ d=Math.round(Number(d)||0); if(d>0){ pend+=d; bal+=(pend?0:0); schedulePet(); } };
-  function schedulePet(){ if(petTimer) return; var ap=document.querySelector('.panel[data-panel="ach"]'); petTimer=setTimeout(flushPet,(ap&&ap.classList.contains('on'))?4000:15000); }
+  function schedulePet(){ if(petTimer) return; var ap=document.querySelector('.panel.on'), k=ap&&ap.getAttribute('data-panel'); petTimer=setTimeout(flushPet,(k==='ach'||k==='hub'||k==='tama')?4000:15000); }
   function flushPet(){ petTimer=0; if(!pend) return; var u=cu(); if(!u){ pend=0; return; } var d=pend; pend=0;
     post('coinPet',{delta:d}); }
   window.addEventListener('visibilitychange',function(){ if(document.visibilityState==='hidden'){ if(petTimer){clearTimeout(petTimer);petTimer=0;} flushPet(); } });
@@ -3192,7 +3192,7 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
           if(typeof j.price==='number') FOOD[i].p=j.price;
           var up=stageOf(j.xp)>prev; if(window.coinSetBalance) window.coinSetBalance(j.balance); if(j.ach&&window.achToast) window.achToast(j.ach);
           render(up?('🎉 Котик вырос — теперь он «'+STAGES[stageOf(j.xp)].n+'»!'):(FOOD[i].e+' Ням! +'+FOOD[i].xp+' опыта.'));
-          anim.food=i; eatAnim(i); }
+          anim.food=i; eatAnim(i); if(window.hubLive) window.hubLive(); if(window.achLive) window.achLive(); }
         else if(j&&j.error==='no_coins'){ if(typeof j.price==='number') FOOD[i].p=j.price; if(window.coinSetBalance&&typeof j.balance==='number') window.coinSetBalance(j.balance); render('Не хватает мур-монеток: нужно '+FOOD[i].p+'.'); }
         else if(j&&j.error==='no_session'){ if(window.twSessDrop) window.twSessDrop(); else render(); }
         else if(j&&j.error==='slow'){ render('Не так быстро — котик ещё жуёт.'); }
@@ -3295,15 +3295,19 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
     if(!u) box.appendChild(E('p','hub-note','Войди через Twitch, чтобы попасть в рекорды и видеть своё место.'));
   }
   function load(){
-    if(!API){render();return;} var u=cu(), lg=u?String(u.login).toLowerCase():'', t=Math.floor(Date.now()/30000);
+    if(!API){render();return;} var u=cu(), lg=u?String(u.login).toLowerCase():'', t=Date.now();
     fetch(API+'?sheet=hub&login='+encodeURIComponent(lg)+'&t='+t,{cache:'no-store'}).then(function(r){return r.json();})
       .then(function(j){ if(j&&j.boards){ data=j; render(); } }).catch(function(){});
     fetch(API+'?sheet=cosmetics&t='+Math.floor(Date.now()/60000),{cache:'no-store'}).then(function(r){return r.json();})
       .then(function(m){ if(m&&typeof m==='object'){ cosm=m; if(data) render(); } }).catch(function(){});
   }
   window.hubReload=load;
+  /* живое обновление, пока вкладка «Рекорды» открыта */
+  function vis(){ var p=box.closest('.panel'); return document.visibilityState==='visible'&&(!p||p.classList.contains('on')); }
+  var liveT=0; window.hubLive=function(){ if(!vis()) return; clearTimeout(liveT); liveT=setTimeout(load,500); };
   window.addEventListener('hashchange',function(){ if((location.hash||'')==='#hub') load(); });
-  setInterval(function(){ if((location.hash||'')==='#hub') load(); },60000);
+  document.addEventListener('visibilitychange',function(){ if(vis()) load(); });
+  setInterval(function(){ if(vis()) load(); },15000);
   render(); load();
 })();
 </script>
