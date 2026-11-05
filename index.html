@@ -1208,7 +1208,11 @@ body[class*="season-"] .vk-tab.on{border-color:var(--sa);box-shadow:0 0 22px col
   function start(){if(on&&!RM&&!raf&&!document.hidden){last=0;raf=requestAnimationFrame(loop);}}
   document.addEventListener('visibilitychange',start);
   window.addEventListener('resize',size);
-  window.starsSet=function(enabled,n){on=!!enabled;cv.hidden=!on;if(isFinite(n)&&n>=0)want=Math.min(200,n);size();if(on&&!RM)start();};
+  /* cfg — настройка из админки, season — идёт сезонная тема (тогда звёздочки уступают место её эффектам) */
+  var cfg=true, season=false;
+  function upd(){ on=cfg&&!season; cv.hidden=!on; if(on){ size(); if(!RM) start(); } }
+  window.starsSet=function(enabled,n){cfg=!!enabled;if(isFinite(n)&&n>=0)want=Math.min(200,n);upd();};
+  window.starsSeason=function(active){ active=!!active; if(active===season) return; season=active; upd(); };
   size(); if(RM) draw(0); else start();
 })();
 </script>
@@ -3332,9 +3336,10 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
   }
   /* у Нового года два поздравления: до полуночи 31.12 и с 1 января (январь–июнь = уже наступил) */
   function textFor(k){ if(k==='ny'){ var t=today(); if(t>=101&&t<=630) return V('season_ny_text2',DEF.ny[3]); } return V('season_'+k+'_text',DEF[k][2]); }
-  function clear(){ if(fx){fx.remove();fx=null;} if(ban){ban.remove();ban=null;} ORDER.forEach(function(k){document.body.classList.remove('season-'+k);}); }
+  function clear(){ if(fx){fx.remove();fx=null;} if(ban){ban.remove();ban=null;} ORDER.forEach(function(k){document.body.classList.remove('season-'+k);}); if(window.starsSeason) window.starsSeason(false); }
   function build(k){
     document.body.classList.add('season-'+k);
+    if(window.starsSeason) window.starsSeason(true);
     var reduce=false;try{reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
     if(!reduce){
       fx=document.createElement('div'); fx.className='season-fx'; fx.setAttribute('aria-hidden','true');
