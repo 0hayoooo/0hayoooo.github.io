@@ -283,6 +283,7 @@ select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--li
       <button class="tab" role="tab" id="tDon" aria-selected="false" aria-controls="pDon" type="button">Топ донатеров<i id="cDon"></i></button>
       <button class="tab" role="tab" id="tStreak" aria-selected="false" aria-controls="pStreak" type="button">Серии<i id="cStreak"></i></button>
       <button class="tab" role="tab" id="tArch" aria-selected="false" aria-controls="pArch" type="button">Архив<i id="cArch"></i></button>
+      <button class="tab" role="tab" id="tCoin" aria-selected="false" aria-controls="pCoin" type="button">Монетки<i id="cCoin"></i></button>
       <button class="tab" role="tab" id="tSet" aria-selected="false" aria-controls="pSet" type="button">Настройки</button>
     </div>
 
@@ -338,6 +339,12 @@ select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--li
       <div class="dlist" id="archList"></div>
     </section>
 
+    <section class="panel" id="pCoin" role="tabpanel" aria-labelledby="tCoin" hidden>
+      <div class="ph"><p>Баланс мур-монеток у зрителей. Начисляются сами: за вход раз в день, за поглаживания котика и за просмотр стрима; топ-5 донатеров получают разовый бонус (при первом попадании в топ-5, за свою ступень; сдвиг вниз ничего не доначисляет). Суммы задаются во вкладке «Настройки». Здесь можно поправить баланс вручную — изменение сохраняется сразу.</p></div>
+      <label class="f search"><span>Поиск по нику</span><input type="search" id="coinQ" placeholder="например: netfil0" autocomplete="off" spellcheck="false"></label>
+      <div class="dlist" id="coinList"></div>
+    </section>
+
     <section class="panel" id="pSet" role="tabpanel" aria-labelledby="tSet" hidden>
       <div class="ph"><p>Котик на сайте и алерты в OBS. Меняется после «Сохранить», на сайте — в течение минуты.</p></div>
       <div class="setc">
@@ -355,6 +362,24 @@ select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--li
       <div class="setc">
         <label class="f"><span>Серии просмотров: показывать на сайте от скольких стримов подряд</span><input type="number" id="sStreak" min="1" max="50" step="1" inputmode="numeric"></label>
         <p>Например 3 — в окошко «Серии просмотров» попадают те, кто посмотрел 3 стрима подряд и больше. Поставьте 1, чтобы показывать всех.</p>
+      </div>
+      <div class="setc">
+        <label class="f"><span>Мур-монеток за вход (раз в день)</span><input type="number" id="sCoinDaily" min="0" max="100000" step="1" inputmode="numeric"></label>
+        <p>Начисляется один раз в сутки при заходе вошедшего зрителя.</p>
+      </div>
+      <div class="setc">
+        <label class="f"><span>Мур-монеток за одно поглаживание котика</span><input type="number" id="sCoinPet" min="0" max="1000" step="1" inputmode="numeric"></label>
+      </div>
+      <div class="setc">
+        <label class="f"><span>Мур-монеток за просмотр стрима (раз в стрим)</span><input type="number" id="sCoinWatch" min="0" max="100000" step="1" inputmode="numeric"></label>
+      </div>
+      <div class="setc">
+        <p><b>Бонус топ-донатерам.</b> Доплачивается за каждую ступень вверх, максимум — сумма топ-1. Пример: попал в топ-5 (получил 1000), затем поднялся в топ-2 — доплатится до 4000 (т.е. +3000). При сдвиге вниз ничего не доначисляется, монеты остаются.</p>
+        <label class="f"><span>Бонус топ-1 (№1)</span><input type="number" id="sCoinTop1" min="0" step="100" inputmode="numeric"></label>
+        <label class="f"><span>Бонус топ-2 (№2)</span><input type="number" id="sCoinTop2" min="0" step="100" inputmode="numeric"></label>
+        <label class="f"><span>Бонус топ-3 (№3)</span><input type="number" id="sCoinTop3" min="0" step="100" inputmode="numeric"></label>
+        <label class="f"><span>Бонус топ-4 (№4)</span><input type="number" id="sCoinTop4" min="0" step="100" inputmode="numeric"></label>
+        <label class="f"><span>Бонус топ-5 (№5)</span><input type="number" id="sCoinTop5" min="0" step="100" inputmode="numeric"></label>
       </div>
       <div class="err" id="setErr" role="alert"></div>
     </section>
@@ -559,6 +584,9 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
       $('addrGeo').hidden=ADM_LOGIN!=='0hayoooo';
       cmsLoad(j.content||{});
       var st=j.settings||{};$('sPet').value=st.petSub||2;$('sStep').value=st.alertStep||500;$('sBig').value=st.alertBig||1000;$('sStreak').value=st.streakMin||3;
+      $('sCoinDaily').value=st.coinDaily!=null?st.coinDaily:50;$('sCoinPet').value=st.coinPet!=null?st.coinPet:1;$('sCoinWatch').value=st.coinWatch!=null?st.coinWatch:100;
+      $('sCoinTop1').value=st.coinTop1!=null?st.coinTop1:5000;$('sCoinTop2').value=st.coinTop2!=null?st.coinTop2:4000;$('sCoinTop3').value=st.coinTop3!=null?st.coinTop3:3000;$('sCoinTop4').value=st.coinTop4!=null?st.coinTop4:2000;$('sCoinTop5').value=st.coinTop5!=null?st.coinTop5:1000;
+      coins=j.coins||[];renderCoins();
       if(!$('meName').textContent){$('meName').textContent=j.login;$('meAv').hidden=true;$('me').hidden=false;}
       var dr=null;try{dr=JSON.parse(sessionStorage.getItem('admDraft')||'null');sessionStorage.removeItem('admDraft');}catch(e){}
       if(dr&&dr.price&&dr.donors){price=dr.price;donors=dr.donors;}
@@ -579,7 +607,7 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   $('logout').onclick=function(){if(dirty&&!window.confirm('Есть несохранённые изменения. Всё равно выйти?'))return;revoke(TOK);setTok('');dirty=false;$('me').hidden=true;$('meName').textContent='';show('sLogin');};
 
   /* ---------- вкладки ---------- */
-  var TABS={site:['tSite','pSite'],ord:['tOrd','pOrd'],price:['tPrice','pPrice'],don:['tDon','pDon'],streak:['tStreak','pStreak'],arch:['tArch','pArch'],set:['tSet','pSet']};
+  var TABS={site:['tSite','pSite'],ord:['tOrd','pOrd'],price:['tPrice','pPrice'],don:['tDon','pDon'],streak:['tStreak','pStreak'],arch:['tArch','pArch'],coins:['tCoin','pCoin'],set:['tSet','pSet']};
   function tab(which){
     if(!TABS[which]) which='price';
     Object.keys(TABS).forEach(function(k){$(TABS[k][0]).setAttribute('aria-selected',k===which);$(TABS[k][1]).hidden=k!==which;});
@@ -627,9 +655,36 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   $('oAll').onclick=function(){oMode='all';$('oAll').setAttribute('aria-pressed','true');$('oNew').setAttribute('aria-pressed','false');renderOrders();};
   $('oRef').onclick=refreshOrders;
   setInterval(function(){if(!document.hidden)refreshOrders();},30000);
+  $('tCoin').onclick=function(){tab('coins');renderCoins();};
   $('tSet').onclick=function(){tab('set');};
   ['sPet','sStep','sBig'].forEach(function(id){$(id).addEventListener('input',function(){setDirty(true);});});
   try{tab(localStorage.getItem('admTab')||'price');}catch(e){}
+
+  /* ---------- мур-монетки: балансы ---------- */
+  var coins=[];
+  if($('coinQ')) $('coinQ').addEventListener('input',function(){renderCoins();});
+  function renderCoins(){
+    var box=$('coinList'); if(!box) return; box.textContent='';
+    var q=$('coinQ').value.trim().toLowerCase(), shown=0;
+    coins.slice().sort(function(a,b){return (Number(b[2])||0)-(Number(a[2])||0);}).forEach(function(c){
+      if(q&&String(c[0]).toLowerCase().indexOf(q)<0) return; shown++;
+      var row=el('div','arow');
+      var info=el('div','ainfo');info.appendChild(el('b',null,c[1]||c[0]));info.appendChild(el('span','asum','@'+c[0]));
+      row.appendChild(info);
+      var act=el('div','aact'),inp=el('input');inp.type='text';inp.value=String(Number(c[2])||0);inp.inputMode='numeric';inp.maxLength=12;inp.setAttribute('aria-label','Баланс '+c[0]);inp.className='aadd';
+      var bt=el('button','btn btn-line btn-sm','Сохранить');bt.type='button';
+      inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();bt.click();}});
+      bt.onclick=function(){
+        var v=Math.max(0,parseInt(String(inp.value).replace(/[^\d]/g,''),10)||0);
+        bt.disabled=true;status('','Сохраняю баланс…');
+        api({action:'coinSet',login:c[0],name:c[1]||c[0],balance:v}).then(function(j){coins=j.coins||coins;renderCoins();status('ok','Баланс @'+c[0]+' обновлён: '+v+' монеток.');}).catch(function(e){bt.disabled=false;status('bad','Не сохранилось: '+why(e));});
+      };
+      act.appendChild(inp);act.appendChild(bt);row.appendChild(act);box.appendChild(row);
+    });
+    if(!coins.length) box.appendChild(el('p','ph','Пока ни у кого нет монеток.'));
+    else if(!shown) box.appendChild(el('p','ph','Нет ника «'+$('coinQ').value.trim()+'».'));
+    if($('cCoin')) $('cCoin').textContent=coins.length||'';
+  }
 
   /* ---------- архив вылетевших ---------- */
   var archive=[], archDel={};
@@ -1088,7 +1143,8 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
     applyAdds(donors);renderDon();
     sortDon();var keep=donors.filter(function(r){return r[0].trim();});
     var goneRows=keep.slice(TOP_N).map(function(r){return [r[0],r[1]];}),gone=goneRows.map(function(r){return r[0];});keep=keep.slice(0,TOP_N);
-    api({action:'save',price:price,donors:keep,gone:goneRows,settings:{petSub:sp,alertStep:ss,alertBig:sb,streakMin:(sm>=1&&sm<=50?sm:3)},content:CMS.ready?cmsOverrides():undefined,archDel:Object.keys(archDel).map(function(k){return [archDel[k]];})}).then(function(j){
+    function ci(id){return Math.max(0,parseInt($(id).value,10)||0);}
+    api({action:'save',price:price,donors:keep,gone:goneRows,settings:{petSub:sp,alertStep:ss,alertBig:sb,streakMin:(sm>=1&&sm<=50?sm:3),coinDaily:ci('sCoinDaily'),coinPet:ci('sCoinPet'),coinWatch:ci('sCoinWatch'),coinTop1:ci('sCoinTop1'),coinTop2:ci('sCoinTop2'),coinTop3:ci('sCoinTop3'),coinTop4:ci('sCoinTop4'),coinTop5:ci('sCoinTop5')},content:CMS.ready?cmsOverrides():undefined,archDel:Object.keys(archDel).map(function(k){return [archDel[k]];})}).then(function(j){
       donors=keep;var nDel=Object.keys(archDel).length;archDel={};if(j.archive){archive=j.archive;}renderArch();
       var oldSrv=!j.archive&&gone.length;
       busy=false;

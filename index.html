@@ -922,6 +922,10 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
 .vk-tab.vk-adm.on{border-style:solid}
 .home-panel>section+section{margin-top:30px}
 .hero h1{font-size:clamp(40px,7.2vw,72px);overflow-wrap:normal}
+.coinbar{display:flex;align-items:center;gap:8px;width:100%;padding:11px 14px;border-radius:14px;background:linear-gradient(90deg,rgba(255,210,63,.14),rgba(255,62,165,.10));border:1px solid rgba(255,210,63,.45);font:700 15px var(--body);color:var(--fg);box-shadow:0 0 16px rgba(255,210,63,.12)}
+.coinbar .ci{font-size:18px}
+.coinbar b{color:var(--yellow);font-variant-numeric:tabular-nums}
+.coinbar small{color:var(--muted);font-weight:600}
 @media(max-width:760px){
   .vk{flex-direction:column;gap:14px}
   .vk-side{flex:0 0 auto;position:static;width:100%;padding:12px;gap:10px}
@@ -2271,6 +2275,7 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
   btn.addEventListener('click',function(){
     var now=(window.performance&&performance.now)?performance.now():Date.now();
     var prev=n; n+=bonus();render();
+    if(window.coinAddPets) window.coinAddPets(n-prev);
     /* сквиш перезапускаем не чаще раза в 90мс — иначе форс-рефлоу на каждом клике вешает страницу */
     if(now-_lastSquish>90){_lastSquish=now;btn.classList.remove('squish'); void btn.offsetWidth; btn.classList.add('squish');}
     btn.classList.add('happy'); clearTimeout(btn._ht); btn._ht=setTimeout(function(){btn.classList.remove('happy');},700);
@@ -2696,6 +2701,56 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
   window.vkGo=function(k){ if(!btns[k])return; if((location.hash||'').replace('#','')===k) show(k); else location.hash=k; };
   window.vkRevealAdmin=function(on){ window.__siteAdmin=!!on; syncVis(); if(!on&&curKey()==='admin'){location.hash=def;} };
   syncVis(); show(resolve());
+})();
+</script>
+<script>
+/* ================= МУР-МОНЕТКИ (клиент) ================= */
+(function(){
+  var API=(typeof ADMIN_API==='string')?ADMIN_API.trim():'';
+  function cu(){try{return JSON.parse(localStorage.getItem('twUser')||'null');}catch(e){return null;}}
+  function mskDay(){try{return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Moscow'}).format(new Date());}catch(e){return new Date().toISOString().slice(0,10);}}
+  var bal=0, haveBal=false;
+  /* бейдж баланса в левой колонке (под профилем), виден только вошедшим */
+  var bar=document.createElement('div'); bar.className='coinbar'; bar.hidden=true;
+  bar.innerHTML='<span class="ci" aria-hidden="true">🪙</span><b class="coin-n">0</b><small>мур-монеток</small>';
+  var head=document.querySelector('.vk-head'); if(head) head.appendChild(bar); else document.body.appendChild(bar);
+  function render(){
+    var u=cu();
+    bar.hidden=!u;
+    var el=bar.querySelector('.coin-n'); if(el) el.textContent=(haveBal?bal:0).toLocaleString('ru-RU');
+  }
+  function setBal(v){ if(typeof v==='number'&&isFinite(v)){ bal=Math.max(0,Math.round(v)); haveBal=true; render(); } }
+  function fetchBal(){
+    if(!API) return; var u=cu(); if(!u) { render(); return; }
+    fetch(API+'?sheet=coins&t='+Math.floor(Date.now()/15000),{cache:'no-store'}).then(function(r){return r.json();}).then(function(list){
+      if(!Array.isArray(list)) return; var lo=String(u.login).toLowerCase(), b=0;
+      for(var i=0;i<list.length;i++){ if(String(list[i][0]).toLowerCase()===lo){ b=Number(list[i][2])||0; break; } }
+      setBal(b);
+    }).catch(function(){});
+  }
+  function post(action,extra){
+    if(!API) return Promise.resolve(null); var u=cu(); if(!u) return Promise.resolve(null);
+    var body=Object.assign({action:action,login:u.login,name:u.name||u.login},extra||{});
+    return fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)})
+      .then(function(r){return r.json();}).then(function(j){ if(j&&typeof j.balance==='number') setBal(j.balance); return j; }).catch(function(){return null;});
+  }
+  /* ежедневный вход — раз в день (сервер сам не даст больше) */
+  function daily(){ var u=cu(); if(!u) return; var key='coinDaily:'+String(u.login).toLowerCase(), day=mskDay();
+    try{ if(localStorage.getItem(key)===day){ return; } }catch(e){}
+    post('coinDaily',{date:day}).then(function(j){ try{localStorage.setItem(key,day);}catch(e){} });
+  }
+  /* поглаживания: копим дельту и шлём пачкой */
+  var pend=0, petTimer=0;
+  window.coinAddPets=function(d){ d=Math.round(Number(d)||0); if(d>0){ pend+=d; bal+=(pend?0:0); schedulePet(); } };
+  function schedulePet(){ if(petTimer) return; petTimer=setTimeout(flushPet,15000); }
+  function flushPet(){ petTimer=0; if(!pend) return; var u=cu(); if(!u){ pend=0; return; } var d=pend; pend=0;
+    post('coinPet',{delta:d}); }
+  window.addEventListener('visibilitychange',function(){ if(document.visibilityState==='hidden'){ if(petTimer){clearTimeout(petTimer);petTimer=0;} flushPet(); } });
+  window.addEventListener('pagehide',function(){ if(petTimer){clearTimeout(petTimer);petTimer=0;} flushPet(); });
+  /* дать знать баллансу обновиться после пинга просмотра */
+  window.coinRefresh=fetchBal;
+  render(); fetchBal(); daily();
+  setInterval(function(){ var u=cu(); if(u){ if(pend&&!petTimer) schedulePet(); } }, 20000);
 })();
 </script>
 </body>
