@@ -69,7 +69,9 @@ body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 var(--body);
 @keyframes sp{to{transform:rotate(1turn)}}
 
 /* вкладки */
-.tabs{display:flex;gap:6px;padding:5px;border-radius:16px;background:rgba(20,13,37,.85);border:1px solid var(--line);width:max-content;max-width:100%}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;padding:5px;border-radius:16px;background:rgba(20,13,37,.85);border:1px solid var(--line);width:max-content;max-width:100%;box-sizing:border-box}
+.wrap>*,.panel,.tabs,.pin{min-width:0}
+main.panel,section.panel,#priceList{grid-template-columns:minmax(0,1fr)}
 .tab{padding:10px 16px;border-radius:12px;border:0;background:transparent;color:var(--muted);font:800 14px/1 var(--body);cursor:pointer}
 .tab[aria-selected="true"]{background:var(--surface2);color:var(--fg);box-shadow:0 0 0 1px var(--pink) inset,0 0 16px rgba(255,62,165,.25)}
 .tab i{font-style:normal;font:700 11px/1 var(--mono);color:var(--pink);margin-left:6px}
@@ -760,7 +762,7 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   $('addPrice').onclick=function(){price.push(['','','','']);setDirty(true);renderPrice(price.length-1,'new');$('priceList').lastChild.scrollIntoView({block:'center',behavior:'smooth'});};
 
   /* ---------- донатеры ---------- */
-  function amount(s){var t=String(s).replace(/ /g,' '),sum=0,m,re=/(\d[\d ]*)\s*₽/g;while((m=re.exec(t)))sum+=parseInt(m[1].replace(/\s/g,''),10)||0;return sum;}
+  function amount(s){var t=String(s==null?'':s).replace(/\u00a0/g,' '),sum=0,m,re=/(\d{1,3}(?:[  ]\d{3})+|\d+)(?:[.,]\d{1,2})?\s*(?:₽|руб|р\.?(?![а-яёa-z]))/gi;while((m=re.exec(t)))sum+=parseInt(m[1].replace(/\s/g,''),10)||0;return sum;}
   function renderDon(fi,kind){
     var box=$('donList');box.textContent='';
     donors.forEach(function(r,i){
@@ -782,7 +784,8 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   }
   $('addDon').onclick=function(){donors.push(['','']);setDirty(true);renderDon(donors.length-1,'new');$('donList').lastChild.scrollIntoView({block:'center',behavior:'smooth'});};
   /* суммы: «17777» = 17 777 ₽; «+ додонатил» прибавляется к сумме при сохранении */
-  function num(s){var d=String(s==null?'':s).replace(/[^\d]/g,'');return d?parseInt(d,10):0;}
+  /* число из текста: рубли (₽/руб/р) — суммируем; иначе только ПЕРВОЕ число. Разные числа не склеиваем (11€ (1071₽) = 1071) */
+  function num(s){var t=String(s==null?'':s).replace(/\u00a0/g,' ');var a=amount(t);if(a)return a;var m=t.match(/\d{1,3}(?:[ ]\d{3})+(?!\d)|\d+/);return m?parseInt(m[0].replace(/\s/g,''),10):0;}
   function fmt(n){return n.toLocaleString('ru-RU').replace(/\u00a0/g,' ')+' ₽';}
   var PLAIN=/^\s*\d[\d\s\u00a0]*\s*(₽|р\.?|руб\.?)?\s*$/i;
   function rub(s){return PLAIN.test(String(s))?num(s):amount(s);}
@@ -828,6 +831,8 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
     function money(s){s=String(s).replace(/\s/g,'').replace(',','.');var v=parseFloat(s);return isFinite(v)?Math.round(v):0;}
     function cleanNick(s){
       s=String(s||'')
+        .replace(/(^|[^a-zа-яё0-9_])(?:(?:\$|€|₸|£)\s*(?:\d{1,3}(?:[ ]\d{3})+|\d+)(?:[.,]\d+)?|(?:\d{1,3}(?:[ ]\d{3})+|\d+)(?:[.,]\d+)?\s*(?:\$|€|₸|£|usd|eur|uah|грн|kzt|byn|долл\S*|евро))/gi,'$1 ')   /* суммы в другой валюте (не трогая цифры внутри ника) */
+        .replace(/[$€₸£]/g,' ')
         .replace(/\b\d{1,2}[.:/]\d{1,2}([.:/]\d{2,4})?\b/g,' ')   /* даты и время */
         .replace(/\b\d{1,2}:\d{2}(:\d{2})?\b/g,' ')
         .replace(/[«»"“”'`|•·—–\-:;,()[\]{}<>!?*#+]+/g,' ')

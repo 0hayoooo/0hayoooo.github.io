@@ -36,7 +36,7 @@ body{
   background-size:auto,auto,32px 32px,32px 32px;
   overflow-x:hidden;
 }
-.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px;display:flex;flex-direction:column;gap:72px}
+.wrap{max-width:min(1720px,96vw);margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px;display:flex;flex-direction:column;gap:72px}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:6px}
 
@@ -915,7 +915,8 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
 .vk-main > .panel.on{display:block}
 @keyframes vkIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .adm-frame-wrap{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:rgba(10,7,20,.6)}
-.adm-frame{display:block;width:100%;height:78vh;min-height:520px;border:0;background:#0b0718}
+.adm-frame{display:block;width:100%;height:640px;border:0;background:#0b0718;overflow:hidden}
+.adm-panel>.sec-head{display:none}
 .adm-foot{margin:10px 2px 0;font:500 13px var(--body);color:var(--muted)}
 .adm-foot a{color:var(--cyan)}
 .vk-tab.vk-adm{margin-top:6px;border-style:dashed;color:var(--yellow)}
@@ -1638,7 +1639,7 @@ function twMe(){try{var u=JSON.parse(localStorage.getItem('twUser')||'null');ret
   window.topMeRefresh=function(){render(LAST);};
   /* сумма доната в рублях: складываем все числа перед «₽» (донат + скины, рубли из скобок у валюты) */
   function amount(s){
-    var t=String(s).replace(/\u00a0/g,' '), sum=0, m, re=/(\d[\d ]*)\s*₽/g;
+    var t=String(s).replace(/\u00a0/g,' '), sum=0, m, re=/(\d{1,3}(?:[  ]\d{3})+|\d+)(?:[.,]\d{1,2})?\s*(?:₽|руб|р\.?(?![а-яёa-z]))/gi;
     while((m=re.exec(t))) sum+=parseInt(m[1].replace(/\s/g,''),10)||0;
     return sum;
   }
@@ -1983,7 +1984,7 @@ var CMS_CORE=(function(){
   var grid=document.getElementById('priceGrid'), goals=document.getElementById('goals');
   if(!grid) return;
   function el(t,c,txt){var e=document.createElement(t);if(c)e.className=c;if(txt!=null)e.textContent=txt;return e;}
-  function num(v){var n=parseFloat(String(v||'').replace(/\s/g,'').replace(',','.').replace(/[^\d.]/g,''));return isFinite(n)?n:NaN;}
+  function num(v){var m=String(v||'').replace(/\u00a0/g,' ').match(/\d{1,3}(?:[ ]\d{3})+(?:[.,]\d+)?(?!\d)|\d+(?:[.,]\d+)?/);var n=m?parseFloat(m[0].replace(/\s/g,'').replace(',','.')):NaN;return isFinite(n)?n:NaN;}
   function money(v){var n=num(v);return isFinite(n)&&/^[\s\d.,₽рруб]*$/i.test(String(v))?Math.round(n).toLocaleString('ru-RU')+' ₽':String(v||'').trim();}
   var toastT;
   function toast(name){
@@ -2687,8 +2688,33 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
     if(p&&!tabHidden(p)) return h;
     return def;
   }
+  /* админка во фрейме: высота = высоте содержимого (без внутренней прокрутки),
+     а закреплённые панели админки держим в видимой части экрана */
+  function admFit(ifr){
+    if(ifr._fit) return; ifr._fit=true;
+    ifr.setAttribute('scrolling','no');
+    function doc(){try{return ifr.contentDocument;}catch(e){return null;}}
+    function pin(){var d=doc();if(!d||!d.body)return;try{
+      var r=ifr.getBoundingClientRect(),vt=Math.max(0,-r.top),vb=Math.max(vt,Math.min(innerHeight,r.bottom)-r.top);
+      var bar=d.querySelector('.bar');if(bar){bar.style.position='absolute';bar.style.bottom='auto';bar.style.top=Math.max(0,vb-bar.offsetHeight)+'px';}
+      var ny=d.querySelectorAll('.ny');for(var i=0;i<ny.length;i++){ny[i].style.position='absolute';ny[i].style.bottom='auto';ny[i].style.top=vt+'px';ny[i].style.height=(vb-vt)+'px';}
+    }catch(e){}}
+    function fit(){var d=doc();if(!d||!d.body)return;try{
+      var els=[].slice.call(d.querySelectorAll('.bar,.ny')),old=els.map(function(e){var v=e.style.display;e.style.display='none';return v;});
+      var b=d.body,cs=d.defaultView.getComputedStyle(b);
+      var h=Math.ceil(b.getBoundingClientRect().height+(parseFloat(cs.marginTop)||0)+(parseFloat(cs.marginBottom)||0))+2;
+      els.forEach(function(e,i){e.style.display=old[i];});
+      if(h>200&&Math.abs(h-ifr.offsetHeight)>2) ifr.style.height=h+'px';
+    }catch(e){} pin();}
+    ifr.addEventListener('load',function(){var d=doc();if(!d||!d.body)return;
+      try{d.documentElement.style.overflow='hidden';}catch(e){}
+      if(window.ResizeObserver){try{new ResizeObserver(fit).observe(d.body);}catch(e){}}
+      fit();});
+    window.addEventListener('scroll',pin,{passive:true}); window.addEventListener('resize',fit);
+    setInterval(fit,1500);
+  }
   function show(k){
-    if(k==='admin'){var ifr=main.querySelector('.adm-frame'); if(ifr&&!ifr.getAttribute('src')&&ifr.getAttribute('data-src'))ifr.setAttribute('src',ifr.getAttribute('data-src'));}
+    if(k==='admin'){var ifr=main.querySelector('.adm-frame'); if(ifr){admFit(ifr); if(!ifr.getAttribute('src')&&ifr.getAttribute('data-src'))ifr.setAttribute('src',ifr.getAttribute('data-src'));}}
     panels.forEach(function(p){ p.classList.toggle('on',p.getAttribute('data-panel')===k); });
     Object.keys(btns).forEach(function(x){ var on=x===k; btns[x].classList.toggle('on',on); btns[x].setAttribute('aria-current',on?'page':'false'); });
     burgerLabel(k); menuOpen(false);
