@@ -686,6 +686,8 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
       if(dr&&dr.price&&dr.donors){price=dr.price;donors=dr.donors;}
       try{sessionStorage.removeItem('admAuto');}catch(x){}
       sortDon();renderPrice();renderDon();setDirty(!!dr);show('sEdit');
+      /* если админка открылась сразу на «Посетителях» — подгружаем их (раньше ждали клика по вкладке) */
+      if(!$('pVis').hidden) refreshVis();
       if(dr) status('dirty','Вернул несохранённые правки. Нажмите «Сохранить».');
     }).catch(function(e){
       if(e.message==='forbidden'){revoke(TOK);setTok('');$('me').hidden=true;show('sDenied');return;}
