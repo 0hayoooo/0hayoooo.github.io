@@ -917,6 +917,30 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
 @media(max-width:620px){.tama>.tama-stage{margin-inline:auto}}
 /* тач: кнопки не меньше 40px по высоте */
 @media (pointer:coarse){.quiet-row button,.copy button,.btn-sm{min-height:40px}}
+/* ---- закреплённое мини-меню (телефон) ---- */
+.mbar{position:fixed;z-index:40;left:0;right:0;top:0;display:grid;grid-template-columns:minmax(0,1fr);gap:6px;padding:calc(6px + env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) 8px max(10px,env(safe-area-inset-left,0px));background:rgba(11,7,22,.94);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,62,165,.45);box-shadow:0 8px 24px rgba(0,0,0,.45);transform:translateY(-110%);transition:transform .22s ease}
+.mbar.show{transform:none}
+.mbar[hidden]{display:none}
+.mb-top{display:flex;align-items:center;gap:8px;min-width:0}
+.mb-pf{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:8px;padding:3px 10px 3px 3px;border-radius:999px;background:rgba(20,13,37,.9);border:1px solid var(--line);color:var(--fg);cursor:pointer;font:inherit}
+.mb-av{flex:none;width:30px;height:30px;border-radius:50%;overflow:hidden;display:grid;place-items:center}
+.mb-av .pf-av{width:30px!important;height:30px!important;min-width:0;font-size:14px;margin:0;box-shadow:none}
+.mb-av img,.mb-av svg{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.mb-nick{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:800 14px/1.2 var(--body)}
+.mb-live{flex:none;display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;border:1px solid var(--line);font:800 11px/1 var(--mono);letter-spacing:.08em;color:var(--muted);text-decoration:none}
+.mb-live i{width:8px;height:8px;border-radius:50%;background:#ff4d5e}
+.mb-live.on{color:#3dff8a;border-color:rgba(61,255,138,.6)}.mb-live.on i{background:#3dff8a;box-shadow:0 0 8px #3dff8a}
+.mb-coin{flex:none;display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,210,63,.5);background:rgba(255,210,63,.1);color:var(--fg);font:700 13px/1 var(--body);cursor:pointer}
+.mb-coin b{color:var(--yellow);font-variant-numeric:tabular-nums}
+.mb-coin[hidden]{display:none}
+.mb-rib{position:relative;min-width:0}
+.mb-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scroll-padding-inline:44px}
+.mb-tabs::-webkit-scrollbar{display:none}
+.mb-tab{flex:none;white-space:nowrap;padding:9px 13px;border-radius:12px;border:1px solid var(--line);background:rgba(20,13,37,.7);color:var(--fg);font:700 14px/1.1 var(--body);cursor:pointer}
+.mb-tab.on{border-color:var(--pink);box-shadow:0 0 12px rgba(255,62,165,.35);color:#fff}
+.mb-rib .rib-btn{top:0;bottom:0;width:44px}
+.mb-rib .rib-btn::after{width:30px;height:30px;margin-top:-15px}
+@media(min-width:901px){.mbar{display:none!important}}
 /* одна плашка: котик + поглаживания */
 .tama-plate{display:grid;gap:16px;padding:24px;border-radius:22px;background:var(--surface);border:1px solid var(--line);box-shadow:0 0 40px rgba(255,62,165,.10)}
 .tama-plate .tama{padding:0;background:none;border:0;box-shadow:none}
@@ -3428,6 +3452,62 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
       return Math.max(1000,((24*3600-(p.hour*3600+p.minute*60+p.second))*1000)-(Date.now()%1000)+300); }catch(e){ return 60000; } }
   (function tick(){ setTimeout(function(){ window.seasonApply(); tick(); }, msToMidnight()); })();
   setInterval(window.seasonApply, 300000);
+})();
+</script>
+<script>
+/* ================= ЗАКРЕПЛЁННОЕ МЕНЮ НА ТЕЛЕФОНЕ =================
+   Когда большое меню (профиль, стрим, монетки, разделы) уезжает вверх, сверху появляется
+   компактная копия: аватар и ник, статус стрима, монетки и лента разделов. */
+(function(){
+  var side=document.querySelector('.vk-side'), nav=document.getElementById('vkNav'); if(!side||!nav) return;
+  var mq=window.matchMedia('(max-width:900px)');
+  function E(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
+  var bar=E('div','mbar'); bar.id='mbar'; bar.setAttribute('aria-hidden','true'); bar.hidden=true;
+  var top=E('div','mb-top'), pf=E('button','mb-pf'); pf.type='button'; pf.setAttribute('aria-label','Профиль');
+  var av=E('span','mb-av'), nk=E('b','mb-nick'); pf.appendChild(av); pf.appendChild(nk);
+  var lv=E('a','mb-live'); lv.href='https://www.twitch.tv/0hayoooo'; lv.target='_blank'; lv.rel='noopener'; lv.appendChild(E('i')); var lvt=E('span',null,'OFF'); lv.appendChild(lvt);
+  var cn=E('button','mb-coin'); cn.type='button'; cn.setAttribute('aria-label','Мур-монетки'); cn.appendChild(E('span',null,'🪙')); var cnb=E('b',null,'0'); cn.appendChild(cnb);
+  top.appendChild(pf); top.appendChild(lv); top.appendChild(cn); bar.appendChild(top);
+  var rib=E('div','mb-rib'), prev=E('button','rib-btn rib-prev','«'), tabs=E('nav','mb-tabs'), next=E('button','rib-btn rib-next','»');
+  prev.type=next.type='button'; prev.setAttribute('aria-label','Листать разделы назад'); next.setAttribute('aria-label','Листать разделы дальше');
+  rib.appendChild(prev); rib.appendChild(tabs); rib.appendChild(next); bar.appendChild(rib);
+  document.body.appendChild(bar);
+  pf.onclick=function(){ var b=document.getElementById('profileBtn'); if(b) b.click(); };
+  cn.onclick=function(){ if(window.vkGo) window.vkGo('tama'); };
+  function build(){
+    tabs.textContent='';
+    [].forEach.call(nav.querySelectorAll('.vk-tab'),function(o){
+      if(o.hidden||o.style.display==='none') return;
+      var b=E('button','mb-tab'+(o.classList.contains('on')?' on':''),o.textContent); b.type='button';
+      b.onclick=function(){ o.click(); }; tabs.appendChild(b);
+    });
+  }
+  function fill(){
+    var pa=document.querySelector('#profileBtn .pf-av'); av.textContent=''; if(pa){ var c=pa.cloneNode(true); c.removeAttribute('id'); av.appendChild(c); }
+    var n=document.getElementById('pfNick'); nk.textContent=n?n.textContent:'Гость';
+    var l=document.getElementById('live'), on=!!(l&&l.classList.contains('is-on')); lv.classList.toggle('on',on); lvt.textContent=on?'LIVE':'OFF';
+    var cb=document.querySelector('.vk-head .coinbar'), cv=cb&&!cb.hidden?cb.querySelector('b'):null; cn.hidden=!cv; if(cv) cnb.textContent=cv.textContent;
+  }
+  function ribUpd(){ var max=tabs.scrollWidth-tabs.clientWidth; prev.hidden=tabs.scrollLeft<8; next.hidden=tabs.scrollLeft>max-8; }
+  function ribGo(d){ var st=Math.max(140,tabs.clientWidth*.7); try{tabs.scrollBy({left:d*st,behavior:'smooth'});}catch(e){tabs.scrollLeft+=d*st;} }
+  prev.onclick=function(){ribGo(-1);}; next.onclick=function(){ribGo(1);}; tabs.addEventListener('scroll',ribUpd,{passive:true});
+  function center(){ var a=tabs.querySelector('.mb-tab.on'); if(a) tabs.scrollLeft=Math.max(0,a.offsetLeft-(tabs.clientWidth-a.offsetWidth)/2); ribUpd(); }
+  var shown=false, raf=0;
+  function check(){ raf=0;
+    var want=mq.matches && side.getBoundingClientRect().bottom<0 && !document.querySelector('.hello:not([hidden])');
+    if(want===shown) return; shown=want;
+    if(want){ build(); fill(); bar.hidden=false; bar.removeAttribute('aria-hidden'); requestAnimationFrame(function(){ bar.classList.add('show'); center(); }); }
+    else { bar.classList.remove('show'); bar.setAttribute('aria-hidden','true'); setTimeout(function(){ if(!shown) bar.hidden=true; },220); }
+  }
+  function sched(){ if(!raf) raf=requestAnimationFrame(check); }
+  window.addEventListener('scroll',sched,{passive:true}); window.addEventListener('resize',sched);
+  if(mq.addEventListener) mq.addEventListener('change',sched);
+  /* держим копию в актуальном виде: смена раздела, монетки, стрим, профиль */
+  if(window.MutationObserver){
+    new MutationObserver(function(){ if(shown){ build(); center(); } }).observe(nav,{subtree:true,attributes:true,attributeFilter:['class','hidden','style'],childList:true});
+    var head=side.querySelector('.vk-head'); if(head) new MutationObserver(function(){ if(shown) fill(); }).observe(head,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['class','hidden']});
+  }
+  sched();
 })();
 </script>
 </body>
