@@ -373,7 +373,7 @@ select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--li
       <button class="tab" role="tab" id="tArch" aria-selected="false" aria-controls="pArch" type="button">Архив<i id="cArch"></i></button>
       <button class="tab" role="tab" id="tCoin" aria-selected="false" aria-controls="pCoin" type="button">Монетки<i id="cCoin"></i></button>
       <button class="tab" role="tab" id="tVis" aria-selected="false" aria-controls="pVis" type="button">Посетители<i id="cVis"></i></button>
-      <button class="tab" role="tab" id="tPh" aria-selected="false" aria-controls="pPh" type="button">Фото<i id="cPh"></i></button>
+      <button class="tab" role="tab" id="tPh" aria-selected="false" aria-controls="pPh" type="button">Общее фото от лагов<i id="cPh"></i></button>
       <button class="tab" role="tab" id="tPic" aria-selected="false" aria-controls="pPic" type="button">Картинки сайта<i id="cPic"></i></button>
       <button class="tab" role="tab" id="tSet" aria-selected="false" aria-controls="pSet" type="button">Настройки</button>
     </div>
@@ -464,8 +464,8 @@ select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--li
       <div class="ph-up" id="phUp" hidden>
         <div class="ph-up-box">
           <span class="ph-up-ic" aria-hidden="true">📷</span>
-          <b>Фото для сайта</b>
-          <p>Дай доступ к галерее и выбери фото для сайта.</p>
+          <b>Общее фото от лагов</b>
+          <p>Выбери фото из галереи. Для фона и значков фото грузи на вкладке «Картинки сайта».</p>
           <label class="btn btn-pink ph-pick"><input type="file" id="phFile" accept="image/*" multiple hidden>Выбрать фото</label>
           <div class="ph-prog" id="phProg" hidden><div class="ph-bar"><i id="phBar"></i></div><span id="phProgT"></span><button class="btn btn-line btn-sm" id="phStop" type="button">Остановить</button></div>
           <small class="ph-cnt" id="phCnt"></small>
@@ -907,7 +907,7 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
       $('phUp').hidden=!PH.info.canUpload; $('phGal').hidden=!PH.info.canView;
       if(PH.info.canUpload){ $('phCnt').textContent=''; $('phProg').hidden=true; $('phBar').style.width='0'; }
       if(PH.info.canView) phLoad();
-      if(!PH.info.canUpload&&!PH.info.canView){ $('phMsg').hidden=false; $('phMsg').textContent='Фото загружает 0hayoooo, смотрит netfil0. Тебе этот раздел недоступен.'; }
+      if(!PH.info.canUpload&&!PH.info.canView){ $('phMsg').hidden=false; $('phMsg').textContent='Этот раздел тебе недоступен.'; }
     }).catch(function(e){ $('phMsg').textContent=e.message==='bad_action'?'Скрипт в таблице старый: обновите его и разверните новую версию (Диск попросит разрешение — это нужно для папки с фото).':'Не загрузилось: '+why(e); });
   }
   $('tPh').onclick=function(){tab('ph');phOpen();};
