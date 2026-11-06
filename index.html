@@ -242,6 +242,10 @@ body.shake .wrap{animation:shake .6s}
 @media (max-width:620px){.wrap{padding-top:70px}.profile{max-width:calc(50vw - 22px)}.livebox{max-width:calc(50vw - 22px)!important}}
 .hello{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:rgba(5,3,12,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:hfade .3s ease-out}
 .hello-card{width:min(420px,100%);display:grid;gap:12px;padding:26px 24px;border-radius:22px;background:var(--surface);border:1.5px solid var(--pink);box-shadow:0 0 50px rgba(255,62,165,.35);text-align:center;animation:hpop .45s cubic-bezier(.2,1.5,.4,1)}
+/* профиль на телефоне: окно прокручивается само, сайт под ним стоит на месте */
+.hello{overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;place-items:start center;padding-top:max(16px,env(safe-area-inset-top,0px));padding-bottom:max(24px,env(safe-area-inset-bottom,0px))}
+.hello-card{margin-block:auto}
+html:has(.hello:not([hidden])),html:has(.hello:not([hidden])) body{overflow:hidden}
 .hello-cat{font:700 26px/1 var(--mono);color:var(--pink);text-shadow:0 0 12px var(--pink)}
 .hello-card h2{font-size:clamp(24px,5vw,30px)}
 .hello-card p{margin:0;color:var(--muted);font-size:15px}
@@ -934,6 +938,21 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
 .tama-pet.nom{animation:tamaNom .5s ease}
 .tama-mood{position:absolute;top:12px;right:14px;font-size:30px;line-height:1}
 /* ---- котик-тамагочи: анимации ---- */
+.tm-aura{transform-origin:100px 78px;animation:tmAura 9s linear infinite;filter:drop-shadow(0 0 6px #b06bff)}
+.tm-wing-l{transform-origin:64px 132px;animation:tmWingL 2.2s ease-in-out infinite}
+.tm-wing-r{transform-origin:136px 132px;animation:tmWingR 2.2s ease-in-out infinite}
+.tm-cape{transform-origin:100px 128px;animation:tmCape 3.4s ease-in-out infinite}
+.tm-yarn{transform-origin:162px 174px;animation:tmYarn 3s ease-in-out infinite}
+.tm-scarf-end{transform-origin:120px 136px;animation:tmCape 2.6s ease-in-out infinite}
+.tm-spark text{transform-box:fill-box;transform-origin:center;font-size:14px;fill:#ffd23f;animation:tmTw 1.8s ease-in-out infinite}
+.tm-spark text:nth-child(2){animation-delay:.4s;fill:#2cf1ff}.tm-spark text:nth-child(3){animation-delay:.8s}.tm-spark text:nth-child(4){animation-delay:1.2s;fill:#ff3ea5}.tm-spark text:nth-child(5){animation-delay:.6s}
+@keyframes tmAura{to{transform:rotate(360deg)}}
+@keyframes tmWingL{0%,100%{transform:rotate(0)}50%{transform:rotate(-12deg)}}
+@keyframes tmWingR{0%,100%{transform:rotate(0)}50%{transform:rotate(12deg)}}
+@keyframes tmCape{0%,100%{transform:skewX(0)}50%{transform:skewX(3deg)}}
+@keyframes tmYarn{0%,100%{transform:rotate(0)}50%{transform:rotate(-18deg) translateX(-2px)}}
+@keyframes tmTw{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1.15)}}
+
 .tama-pet{cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none}
 .tama-pet:focus-visible{outline:2px solid var(--cyan);outline-offset:4px;border-radius:16px}
 .tama-pet svg *{transform-box:view-box}
@@ -2720,7 +2739,7 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
       box.hidden=false;
       setTimeout(function(){(m==='manual'?inp:m==='login'?twb:skip).focus();if(m==='manual')inp.select();},50);
     }
-    function close(){box.hidden=true;if(editing)pBtn.focus();}
+    function close(){box.hidden=true;if(editing){try{pBtn.focus({preventScroll:true});}catch(e){pBtn.focus();}}}
 
     /* --- вход через Twitch (implicit grant: без сервера, токен сразу отзываем) --- */
     /* пропуск зрителя: выдаёт сервер после проверки входа у Twitch; без него монетки, котик и аватарка не сохраняются */
@@ -3065,7 +3084,22 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
   var API=(typeof ADMIN_API==='string')?ADMIN_API.trim():'';
   var box=document.getElementById('tamaBox'); if(!box) return;
   var FOOD=[{e:'🐟',n:'рыбка',xp:10,p:10},{e:'🥛',n:'молочко',xp:30,p:25},{e:'🍣',n:'суши',xp:70,p:50},{e:'🎂',n:'тортик',xp:250,p:150}];
-  var STAGES=[{min:0,n:'котёнок',k:.66},{min:100,n:'малыш',k:.72},{min:400,n:'подросток',k:.78},{min:1000,n:'взрослый кот',k:.84},{min:2500,n:'большой котяра',k:.9},{min:6000,n:'легенда мурлыканья',k:.96}];
+  /* стадии роста: a — что надето/рядом (рисуется в catBody) */
+  var STAGES=[
+    {min:0,    n:'котёнок',            k:.62, a:'paci bow'},
+    {min:100,  n:'малыш',              k:.67, a:'paci bib'},
+    {min:250,  n:'непоседа',           k:.71, a:'yarn bow'},
+    {min:400,  n:'подросток',          k:.74, a:'cap yarn'},
+    {min:700,  n:'кот-геймер',         k:.77, a:'hs'},
+    {min:1000, n:'взрослый кот',       k:.80, a:'hs scarf'},
+    {min:1600, n:'кот-капитан',        k:.83, a:'hs scarf star'},
+    {min:2500, n:'большой котяра',     k:.86, a:'hs collar star'},
+    {min:4000, n:'котяра-чемпион',     k:.89, a:'hs collar cape medal'},
+    {min:6000, n:'легенда мурлыканья', k:.92, a:'crown hs collar cape'},
+    {min:10000,n:'космокот',           k:.95, a:'crown hs collar cape aura'},
+    {min:15000,n:'мифический котик',   k:.97, a:'crown hs collar cape aura wings'},
+    {min:25000,n:'бессмертный мур',    k:1,   a:'crown hs collar cape aura wings spark'}
+  ];
   var me=null, busy=false, loadedFor='';
   function cu(){try{return JSON.parse(localStorage.getItem('twUser')||'null');}catch(e){return null;}}
   function sat(st){ if(!st) return 0; var h=Math.max(0,(Date.now()-(st.ts||0))/3600000); return Math.max(0,Math.min(100,(st.sat||0)-4*h)); }
@@ -3080,22 +3114,35 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
     var fur=c?(c.grad?'url(#tmFur)':c.fur):'#1a1030', eye=c&&c.eye?c.eye:'#2cf1ff';
     var defs='<defs>'+(c&&c.grad?'<linearGradient id="tmFur" x1="0" y1="0" x2="1" y2="1">'+c.grad.map(function(g,i){return '<stop offset="'+(i/(c.grad.length-1))+'" stop-color="'+g+'"/>';}).join('')+'</linearGradient>':'')+'</defs>';
     var O='stroke="#ff3ea5" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"';
-    var acc='', front='';
+    var acc='', front='', back='', chest='', side='', A=' '+((STAGES[si]||STAGES[0]).a||'')+' ';
+    function has(x){return A.indexOf(' '+x+' ')>=0;}
+    /* за спиной: сияние, крылья, плащ */
+    if(has('aura')) back+='<g class="tm-aura"><ellipse cx="100" cy="78" rx="62" ry="58" fill="none" stroke="#b06bff" stroke-width="3" stroke-dasharray="6 8"/><ellipse cx="100" cy="78" rx="70" ry="66" fill="none" stroke="#2cf1ff" stroke-width="1.5" opacity=".6"/></g>';
+    if(has('wings')) back+='<g class="tm-wing tm-wing-l"><path d="M64 140 Q20 120 14 80 Q34 96 44 92 Q30 112 66 128 Z" fill="rgba(44,241,255,.25)" stroke="#2cf1ff" stroke-width="2.5"/></g><g class="tm-wing tm-wing-r"><path d="M136 140 Q180 120 186 80 Q166 96 156 92 Q170 112 134 128 Z" fill="rgba(44,241,255,.25)" stroke="#2cf1ff" stroke-width="2.5"/></g>';
+    if(has('cape')) back+='<path class="tm-cape" d="M68 124 Q34 156 28 190 L172 190 Q166 156 132 124 Z" fill="#6b1fd1" stroke="#b06bff" stroke-width="2.5"/>';
+    /* на груди: звезда капитана, медаль чемпиона */
+    if(has('star')) chest+='<path d="M100 146 l4 8 9 1 -7 6 2 9 -8 -5 -8 5 2 -9 -7 -6 9 -1 Z" fill="#ffd23f" stroke="#b8860b" stroke-width="1.5"/>';
+    if(has('medal')) chest+='<path d="M93 132 L100 150 L107 132" fill="none" stroke="#2cf1ff" stroke-width="4"/><circle cx="100" cy="156" r="8" fill="#ffd23f" stroke="#b8860b" stroke-width="2"/><text x="100" y="160" text-anchor="middle" font-size="9" font-weight="800" fill="#7a4b00">1</text>';
+    /* рядом: клубок ниток, искорки */
+    if(has('yarn')) side+='<g class="tm-yarn"><path d="M150 176 Q140 186 122 184" fill="none" stroke="#ff8fcf" stroke-width="2"/><circle cx="162" cy="174" r="13" fill="#ff8fcf" stroke="#ff3ea5" stroke-width="2.5"/><path d="M152 168 q10 4 20 0 M151 176 q11 5 22 0 M156 164 q2 12 0 22" fill="none" stroke="#ff3ea5" stroke-width="1.6"/></g>';
+    if(has('spark')) side+='<g class="tm-spark"><text x="24" y="40">✦</text><text x="170" y="30">✧</text><text x="182" y="120">✦</text><text x="12" y="130">✧</text><text x="100" y="12">✦</text></g>';
+    /* шарф */
+    if(has('scarf')) front+='<g class="tm-scarf"><path d="M66 124 Q100 142 134 124 L136 134 Q100 152 64 134 Z" fill="#ff3ea5" stroke="#b0207a" stroke-width="2"/><path d="M78 132 l6 6 M92 137 l6 4 M108 137 l6 -4 M120 132 l6 -6" stroke="#ffd23f" stroke-width="2.5"/><path class="tm-scarf-end" d="M120 134 L128 162 L116 160 L112 138 Z" fill="#ff3ea5" stroke="#b0207a" stroke-width="2"/></g>';
     /* соска — котёнок и малыш */
-    if(si<=1) front+='<g class="tm-paci"><ellipse cx="100" cy="117" rx="13" ry="6.5" fill="#ffd23f" stroke="#b8860b" stroke-width="1.6"/><circle cx="100" cy="117" r="3" fill="#ff8fcf"/><circle cx="100" cy="127" r="6.5" fill="none" stroke="#ff3ea5" stroke-width="3"/></g>';
+    if(has('paci')) front+='<g class="tm-paci"><ellipse cx="100" cy="117" rx="13" ry="6.5" fill="#ffd23f" stroke="#b8860b" stroke-width="1.6"/><circle cx="100" cy="117" r="3" fill="#ff8fcf"/><circle cx="100" cy="127" r="6.5" fill="none" stroke="#ff3ea5" stroke-width="3"/></g>';
     /* котёнок: бантик; малыш: слюнявчик */
-    if(si===0) acc+='<g class="tm-bow"><path d="M128 50 l-11 -7 v14 Z M128 50 l11 -7 v14 Z" fill="#ff8fcf" stroke="#ff3ea5" stroke-width="2"/><circle cx="128" cy="50" r="3.5" fill="#ff3ea5"/></g>';
-    if(si===1) front+='<path class="tm-bib" d="M76 128 Q100 160 124 128 Z" fill="#f3ecff" stroke="#2cf1ff" stroke-width="2.5"/><path d="M100 146 c-4 -5 -10 -1 -6 3 l6 5 l6 -5 c4 -4 -2 -8 -6 -3 Z" fill="#ff3ea5"/>';
+    if(has('bow')) acc+='<g class="tm-bow"><path d="M128 50 l-11 -7 v14 Z M128 50 l11 -7 v14 Z" fill="#ff8fcf" stroke="#ff3ea5" stroke-width="2"/><circle cx="128" cy="50" r="3.5" fill="#ff3ea5"/></g>';
+    if(has('bib')) front+='<path class="tm-bib" d="M76 128 Q100 160 124 128 Z" fill="#f3ecff" stroke="#2cf1ff" stroke-width="2.5"/><path d="M100 146 c-4 -5 -10 -1 -6 3 l6 5 l6 -5 c4 -4 -2 -8 -6 -3 Z" fill="#ff3ea5"/>';
     /* подросток: кепка задом наперёд */
-    if(si===2) acc+='<g class="tm-cap"><path d="M64 66 Q66 40 100 38 Q134 40 136 66 Z" fill="#2cf1ff" stroke="#0b0716" stroke-width="2"/><path d="M128 60 q22 2 26 12 q-14 2 -28 -4 Z" fill="#1aa9b8"/><circle cx="100" cy="38" r="3" fill="#ff3ea5"/></g>';
+    if(has('cap')) acc+='<g class="tm-cap"><path d="M64 66 Q66 40 100 38 Q134 40 136 66 Z" fill="#2cf1ff" stroke="#0b0716" stroke-width="2"/><path d="M128 60 q22 2 26 12 q-14 2 -28 -4 Z" fill="#1aa9b8"/><circle cx="100" cy="38" r="3" fill="#ff3ea5"/></g>';
     /* взрослые: геймерская гарнитура */
-    if(si>=3) acc+='<g class="tm-hs"><path d="M56 96 Q52 34 100 32 Q148 34 144 96" fill="none" stroke="#2cf1ff" stroke-width="5"/><rect x="44" y="84" width="16" height="26" rx="8" fill="#0b0716" stroke="#2cf1ff" stroke-width="4"/><rect x="140" y="84" width="16" height="26" rx="8" fill="#0b0716" stroke="#2cf1ff" stroke-width="4"/><path d="M52 110 Q56 128 80 126" fill="none" stroke="#2cf1ff" stroke-width="3"/><circle cx="82" cy="126" r="3.5" fill="#2cf1ff"/></g>';
+    if(has('hs')) acc+='<g class="tm-hs"><path d="M56 96 Q52 34 100 32 Q148 34 144 96" fill="none" stroke="#2cf1ff" stroke-width="5"/><rect x="44" y="84" width="16" height="26" rx="8" fill="#0b0716" stroke="#2cf1ff" stroke-width="4"/><rect x="140" y="84" width="16" height="26" rx="8" fill="#0b0716" stroke="#2cf1ff" stroke-width="4"/><path d="M52 110 Q56 128 80 126" fill="none" stroke="#2cf1ff" stroke-width="3"/><circle cx="82" cy="126" r="3.5" fill="#2cf1ff"/></g>';
     /* большой и легенда: ошейник с колокольчиком */
-    if(si>=4) front+='<g class="tm-collar"><path d="M70 129 Q100 140 130 129" fill="none" stroke="#ff3ea5" stroke-width="6"/><circle class="tm-bell" cx="100" cy="140" r="6" fill="#ffd23f" stroke="#b8860b" stroke-width="1.5"/></g>';
+    if(has('collar')) front+='<g class="tm-collar"><path d="M70 129 Q100 140 130 129" fill="none" stroke="#ff3ea5" stroke-width="6"/><circle class="tm-bell" cx="100" cy="140" r="6" fill="#ffd23f" stroke="#b8860b" stroke-width="1.5"/></g>';
     /* легенда: корона */
-    if(si>=5) acc+='<path class="tm-crown" d="M78 40 L84 22 L94 34 L100 16 L106 34 L116 22 L122 40 Z" fill="#ffd23f" stroke="#b8860b" stroke-width="2"/>';
+    if(has('crown')) acc+='<path class="tm-crown" d="M78 40 L84 22 L94 34 L100 16 L106 34 L116 22 L122 40 Z" fill="#ffd23f" stroke="#b8860b" stroke-width="2"/>';
     return '<svg viewBox="0 0 200 200" aria-hidden="true">'+defs+
-      '<ellipse cx="100" cy="188" rx="56" ry="6" fill="rgba(255,62,165,.22)"/>'+
+      '<ellipse cx="100" cy="188" rx="56" ry="6" fill="rgba(255,62,165,.22)"/>'+back+
       '<g class="tm-tail"><path d="M138 170 Q184 162 178 122 Q176 106 162 110" fill="none" stroke="#2cf1ff" stroke-width="8" stroke-linecap="round"/></g>'+
       '<g class="tm-body">'+
         '<ellipse cx="68" cy="178" rx="16" ry="9" fill="'+fur+'" '+O+'/><ellipse cx="132" cy="178" rx="16" ry="9" fill="'+fur+'" '+O+'/>'+
@@ -3103,7 +3150,8 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
         '<ellipse cx="100" cy="160" rx="22" ry="18" fill="rgba(255,62,165,.16)"/>'+
         '<g class="tm-paw tm-paw-l"><ellipse cx="86" cy="182" rx="11" ry="7.5" fill="'+fur+'" '+O+'/><path d="M82 180 v4 M88 180 v4" stroke="#ff3ea5" stroke-width="2" stroke-linecap="round"/></g>'+
         '<g class="tm-paw tm-paw-r"><ellipse cx="114" cy="182" rx="11" ry="7.5" fill="'+fur+'" '+O+'/><path d="M110 180 v4 M116 180 v4" stroke="#ff3ea5" stroke-width="2" stroke-linecap="round"/></g>'+
-      '</g>'+
+      chest+
+      '</g>'+side+
       '<g class="tm-head">'+
         '<path d="M52 98 L60 40 L86 64 Q100 59 114 64 L140 40 L148 98 Q148 130 100 131 Q52 130 52 98 Z" fill="'+fur+'" '+O+'/>'+
         '<path d="M63 50 L80 64 L66 70 Z M137 50 L120 64 L134 70 Z" fill="rgba(255,62,165,.45)"/>'+
@@ -3176,8 +3224,8 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
     stage.appendChild(pet); stage.appendChild(E('div','tama-mood',md[1])); stage.appendChild(E('div','tama-act')); card.appendChild(stage);
     var info=E('div','tama-info'), h=E('div','tama-h');
     h.appendChild(E('b',null,'Котик '+(u.name||u.login))); h.appendChild(E('span','tama-lv','ур. '+lvl(xp))); info.appendChild(h);
-    info.appendChild(E('p','tama-st',S.n+' · опыт '+xp.toLocaleString('ru-RU')+(st.c?' · покормлен '+st.c+' '+((st.c%10>=2&&st.c%10<=4&&(st.c%100<12||st.c%100>14))?'раза':'раз'):' · ещё ни разу не кормили')));
-    info.appendChild(nx?bar('до стадии «'+nx.n+'»',xp-S.min,nx.min-S.min,'b-xp',(xp-S.min)+' / '+(nx.min-S.min)):bar('максимальная стадия',1,1,'b-xp','легенда ♛'));
+    info.appendChild(E('p','tama-st',S.n+' (стадия '+(si+1)+' из '+STAGES.length+') · опыт '+xp.toLocaleString('ru-RU')+(st.c?' · покормлен '+st.c+' '+((st.c%10>=2&&st.c%10<=4&&(st.c%100<12||st.c%100>14))?'раза':'раз'):' · ещё ни разу не кормили')));
+    info.appendChild(nx?bar('до стадии «'+nx.n+'»',xp-S.min,nx.min-S.min,'b-xp',(xp-S.min)+' / '+(nx.min-S.min)):bar('максимальная стадия',1,1,'b-xp','бессмертный мур ✦'));
     info.appendChild(bar('сытость: '+md[0],s,100,'b-sat',Math.round(s)+'%'));
     var foods=E('div','tama-food'), b0=bal();
     FOOD.forEach(function(f,i){ var btn=E('button','tama-f'); btn.type='button';
