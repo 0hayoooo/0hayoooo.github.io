@@ -2395,7 +2395,10 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
   function petEl(){return document.querySelector('.tama-pet');}
   var n=0, nickIn=null;
   function petKey(){return 'pets:'+((nickIn&&nickIn.value)||'').toLowerCase();}
-  function loadCount(){var v=0;try{v=parseInt(localStorage.getItem(petKey())||'0',10)||0;}catch(e){} n=v; render();}
+  var srvPets=0;
+  function loadCount(){var v=0;try{v=parseInt(localStorage.getItem(petKey())||'0',10)||0;}catch(e){} n=Math.max(v,srvPets); render();}
+  /* общий счёт с сервера: на всех устройствах одно и то же число (берём большее) */
+  window.petSync=function(total){ total=Math.round(Number(total)||0); if(total>srvPets) srvPets=total; if(total>n&&nickIn&&nickIn.value){ n=total; try{localStorage.setItem(petKey(),String(n));}catch(e){} render(); } };
   var RM=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var PINK='#ff3ea5',CYAN='#2cf1ff',YEL='#ffd23f',GRN='#3dff8a',RED='#ff4d5e',VIO='#b06bff';
   var STEPS=[10,20,50,100,200,300,400,500,1000,2000];
@@ -2512,7 +2515,7 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
   /* алерт на стрим (через ntfy.sh) */
   var TOPIC='0hayoooo-murk-f3c841f12959';
   nickIn=document.getElementById('petNick');
-  try{nickIn.value=localStorage.getItem('petNick')||'';}catch(e){}
+  try{nickIn.value=localStorage.getItem('petNick')||'';if(!nickIn.value){var tu=JSON.parse(localStorage.getItem('twUser')||'null');if(tu&&(tu.name||tu.login))nickIn.value=tu.name||tu.login;}}catch(e){}
   /* перенос старого общего счётчика на текущий ник */
   try{var old=localStorage.getItem('pets');if(old!==null){if(localStorage.getItem(petKey())===null)localStorage.setItem(petKey(),old);localStorage.removeItem('pets');}}catch(e){}
   loadCount();
@@ -3034,12 +3037,12 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
   function achSync(force){ var now=Date.now(); if(achBusy||(!force&&now-achLast<60000)) return; achBusy=true;
     /* поглаживания из браузера (до серверного счёта) — сервер примет их один раз */
     var u=cu(), pl=0; try{ [u&&u.login,u&&u.name,localStorage.getItem('petNick')].forEach(function(x){ if(x){ var v=parseInt(localStorage.getItem('pets:'+String(x).toLowerCase())||'0',10)||0; if(v>pl) pl=v; } }); }catch(e){}
-    post('achSync',{petsLocal:pl}).then(function(j){ achBusy=false; if(j&&j.ok) achLast=Date.now(); }); }
+    post('achSync',{petsLocal:pl}).then(function(j){ achBusy=false; if(j&&j.ok){ achLast=Date.now(); if(j.pets!=null&&window.petSync) window.petSync(j.pets); } }); }
   window.achSyncNow=function(){ achSync(false); };
   /* ежедневный вход — раз в день (сервер сам не даст больше) */
   function daily(){ var u=cu(); if(!u) return; var key='coinDaily:'+String(u.login).toLowerCase(), day=mskDay();
     try{ if(localStorage.getItem(key)===day){ achSync(); return; } }catch(e){}
-    post('coinDaily',{date:day}).then(function(j){ if(j&&j.ok){ achLast=Date.now(); try{localStorage.setItem(key,day);}catch(e){} } else achSync(true); });
+    post('coinDaily',{date:day}).then(function(j){ if(j&&j.ok){ try{localStorage.setItem(key,day);}catch(e){} } achSync(true); });
   }
   /* поглаживания: копим дельту и шлём пачкой */
   var pend=0, petTimer=0;
