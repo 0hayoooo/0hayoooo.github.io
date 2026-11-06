@@ -3305,7 +3305,7 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
   }
   function load(){ if(!API){render();return;} var u=cu(), lg=u?String(u.login).toLowerCase():'';
     fetch(API+'?sheet=ach&login='+encodeURIComponent(lg)+'&t='+Math.floor(Date.now()/10000),{cache:'no-store'})
-      .then(function(r){return r.json();}).then(function(j){ if(j&&Array.isArray(j.defs)){ data=j; render(); } }).catch(function(){ if(!data) box.textContent=''; }); }
+      .then(function(r){return r.json();}).then(function(j){ if(j&&Array.isArray(j.defs)){ data=j; render(); if(lg&&j.stats&&window.petSync) window.petSync(j.stats.pets); } }).catch(function(){ if(!data) box.textContent=''; }); }
   /* всплывашка о новой ачивке */
   var q=[], showing=false, toast=E('div','ach-toast'); toast.setAttribute('role','status'); toast.setAttribute('aria-live','polite'); document.body.appendChild(toast);
   function next(){ if(!q.length){showing=false;return;} showing=true; var a=q.shift(); toast.textContent='';
