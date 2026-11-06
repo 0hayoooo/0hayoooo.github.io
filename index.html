@@ -1103,7 +1103,9 @@ a.goal2-btn{display:inline-block;text-decoration:none;text-align:center}
 .ach-sum .ach-ttl{color:var(--yellow)}
 .ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
 .ach{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;align-items:start;padding:14px;border-radius:16px;background:var(--surface);border:1px solid var(--line);position:relative}
-.ach .ae{grid-row:span 3;font-size:34px;line-height:1;width:48px;height:48px;display:grid;place-items:center;border-radius:14px;background:rgba(255,210,63,.10);border:1px solid rgba(255,210,63,.35)}
+.ach .ae{grid-row:span 3;font-size:34px;line-height:1;width:48px;height:48px;display:grid;place-items:center;border-radius:14px;background:rgba(255,210,63,.10);border:1px solid rgba(255,210,63,.35);overflow:hidden}
+.ach .ae.has-img{background:none;border:0;padding:0}
+.ach .ae img{width:100%;height:100%;object-fit:cover;border-radius:14px;display:block}
 .ach b{font:700 15px/1.25 var(--body);color:var(--fg)}
 .ach small{font:500 13px/1.35 var(--body);color:var(--muted)}
 .ach .ar{font:700 12px/1 var(--mono);color:var(--yellow)}
@@ -2046,8 +2048,9 @@ var CMS_CORE=(function(){
     /* вкладка, описание */
     document.title=V(v,'page_title');
     var md=document.querySelector('meta[name="description"]'); if(md) md.setAttribute('content',V(v,'page_desc'));
-    /* фон */
+    /* фон: картинка из админки («Картинки сайта» → фон) важнее поля bg_url */
     var bg=document.querySelector('.pawbg'), url=String(V(v,'bg_url')||'fon.jpg').trim(), dk=parseInt(V(v,'bg_dark'),10);
+    if(window.__siteBg) url=window.__siteBg;
     if(!isFinite(dk)) dk=80; dk=Math.max(0,Math.min(95,dk))/100;
     if(bg){
       if(/^(https:\/\/[^"'()\s<>]+|[\w.\-\/]+)$/.test(url)) bg.style.setProperty('--bgimg','url("'+url+'")');
@@ -3310,7 +3313,8 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
     var g=E('div','ach-grid');
     data.defs.forEach(function(a){
       var ok=have.indexOf(a.id)>=0, c=E('div','ach '+(ok?'got':'lock'));
-      c.appendChild(E('span','ae',a.e)); c.appendChild(E('b',null,a.n)); c.appendChild(E('small',null,a.d)); c.appendChild(E('span','ar','🪙 +'+fmt(a.r||0)));
+      var ic=E('span','ae'); if(a.img){ ic.classList.add('has-img'); var im=E('img'); im.src=a.img; im.alt=''; im.loading='lazy'; im.onerror=function(){ic.classList.remove('has-img');ic.textContent=a.e;}; ic.appendChild(im); } else ic.textContent=a.e;
+      c.appendChild(ic); c.appendChild(E('b',null,a.n)); c.appendChild(E('small',null,a.d)); c.appendChild(E('span','ar','🪙 +'+fmt(a.r||0)));
       if(!ok&&st){
         var cur=Math.min(st[a.stat]||0,a.need), p=E('div','ap'), txt, pct=cur/a.need;
         if(a.stat==='top') txt='пока не в топ-5';
@@ -3452,6 +3456,19 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
       return Math.max(1000,((24*3600-(p.hour*3600+p.minute*60+p.second))*1000)-(Date.now()%1000)+300); }catch(e){ return 60000; } }
   (function tick(){ setTimeout(function(){ window.seasonApply(); tick(); }, msToMidnight()); })();
   setInterval(window.seasonApply, 300000);
+})();
+</script>
+<script>
+/* ================= КАРТИНКА ФОНА ИЗ АДМИНКИ =================
+   Если в админке («Картинки сайта» → фон) выбрано фото, ставим его фоном. */
+(function(){
+  var API=(typeof ADMIN_API==='string')?ADMIN_API.trim():''; if(!API) return;
+  fetch(API+'?sheet=siteimg&t='+Math.floor(Date.now()/60000),{cache:'no-store'})
+    .then(function(r){return r.json();})
+    .then(function(o){ if(!o||typeof o!=='object') return; var bgUrl=o.bg;
+      if(bgUrl){ window.__siteBg=bgUrl; var bg=document.querySelector('.pawbg');
+        if(bg){ bg.style.setProperty('--bgimg','url("'+bgUrl+'")'); bg.classList.add('noblink'); } }
+    }).catch(function(){});
 })();
 </script>
 <script>

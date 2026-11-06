@@ -80,6 +80,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 var(--body);
 .wrap>*,.panel,.tabs,.pin{min-width:0}
 main.panel,section.panel,#priceList{grid-template-columns:minmax(0,1fr)}
 .tab{padding:10px 16px;border-radius:12px;border:0;background:transparent;color:var(--muted);font:800 14px/1 var(--body);cursor:pointer}
+.tab[hidden]{display:none}
 .tab[aria-selected="true"]{background:var(--surface2);color:var(--fg);box-shadow:0 0 0 1px var(--pink) inset,0 0 16px rgba(255,62,165,.25)}
 .tab i{font-style:normal;font:700 11px/1 var(--mono);color:var(--pink);margin-left:6px}
 
@@ -266,7 +267,27 @@ select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--li
 .ach-note{margin:0 0 8px;color:var(--muted);font-size:13px;line-height:1.4}
 .ach-cus{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:10px;margin:6px 0 10px}
 .ach-card{display:grid;gap:8px;padding:12px;border-radius:14px;background:rgba(20,13,37,.7);border:1px dashed rgba(255,62,165,.5);min-width:0}
-.ac-r{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:8px;align-items:center}
+.ac-r{display:grid;grid-template-columns:56px 48px minmax(0,1fr) auto;gap:8px;align-items:center}
+.ac-pic{width:56px;height:56px;padding:0;border-radius:12px;border:1.5px solid rgba(255,62,165,.55);background:rgba(20,13,37,.9);color:var(--muted);cursor:pointer;overflow:hidden;display:grid;place-items:center;position:relative}
+.ac-pic:disabled{cursor:default;opacity:.7;border-style:dashed}
+.ac-pic img{width:100%;height:100%;object-fit:cover}
+.ac-pic.has{border-color:var(--pink)}
+.ac-pic-e{font-size:22px;line-height:1}
+.ac-pic-add{position:absolute;bottom:2px;left:0;right:0;font:700 8px/1 var(--mono);text-transform:uppercase;letter-spacing:.04em;color:var(--pink);text-align:center}
+.ph-tile.pick:hover{outline:2px solid var(--pink);outline-offset:1px}
+.pic-wrap{display:grid;gap:14px}
+.pic-sizes{margin:8px 0 0;padding-left:18px;display:grid;gap:5px;color:var(--muted);font-size:13px;line-height:1.4}
+.pic-sizes b{color:var(--fg)}
+.pic-bg-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.pic-bg-prev{width:140px;height:84px;border-radius:12px;border:1px solid var(--line);background:#0b0716 center/cover no-repeat;display:grid;place-items:center;color:var(--muted);font-size:12px;text-align:center;flex:none}
+.pic-bg-prev.empty{border-style:dashed}
+.pic-bg-act{display:grid;gap:8px}
+.pic-ch-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.pic-ch-head b{font:800 17px/1 var(--body)}
+.pic-ch-hint{margin:0;color:var(--muted);font-size:13px}
+.pic-ch-grid{overflow:auto;align-content:start}
+#picChoose{display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:10px}
+@media(max-width:560px){.ac-r{grid-template-columns:52px 44px minmax(0,1fr) auto}.ac-pic{width:52px;height:52px}}
 .ac-e{text-align:center;font-size:20px;padding:6px}
 .ac-r2{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr);gap:8px}
 .ac-f{display:grid;gap:4px;min-width:0}.ac-f span{font:700 11px/1 var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
@@ -353,6 +374,7 @@ select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--li
       <button class="tab" role="tab" id="tCoin" aria-selected="false" aria-controls="pCoin" type="button">Монетки<i id="cCoin"></i></button>
       <button class="tab" role="tab" id="tVis" aria-selected="false" aria-controls="pVis" type="button">Посетители<i id="cVis"></i></button>
       <button class="tab" role="tab" id="tPh" aria-selected="false" aria-controls="pPh" type="button">Фото<i id="cPh"></i></button>
+      <button class="tab" role="tab" id="tPic" aria-selected="false" aria-controls="pPic" type="button">Картинки сайта<i id="cPic"></i></button>
       <button class="tab" role="tab" id="tSet" aria-selected="false" aria-controls="pSet" type="button">Настройки</button>
     </div>
 
@@ -456,6 +478,38 @@ select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--li
       </div>
     </section>
     <div class="ph-view" id="phView" hidden role="dialog" aria-modal="true" aria-label="Просмотр фото"><img id="phViewImg" alt=""><div class="ph-view-bar"><span id="phViewName"></span><button class="btn btn-pink btn-sm" id="phViewDl" type="button">Скачать</button><button class="btn btn-line btn-sm" id="phViewX" type="button">Закрыть</button></div></div>
+
+    <section class="panel" id="pPic" role="tabpanel" aria-labelledby="tPic" hidden>
+      <p class="ph-msg" id="picMsg">Загружаю…</p>
+      <div class="pic-wrap" id="picWrap" hidden>
+        <div class="setc">
+          <p><b>Картинки сайта.</b> Сюда ты заливаешь фото для <b>фона</b> и <b>значков ачивок</b>. Эти фото видишь только ты. Выбрать картинку для ачивки можно прямо при её создании (вкладка «Монетки») — окошко слева у ачивки.</p>
+          <label class="btn btn-pink ph-pick"><input type="file" id="picFile" accept="image/*" multiple hidden>Загрузить картинки</label>
+          <div class="ph-prog" id="picProg" hidden><div class="ph-bar"><i id="picBar"></i></div><span id="picProgT"></span><button class="btn btn-line btn-sm" id="picStop" type="button">Остановить</button></div>
+          <ul class="pic-sizes">
+            <li><b>Фон сайта:</b> горизонтальное фото, лучше <b>1920×1080</b> или шире (16:9). Вертикальное обрежется по бокам.</li>
+            <li><b>Значок ачивки:</b> квадратное фото <b>1:1</b>, от 256×256 (лучше 512×512). Прямоугольное обрежется до квадрата.</li>
+            <li><b>Формат:</b> PNG — для значков с прозрачным фоном, JPG — для фона. Большие фото сами ужимаются до 2560&nbsp;px.</li>
+          </ul>
+        </div>
+        <div class="pic-bg setc">
+          <h4 class="ach-h">Фон сайта</h4>
+          <div class="pic-bg-row">
+            <div class="pic-bg-prev" id="picBgPrev" aria-hidden="true"></div>
+            <div class="pic-bg-act"><button class="btn btn-pink btn-sm" id="picBgSet" type="button">Выбрать фон</button><button class="btn btn-line btn-sm" id="picBgClr" type="button" hidden>Вернуть обычный</button></div>
+          </div>
+        </div>
+        <div class="setc">
+          <div class="ph-tools"><b id="picTotal">—</b><button class="btn btn-line btn-sm" id="picRef" type="button">Обновить</button></div>
+          <div class="ph-grid pic-grid" id="picGrid"></div>
+        </div>
+      </div>
+    </section>
+    <div class="ph-view" id="picChoose" hidden role="dialog" aria-modal="true" aria-label="Выбор картинки">
+      <div class="pic-ch-head"><b id="picChTitle">Выбери картинку</b><button class="btn btn-line btn-sm" id="picChX" type="button">Закрыть</button></div>
+      <p class="pic-ch-hint" id="picChHint"></p>
+      <div class="ph-grid pic-ch-grid" id="picChGrid"></div>
+    </div>
 
     <section class="panel" id="pSet" role="tabpanel" aria-labelledby="tSet" hidden>
       <div class="ph"><p>Котик на сайте и алерты в OBS. Меняется после «Сохранить», на сайте — в течение минуты.</p></div>
@@ -650,7 +704,7 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   function show(id){states.forEach(function(s){$(s).hidden=s!==id;});$('bar').hidden=id!=='sEdit';}
   function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;}
 
-  var TOK='', price=[], donors=[], dirty=false, busy=false;
+  var TOK='', price=[], donors=[], dirty=false, busy=false, ME='';
   function getTok(){try{return localStorage.getItem('admTok')||'';}catch(e){return '';}}
   function setTok(t){TOK=t||'';try{t?localStorage.setItem('admTok',t):localStorage.removeItem('admTok');}catch(e){}}
   function revoke(t){if(!t)return;try{fetch('https://id.twitch.tv/oauth2/revoke',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'client_id='+encodeURIComponent(CID)+'&token='+encodeURIComponent(t)}).catch(function(){});}catch(e){}}
@@ -721,6 +775,7 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
       $('sCoinDaily').value=st.coinDaily!=null?st.coinDaily:50;$('sCoinPet').value=st.coinPet!=null?st.coinPet:1;$('sCoinPetDay').value=st.coinPetDay!=null?st.coinPetDay:1000;$('sHubHide').value=String(st.hubHideAdmins!=null?st.hubHideAdmins:1)==='0'?'0':'1';$('sCoinWatch').value=st.coinWatch!=null?st.coinWatch:100;
       $('sCoinTop1').value=st.coinTop1!=null?st.coinTop1:5000;$('sCoinTop2').value=st.coinTop2!=null?st.coinTop2:4000;$('sCoinTop3').value=st.coinTop3!=null?st.coinTop3:3000;$('sCoinTop4').value=st.coinTop4!=null?st.coinTop4:2000;$('sCoinTop5').value=st.coinTop5!=null?st.coinTop5:1000;
       $('sTama1').value=st.tamaFood1||10;$('sTama2').value=st.tamaFood2||25;$('sTama3').value=st.tamaFood3||50;$('sTama4').value=st.tamaFood4||150;
+      ME=String(j.login||'').toLowerCase();
       coins=j.coins||[];renderCoins();
       achAdm=j.ach||[];achCus=achAdm.filter(function(a){return a.custom;}).map(function(a){return Object.assign({},a);});renderAchAdm();
       if(!$('meName').textContent){$('meName').textContent=j.login;$('meAv').hidden=true;$('me').hidden=false;}
@@ -732,6 +787,7 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
       /* если админка открылась сразу на «Посетителях» — подгружаем их (раньше ждали клика по вкладке) */
       if(!$('pVis').hidden) refreshVis();
       if(!$('pPh').hidden) phOpen();
+      picTabVis(); if(!$('pPic').hidden) picOpen();
       if(dr) status('dirty','Вернул несохранённые правки. Нажмите «Сохранить».');
     }).catch(function(e){
       if(e.message==='forbidden'){revoke(TOK);setTok('');$('me').hidden=true;show('sDenied');return;}
@@ -747,7 +803,7 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   $('logout').onclick=function(){if(dirty&&!window.confirm('Есть несохранённые изменения. Всё равно выйти?'))return;revoke(TOK);setTok('');dirty=false;$('me').hidden=true;$('meName').textContent='';show('sLogin');};
 
   /* ---------- вкладки ---------- */
-  var TABS={site:['tSite','pSite'],ord:['tOrd','pOrd'],price:['tPrice','pPrice'],don:['tDon','pDon'],streak:['tStreak','pStreak'],arch:['tArch','pArch'],coins:['tCoin','pCoin'],vis:['tVis','pVis'],ph:['tPh','pPh'],set:['tSet','pSet']};
+  var TABS={site:['tSite','pSite'],ord:['tOrd','pOrd'],price:['tPrice','pPrice'],don:['tDon','pDon'],streak:['tStreak','pStreak'],arch:['tArch','pArch'],coins:['tCoin','pCoin'],vis:['tVis','pVis'],ph:['tPh','pPh'],pic:['tPic','pPic'],set:['tSet','pSet']};
   function tab(which){
     if(!TABS[which]) which='price';
     Object.keys(TABS).forEach(function(k){$(TABS[k][0]).setAttribute('aria-selected',k===which);$(TABS[k][1]).hidden=k!==which;});
@@ -944,6 +1000,112 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   $('phViewX').onclick=function(){ $('phView').hidden=true; $('phViewImg').src=''; };
   $('phView').onclick=function(e){ if(e.target===this) $('phViewX').onclick(); };
   document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&!$('phView').hidden) $('phViewX').onclick(); });
+  /* ---------- картинки сайта: своя папка 0hayoooo (фон + значки ачивок) ---------- */
+  var PIC={info:null,list:[],sel:null,thumbs:{},images:{},busy:false,stop:false};
+  function canPic(){ return ME==='0hayoooo'; }
+  function picTabVis(){ var t=$('tPic'); if(t) t.hidden=!canPic(); }
+  function picOpen(){
+    if(!TOK||$('sEdit').hidden) return;
+    $('picMsg').hidden=false; $('picMsg').textContent='Загружаю…';
+    api({action:'picInfo'}).then(function(j){ PIC.info=j.pic||{};
+      if(!PIC.info.canManage){ $('picWrap').hidden=true; $('picMsg').hidden=false; $('picMsg').textContent='Этот раздел — для 0hayoooo.'; return; }
+      $('picMsg').hidden=true; $('picWrap').hidden=false; picLoad();
+    }).catch(function(e){ $('picMsg').textContent=e.message==='bad_action'?'Скрипт в таблице старый: обновите Code.gs и разверните новую версию (Диск попросит разрешение).':'Не загрузилось: '+why(e); });
+  }
+  $('tPic').onclick=function(){tab('pic');picOpen();};
+  /* загрузка (reuse phPrep/phRead из блока «Фото») */
+  $('picFile').onchange=function(){
+    var files=[].slice.call(this.files||[]); this.value=''; if(!files.length||PIC.busy) return;
+    PIC.busy=true; PIC.stop=false; var done=0, fail=0, i=0, lock=null;
+    try{ if(navigator.wakeLock) navigator.wakeLock.request('screen').then(function(l){lock=l;}).catch(function(){}); }catch(e){}
+    $('picProg').hidden=false; $('picStop').hidden=false;
+    function prog(){ $('picBar').style.width=Math.round((done+fail)/files.length*100)+'%'; $('picProgT').textContent='Загружено '+done+' из '+files.length+(fail?' · не вышло: '+fail:''); }
+    function finish(){ PIC.busy=false; $('picStop').hidden=true; try{if(lock)lock.release();}catch(e){}
+      status(fail?'bad':'ok',PIC.stop?('Остановлено. Загружено '+done+'.'):('Готово ✓ Загружено '+done+' картинок'+(fail?(', не вышло: '+fail):'')+'.'));
+      setTimeout(function(){ if(!PIC.busy){ $('picProg').hidden=true; $('picBar').style.width='0'; $('picProgT').textContent=''; } },3000); picLoad(); }
+    (function one(){ if(PIC.stop||i>=files.length) return finish();
+      var f=files[i++]; prog();
+      phPrep(f).then(function(x){ var body={action:'picUp',name:f.name,origName:f.name,mime:x.mime,data:x.data,w:x.w,h:x.h};
+        return api(body).catch(function(e){ if(e.message==='net') return api(body); throw e; }); })
+        .then(function(){done++;},function(e){fail++; if(e&&e.message==='photo_full'){PIC.stop=true;}})
+        .then(function(){prog();one();}); })();
+  };
+  $('picStop').onclick=function(){PIC.stop=true;$('picStop').hidden=true;};
+  function picLoad(){
+    $('picGrid').textContent=''; $('picGrid').appendChild(el('p','ph','Загружаю…'));
+    api({action:'picList'}).then(function(j){ PIC.list=j.photos||[]; PIC.images=j.images||{}; picRender(); picBgRender(); }).catch(function(e){ $('picGrid').textContent=''; $('picGrid').appendChild(el('p','ph','Не загрузилось: '+why(e))); });
+  }
+  var picIO=('IntersectionObserver' in window)?new IntersectionObserver(function(ents){ var need=[]; ents.forEach(function(en){ if(en.isIntersecting){ var id=en.target.dataset.id; picIO.unobserve(en.target); if(!PIC.thumbs[id]) need.push(id); } }); picThumbs(need); },{rootMargin:'400px'}):null;
+  var picQ=[], picT=0, picPumping=false;
+  function picThumbs(ids){ ids.forEach(function(id){ if(id&&picQ.indexOf(id)<0) picQ.push(id); }); clearTimeout(picT); picT=setTimeout(picPump,60); }
+  function picPump(){ if(picPumping||!picQ.length) return; picPumping=true; var batch=picQ.splice(0,24);
+    api({action:'picThumbs',ids:batch}).then(function(j){ var t=j.thumbs||{}; Object.keys(t).forEach(function(id){ PIC.thumbs[id]=t[id]; document.querySelectorAll('img[data-th="'+id+'"]').forEach(function(im){ if(t[id]) im.src=t[id]; }); }); })
+      .catch(function(){}).then(function(){ picPumping=false; if(picQ.length) picPump(); }); }
+  function picTile(x,onClick){
+    var t=el('div','ph-tile'); t.dataset.id=x.id;
+    var im=el('img'); im.alt=x.name; im.loading='lazy'; im.dataset.th=x.id; if(PIC.thumbs[x.id]) im.src=PIC.thumbs[x.id];
+    var cap=el('div','ph-cap'); cap.appendChild(el('span',null,(x.w&&x.h)?(x.w+'×'+x.h):'')); cap.appendChild(el('span',null,(x.mime==='image/png'?'PNG':'JPG')));
+    t.appendChild(im); t.appendChild(cap);
+    if(onClick){ t.classList.add('pick'); t.style.cursor='pointer'; t.onclick=function(){onClick(x);}; }
+    else { var del=el('button','ph-dl','🗑'); del.type='button'; del.title='В корзину'; del.onclick=function(e){e.stopPropagation();picDel(x);}; t.appendChild(del); }
+    if(picIO&&!PIC.thumbs[x.id]) picIO.observe(t); else if(!picIO) picThumbs([x.id]);
+    return t;
+  }
+  function picRender(){
+    var g=$('picGrid'); g.textContent=''; $('picTotal').textContent=PIC.list.length+' картинок'; if($('cPic')) $('cPic').textContent=PIC.list.length||'';
+    if(!PIC.list.length){ g.appendChild(el('p','ph','Пусто. Нажми «Загрузить картинки» и выбери фото для фона и значков.')); return; }
+    PIC.list.forEach(function(x){ g.appendChild(picTile(x,null)); });
+  }
+  function picDel(x){ var k=PIC.list.indexOf(x);
+    if(!window.confirm('Убрать эту картинку в корзину? Если она стояла на фоне или значке — пропадёт с сайта.')) return;
+    status('','Убираю…'); api({action:'picDel',ids:[x.id]}).then(function(j){ PIC.list=j.photos||[]; PIC.images=j.images||{}; picRender(); picBgRender(); status('ok','Убрано в корзину Google Диска (30 дней можно вернуть).'); }).catch(function(e){ status('bad','Не вышло: '+why(e)); }); }
+  $('picRef').onclick=picLoad;
+  /* фон сайта */
+  function picBgRender(){
+    var prev=$('picBgPrev'), url=PIC.images&&PIC.images.bg; prev.textContent=''; prev.style.backgroundImage=url?('url("'+url+'")'):'';
+    prev.classList.toggle('empty',!url); if(!url) prev.textContent='обычный фон'; $('picBgClr').hidden=!url; $('picBgSet').textContent=url?'Заменить фон':'Выбрать фон';
+  }
+  $('picBgSet').onclick=function(){ picChoose('bg','Выбери фон сайта','Лучше горизонтальное фото, 1920×1080 или шире.',function(){ picBgRender(); status('ok','Фон сайта обновлён. На сайте появится в течение минуты.'); }); };
+  $('picBgClr').onclick=function(){ status('','Возвращаю обычный фон…'); api({action:'siteImg',slot:'bg',clear:true}).then(function(j){ PIC.images=j.images||{}; picBgRender(); status('ok','Вернули обычный фон.'); }).catch(function(e){ status('bad','Не вышло: '+why(e)); }); };
+  /* модалка выбора картинки для слота (фон или ачивка) */
+  function picChoose(slot,title,hint,onDone){
+    if(!canPic()){ status('bad','Картинки сайта ставит 0hayoooo.'); return; }
+    PIC.sel=slot; $('picChTitle').textContent=title||'Выбери картинку'; $('picChHint').textContent=hint||'';
+    var g=$('picChGrid'); g.textContent=''; $('picChoose').hidden=false;
+    function fill(){ g.textContent='';
+      if(!PIC.list.length){ g.appendChild(el('p','ph','Сначала загрузи картинки на вкладке «Картинки сайта».')); return; }
+      PIC.list.forEach(function(x){ g.appendChild(picTile(x,function(p){ picAssign(slot,p,onDone); })); }); }
+    if(PIC.list.length) fill();
+    else api({action:'picList'}).then(function(j){ PIC.list=j.photos||[]; PIC.images=j.images||{}; fill(); }).catch(function(){ g.textContent=''; g.appendChild(el('p','ph','Не загрузилось.')); });
+  }
+  function picAssign(slot,x,onDone){
+    status('','Ставлю картинку…');
+    api({action:'siteImg',slot:slot,id:x.id}).then(function(j){ PIC.images=j.images||PIC.images; if(j.ach){ achAdm=j.ach; achCus=achAdm.filter(function(a){return a.custom;}).map(function(a){return Object.assign({},a);}); renderAchAdm(); } $('picChoose').hidden=true; if(onDone) onDone(); }).catch(function(e){ status('bad','Не вышло: '+why(e)); });
+  }
+  function picClearSlot(slot,onDone){ status('','Убираю картинку…'); api({action:'siteImg',slot:slot,clear:true}).then(function(j){ PIC.images=j.images||PIC.images; if(j.ach){ achAdm=j.ach; achCus=achAdm.filter(function(a){return a.custom;}).map(function(a){return Object.assign({},a);}); renderAchAdm(); } if(onDone) onDone(); }).catch(function(e){ status('bad','Не вышло: '+why(e)); }); }
+  $('picChX').onclick=function(){ $('picChoose').hidden=true; };
+  $('picChoose').onclick=function(e){ if(e.target===this) $('picChoose').hidden=true; };
+  /* окошко-иконка для редактора ачивок: показывает картинку (если стоит) или эмодзи; клик — выбрать */
+  function achIconBox(a,onChanged){
+    var box=el('button','ac-pic'); box.type='button';
+    function paint(){ box.textContent=''; if(a.img){ var im=el('img'); im.src=a.img; im.alt=''; box.appendChild(im); box.classList.add('has'); } else { box.classList.remove('has'); box.appendChild(el('span','ac-pic-e',a.e||'⭐')); box.appendChild(el('span','ac-pic-add','фото')); } }
+    paint();
+    if(!canPic()){ box.disabled=true; box.title='Картинки ставит 0hayoooo'; return box; }
+    box.title='Выбрать картинку для значка';
+    box.onclick=function(){
+      function openFor(id){ picChoose('ach:'+id,'Картинка для ачивки','Квадратное фото 1:1, лучше 512×512.',function(){ var d=(achAdm.filter(function(x){return x.id===id;})[0]||{}); a.img=d.img||''; paint(); if(onChanged)onChanged(); status('ok','Картинка значка сохранена.'); }); }
+      if(a.id){
+        if(a.img){ if(window.confirm('Поставить другую картинку? (чтобы убрать — нажми «Отмена», потом долгий тап по значку)')){} }
+        openFor(a.id);
+      } else {
+        if(!String(a.n||'').trim()){ status('bad','Сначала впиши название ачивки, потом ставь картинку.'); return; }
+        status('','Сохраняю ачивку…'); saveAch(function(){ var mine=achCus.filter(function(x){return x.n===a.n;}); var got=mine[mine.length-1]; if(got&&got.id) openFor(got.id); else status('bad','Сохранилось, открой картинку ещё раз.'); });
+      }
+    };
+    box.oncontextmenu=function(e){ e.preventDefault(); if(a.id&&a.img&&window.confirm('Убрать картинку значка? Останется эмодзи.')) picClearSlot('ach:'+a.id,function(){ a.img=''; paint(); if(onChanged)onChanged(); status('ok','Картинка убрана.'); }); };
+    return box;
+  }
+
   /* ---------- ачивки: награды, свои ачивки, ручная выдача ---------- */
   var achAdm=[], achCus=[];
   var ACH_ST=[['days','Дней входа на сайт ≥'],['pets','Поглаживаний котика ≥'],['feeds','Кормлений котика ≥'],['xp','Опыта котика ≥'],['streak','Стримов подряд ≥'],['balance','Мур-монеток на балансе ≥'],['orders','Выполненных заказов из прайса ≥'],['donated','Был хотя бы один донат'],['donSum','Сумма донатов, ₽ ≥'],['rank','Место в топе донатеров ≤ (топ-N)'],['manual','Только вручную — выдаю сама']];
@@ -967,11 +1129,12 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
     achCus.forEach(function(a,ix){
       var c=el('div','ach-card');
       var r1=el('div','ac-r');
-      var ie=el('input','ac-e'); ie.value=a.e||'⭐'; ie.maxLength=8; ie.setAttribute('aria-label','Значок (эмодзи)'); ie.oninput=function(){a.e=ie.value;achDirty();};
+      var pic=achIconBox(a,function(){ renderAchGrant(); });
+      var ie=el('input','ac-e'); ie.value=a.e||'⭐'; ie.maxLength=8; ie.setAttribute('aria-label','Эмодзи (если без картинки)'); ie.title='Эмодзи — если картинка не выбрана'; ie.oninput=function(){a.e=ie.value;achDirty();};
       var inn=el('input','ac-n'); inn.value=a.n||''; inn.maxLength=40; inn.placeholder='Название, например «Мурлыка-марафонец»'; inn.setAttribute('aria-label','Название'); inn.oninput=function(){a.n=inn.value;achDirty();};
       var del=el('button','btn btn-line btn-sm','🗑'); del.type='button'; del.title='Удалить ачивку'; del.setAttribute('aria-label','Удалить ачивку «'+(a.n||'')+'»');
       del.onclick=function(){ if(!del.classList.contains('arm')){del.classList.add('arm');del.textContent='Точно?';setTimeout(function(){del.classList.remove('arm');del.textContent='🗑';},4000);return;} achCus.splice(ix,1); achDirty(); renderAchCus(); renderAchGrant(); };
-      r1.appendChild(ie); r1.appendChild(inn); r1.appendChild(del); c.appendChild(r1);
+      r1.appendChild(pic); r1.appendChild(ie); r1.appendChild(inn); r1.appendChild(del); c.appendChild(r1);
       var idd=el('input','ac-d'); idd.value=a.d||''; idd.maxLength=120; idd.placeholder='Описание для зрителей, например «Погладить котика 5 000 раз»'; idd.setAttribute('aria-label','Описание'); idd.oninput=function(){a.d=idd.value;achDirty();};
       c.appendChild(idd);
       var r2=el('div','ac-r2');
@@ -994,14 +1157,15 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
     if(keep) sel.value=keep;
   }
   if($('achAdd')) $('achAdd').onclick=function(){ achCus.push({e:'⭐',n:'',d:'',stat:'pets',need:5000,r:300}); achDirty(); renderAchCus(); var ns=$('achCus').querySelectorAll('.ac-n'); if(ns.length) ns[ns.length-1].focus(); };
-  if($('achSave')) $('achSave').onclick=function(){
+  function saveAch(cb){
     var rw={}; [].slice.call($('achList').querySelectorAll('input')).forEach(function(i){ rw[i.dataset.id]=Math.max(0,parseInt(i.value,10)||0); });
     var bad=achCus.filter(function(a){return !String(a.n||'').trim();});
     if(bad.length){ status('bad','У новой ачивки нет названия — впишите его или удалите карточку.'); return; }
     var b=$('achSave'); b.disabled=true; status('','Сохраняю ачивки…');
-    api({action:'achSet',rewards:rw,custom:achCus}).then(function(j){ b.disabled=false; achAdm=j.ach||achAdm; achCus=achAdm.filter(function(a){return a.custom;}).map(function(a){return Object.assign({},a);}); var sb=$('achSave'); sb.classList.remove('pulse'); sb.textContent='Сохранить ачивки'; renderAchAdm(); status('ok','Ачивки сохранены ✓ На сайте появятся в течение минуты.'); })
+    api({action:'achSet',rewards:rw,custom:achCus}).then(function(j){ b.disabled=false; achAdm=j.ach||achAdm; achCus=achAdm.filter(function(a){return a.custom;}).map(function(a){return Object.assign({},a);}); var sb=$('achSave'); sb.classList.remove('pulse'); sb.textContent='Сохранить ачивки'; renderAchAdm(); status('ok','Ачивки сохранены ✓ На сайте появятся в течение минуты.'); if(cb)cb(); })
       .catch(function(e){ b.disabled=false; status('bad','Не сохранилось: '+why(e)); });
-  };
+  }
+  if($('achSave')) $('achSave').onclick=function(){ saveAch(); };
   function achGrant(revoke){
     var nick=$('agNick').value.trim().replace(/^@/,''), id=$('agId').value;
     if(!/^[A-Za-z0-9_]{2,25}$/.test(nick)){ status('bad','Ник на Twitch: латиница, цифры и _, от 2 до 25 символов.'); $('agNick').focus(); return; }
