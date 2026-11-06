@@ -908,7 +908,7 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
       if(PH.info.canUpload){ $('phCnt').textContent=''; $('phProg').hidden=true; $('phBar').style.width='0'; }
       if(PH.info.canView) phLoad();
       if(!PH.info.canUpload&&!PH.info.canView){ $('phMsg').hidden=false; $('phMsg').textContent='Этот раздел тебе недоступен.'; }
-    }).catch(function(e){ $('phMsg').textContent=e.message==='bad_action'?'Скрипт в таблице старый: обновите его и разверните новую версию (Диск попросит разрешение — это нужно для папки с фото).':'Не загрузилось: '+why(e); });
+    }).catch(function(e){ $('phMsg').hidden=false; $('phMsg').textContent=e.message==='bad_action'?'Скрипт в таблице старый: обновите его и разверните новую версию.':('Ошибка сервера: '+(e&&e.message?e.message:'нет связи')); });
   }
   $('tPh').onclick=function(){tab('ph');phOpen();};
   /* --- загрузка (0hayoooo) --- */
@@ -1010,7 +1010,7 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
     api({action:'picInfo'}).then(function(j){ PIC.info=j.pic||{};
       if(!PIC.info.canManage){ $('picWrap').hidden=true; $('picMsg').hidden=false; $('picMsg').textContent='Этот раздел — для 0hayoooo.'; return; }
       $('picMsg').hidden=true; $('picWrap').hidden=false; picLoad();
-    }).catch(function(e){ $('picMsg').textContent=e.message==='bad_action'?'Скрипт в таблице старый: обновите Code.gs и разверните новую версию (Диск попросит разрешение).':'Не загрузилось: '+why(e); });
+    }).catch(function(e){ $('picMsg').textContent=e.message==='bad_action'?'Скрипт в таблице старый: обновите Code.gs и разверните новую версию.':('Ошибка сервера: '+(e&&e.message?e.message:'нет связи')); });
   }
   $('tPic').onclick=function(){tab('pic');picOpen();};
   /* загрузка (reuse phPrep/phRead из блока «Фото») */
