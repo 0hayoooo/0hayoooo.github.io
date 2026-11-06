@@ -262,6 +262,22 @@ select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--li
 .otop>*{min-width:0;overflow-wrap:anywhere}
 .oinfo small{overflow-wrap:anywhere}
 .oact{min-width:0;max-width:100%}
+.ach-h{margin:16px 0 6px;font:800 15px/1.2 var(--body);color:var(--fg)}
+.ach-note{margin:0 0 8px;color:var(--muted);font-size:13px;line-height:1.4}
+.ach-cus{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:10px;margin:6px 0 10px}
+.ach-card{display:grid;gap:8px;padding:12px;border-radius:14px;background:rgba(20,13,37,.7);border:1px dashed rgba(255,62,165,.5);min-width:0}
+.ac-r{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:8px;align-items:center}
+.ac-e{text-align:center;font-size:20px;padding:6px}
+.ac-r2{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr);gap:8px}
+.ac-f{display:grid;gap:4px;min-width:0}.ac-f span{font:700 11px/1 var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.ac-f select,.ac-f input,.ach-card input{width:100%;box-sizing:border-box;min-width:0}
+.ac-f[hidden]{display:none}
+#achCus .ach-card input,#achCus .ach-card select,.ach-grant input{max-width:none;font:600 15px/1.2 var(--body)}
+#achCus .ach-card .ac-e{font-size:20px}
+.ach-grant{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) auto auto;gap:8px;align-items:center}
+.ach-grant select,.ach-grant input{width:100%;box-sizing:border-box;min-width:0}
+@media(max-width:560px){.ac-r2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.ac-r2 .ac-f:first-child{grid-column:1/-1}.ach-grant{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.ach-grant select,.ach-grant input{grid-column:1/-1}}
+.btn.pulse{box-shadow:0 0 0 2px var(--yellow),0 0 18px rgba(255,210,63,.5)}
 </style>
 </head>
 <body>
@@ -374,9 +390,14 @@ select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--li
       <label class="f search"><span>Поиск по нику</span><input type="search" id="coinQ" placeholder="например: netfil0" autocomplete="off" spellcheck="false"></label>
       <div class="dlist" id="coinList"></div>
       <div class="setc" id="achAdm">
-        <p><b>Ачивки — награды в мур-монетках.</b> Каждая выдаётся зрителю один раз, когда он выполнит условие. Новые суммы действуют для тех, кто получит ачивку после сохранения.</p>
+        <p><b>Ачивки.</b> Каждая выдаётся зрителю один раз, когда он выполнит условие, и приносит мур-монетки. У встроенных меняется только награда. Свои ачивки можно добавлять, менять и удалять.</p>
         <div class="ach-adm" id="achList"></div>
-        <div class="ofilt"><button class="btn btn-pink btn-sm" id="achSave" type="button">Сохранить награды</button></div>
+        <h4 class="ach-h">Мои ачивки</h4>
+        <div class="ach-cus" id="achCus"></div>
+        <div class="ofilt"><button class="btn btn-line btn-sm" id="achAdd" type="button">+ Добавить ачивку</button><button class="btn btn-pink btn-sm" id="achSave" type="button">Сохранить ачивки</button></div>
+        <h4 class="ach-h">Выдать вручную</h4>
+        <p class="ach-note">Для ачивок «только вручную» (или чтобы выдать любую раньше времени). При выдаче зритель получает её награду. «Забрать» убирает значок, монетки не списывает.</p>
+        <div class="ach-grant"><select id="agId" aria-label="Какую ачивку"></select><input id="agNick" placeholder="ник на Twitch" autocomplete="off" spellcheck="false" aria-label="Ник зрителя"><button class="btn btn-pink btn-sm" id="agGive" type="button">Выдать</button><button class="btn btn-line btn-sm" id="agTake" type="button">Забрать</button></div>
       </div>
     </section>
 
@@ -658,7 +679,7 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
       $('sCoinTop1').value=st.coinTop1!=null?st.coinTop1:5000;$('sCoinTop2').value=st.coinTop2!=null?st.coinTop2:4000;$('sCoinTop3').value=st.coinTop3!=null?st.coinTop3:3000;$('sCoinTop4').value=st.coinTop4!=null?st.coinTop4:2000;$('sCoinTop5').value=st.coinTop5!=null?st.coinTop5:1000;
       $('sTama1').value=st.tamaFood1||10;$('sTama2').value=st.tamaFood2||25;$('sTama3').value=st.tamaFood3||50;$('sTama4').value=st.tamaFood4||150;
       coins=j.coins||[];renderCoins();
-      achAdm=j.ach||[];renderAchAdm();
+      achAdm=j.ach||[];achCus=achAdm.filter(function(a){return a.custom;}).map(function(a){return Object.assign({},a);});renderAchAdm();
       if(!$('meName').textContent){$('meName').textContent=j.login;$('meAv').hidden=true;$('me').hidden=false;}
       meCatAv(j.login);
       var dr=null;try{dr=JSON.parse(sessionStorage.getItem('admDraft')||'null');sessionStorage.removeItem('admDraft');}catch(e){}
@@ -772,25 +793,74 @@ var ADMIN_URL = "https://0hayoooo.github.io/admin.html";
   ['input','change'].forEach(function(ev){$('pSet').addEventListener(ev,function(e){if(e.target&&/^(INPUT|SELECT)$/.test(e.target.tagName))setDirty(true);});});
   try{tab(localStorage.getItem('admTab')||'price');}catch(e){}
 
-  /* ---------- ачивки: награды ---------- */
-  var achAdm=[];
+  /* ---------- ачивки: награды, свои ачивки, ручная выдача ---------- */
+  var achAdm=[], achCus=[];
+  var ACH_ST=[['days','Дней входа на сайт ≥'],['pets','Поглаживаний котика ≥'],['feeds','Кормлений котика ≥'],['xp','Опыта котика ≥'],['streak','Стримов подряд ≥'],['balance','Мур-монеток на балансе ≥'],['orders','Выполненных заказов из прайса ≥'],['donated','Был хотя бы один донат'],['donSum','Сумма донатов, ₽ ≥'],['rank','Место в топе донатеров ≤ (топ-N)'],['manual','Только вручную — выдаю сама']];
+  function achDirty(){ var b=$('achSave'); if(b){ b.classList.add('pulse'); b.textContent='Сохранить ачивки •'; } }
+  function achNoNeed(st){return st==='donated'||st==='manual';}
   function renderAchAdm(){
     var box=$('achList'); if(!box) return; box.textContent='';
     if(!achAdm.length){ box.appendChild(el('p','ph','Обновите скрипт таблицы (Code.gs), чтобы появились ачивки.')); $('achSave').hidden=true; return; }
     $('achSave').hidden=false;
-    achAdm.forEach(function(a){
+    achAdm.filter(function(a){return !a.custom;}).forEach(function(a){
       var l=el('label'); l.appendChild(el('span','ae',a.e));
       var t=el('span'); t.appendChild(document.createTextNode(a.n)); t.appendChild(el('small',null,a.d)); l.appendChild(t);
       var i=el('input'); i.type='number'; i.min='0'; i.max='1000000'; i.step='10'; i.inputMode='numeric'; i.value=String(a.r||0); i.setAttribute('aria-label','Награда за «'+a.n+'»'); i.dataset.id=a.id;
-      l.appendChild(i); box.appendChild(l);
+      i.oninput=achDirty; l.appendChild(i); box.appendChild(l);
     });
+    renderAchCus(); renderAchGrant();
   }
+  function renderAchCus(){
+    var box=$('achCus'); if(!box) return; box.textContent='';
+    if(!achCus.length) box.appendChild(el('p','ph','Своих ачивок пока нет. Нажмите «+ Добавить ачивку».'));
+    achCus.forEach(function(a,ix){
+      var c=el('div','ach-card');
+      var r1=el('div','ac-r');
+      var ie=el('input','ac-e'); ie.value=a.e||'⭐'; ie.maxLength=8; ie.setAttribute('aria-label','Значок (эмодзи)'); ie.oninput=function(){a.e=ie.value;achDirty();};
+      var inn=el('input','ac-n'); inn.value=a.n||''; inn.maxLength=40; inn.placeholder='Название, например «Мурлыка-марафонец»'; inn.setAttribute('aria-label','Название'); inn.oninput=function(){a.n=inn.value;achDirty();};
+      var del=el('button','btn btn-line btn-sm','🗑'); del.type='button'; del.title='Удалить ачивку'; del.setAttribute('aria-label','Удалить ачивку «'+(a.n||'')+'»');
+      del.onclick=function(){ if(!del.classList.contains('arm')){del.classList.add('arm');del.textContent='Точно?';setTimeout(function(){del.classList.remove('arm');del.textContent='🗑';},4000);return;} achCus.splice(ix,1); achDirty(); renderAchCus(); renderAchGrant(); };
+      r1.appendChild(ie); r1.appendChild(inn); r1.appendChild(del); c.appendChild(r1);
+      var idd=el('input','ac-d'); idd.value=a.d||''; idd.maxLength=120; idd.placeholder='Описание для зрителей, например «Погладить котика 5 000 раз»'; idd.setAttribute('aria-label','Описание'); idd.oninput=function(){a.d=idd.value;achDirty();};
+      c.appendChild(idd);
+      var r2=el('div','ac-r2');
+      var sl=el('select'); sl.setAttribute('aria-label','Условие'); ACH_ST.forEach(function(o){var op=el('option',null,o[1]);op.value=o[0];sl.appendChild(op);}); sl.value=a.stat||'manual';
+      var lb1=el('label','ac-f'); lb1.appendChild(el('span',null,'Условие')); lb1.appendChild(sl);
+      var nd=el('input'); nd.type='number'; nd.min='1'; nd.inputMode='numeric'; nd.value=String(a.need||1); nd.setAttribute('aria-label','Сколько нужно');
+      var lb2=el('label','ac-f ac-need'); lb2.appendChild(el('span',null,'Сколько')); lb2.appendChild(nd);
+      var rw=el('input'); rw.type='number'; rw.min='0'; rw.max='1000000'; rw.step='10'; rw.inputMode='numeric'; rw.value=String(a.r||0); rw.setAttribute('aria-label','Награда в мур-монетках');
+      var lb3=el('label','ac-f'); lb3.appendChild(el('span',null,'Награда 🪙')); lb3.appendChild(rw);
+      function syncNeed(){ lb2.hidden=achNoNeed(sl.value); }
+      sl.onchange=function(){a.stat=sl.value;syncNeed();achDirty();}; nd.oninput=function(){a.need=Math.max(1,parseInt(nd.value,10)||1);achDirty();}; rw.oninput=function(){a.r=Math.max(0,parseInt(rw.value,10)||0);achDirty();};
+      syncNeed(); r2.appendChild(lb1); r2.appendChild(lb2); r2.appendChild(lb3); c.appendChild(r2);
+      box.appendChild(c);
+    });
+    $('achAdd').disabled=achCus.length>=40;
+  }
+  function renderAchGrant(){
+    var sel=$('agId'); if(!sel) return; var keep=sel.value; sel.textContent='';
+    achAdm.forEach(function(a){ var o=el('option',null,(a.e||'')+' '+a.n+(a.stat==='manual'?' (вручную)':'')); o.value=a.id; sel.appendChild(o); });
+    if(keep) sel.value=keep;
+  }
+  if($('achAdd')) $('achAdd').onclick=function(){ achCus.push({e:'⭐',n:'',d:'',stat:'pets',need:5000,r:300}); achDirty(); renderAchCus(); var ns=$('achCus').querySelectorAll('.ac-n'); if(ns.length) ns[ns.length-1].focus(); };
   if($('achSave')) $('achSave').onclick=function(){
     var rw={}; [].slice.call($('achList').querySelectorAll('input')).forEach(function(i){ rw[i.dataset.id]=Math.max(0,parseInt(i.value,10)||0); });
-    var b=$('achSave'); b.disabled=true; status('','Сохраняю награды…');
-    api({action:'achSet',rewards:rw}).then(function(j){ b.disabled=false; achAdm=j.ach||achAdm; renderAchAdm(); status('ok','Награды за ачивки сохранены ✓'); })
+    var bad=achCus.filter(function(a){return !String(a.n||'').trim();});
+    if(bad.length){ status('bad','У новой ачивки нет названия — впишите его или удалите карточку.'); return; }
+    var b=$('achSave'); b.disabled=true; status('','Сохраняю ачивки…');
+    api({action:'achSet',rewards:rw,custom:achCus}).then(function(j){ b.disabled=false; achAdm=j.ach||achAdm; achCus=achAdm.filter(function(a){return a.custom;}).map(function(a){return Object.assign({},a);}); var sb=$('achSave'); sb.classList.remove('pulse'); sb.textContent='Сохранить ачивки'; renderAchAdm(); status('ok','Ачивки сохранены ✓ На сайте появятся в течение минуты.'); })
       .catch(function(e){ b.disabled=false; status('bad','Не сохранилось: '+why(e)); });
   };
+  function achGrant(revoke){
+    var nick=$('agNick').value.trim().replace(/^@/,''), id=$('agId').value;
+    if(!/^[A-Za-z0-9_]{2,25}$/.test(nick)){ status('bad','Ник на Twitch: латиница, цифры и _, от 2 до 25 символов.'); $('agNick').focus(); return; }
+    var bs=[$('agGive'),$('agTake')]; bs.forEach(function(x){x.disabled=true;}); status('',revoke?'Забираю…':'Выдаю…');
+    api({action:'achGrant',id:id,nick:nick,revoke:!!revoke}).then(function(j){ bs.forEach(function(x){x.disabled=false;}); if(j.coins){coins=j.coins;renderCoins();}
+      var g=j.grant||{}; status('ok',revoke?('Ачивка у '+g.login+' убрана.'):(g.gave?('Выдано '+g.login+': +'+g.gave+' 🪙'):('У '+g.login+' эта ачивка уже была.'))); })
+      .catch(function(e){ bs.forEach(function(x){x.disabled=false;}); status('bad',e.message==='bad_action'?'Скрипт в таблице старый: обновите его и разверните новую версию.':'Не получилось: '+why(e)); });
+  }
+  if($('agGive')) $('agGive').onclick=function(){achGrant(false);};
+  if($('agTake')) $('agTake').onclick=function(){achGrant(true);};
 
   /* ---------- мур-монетки: балансы ---------- */
   var coins=[];

@@ -1130,10 +1130,21 @@ body[class*="season-"] .vk-tab.on{border-color:var(--sa);box-shadow:0 0 22px col
   .vk-burger .vb-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .vk-burger .vb-caret{margin-left:auto;transition:transform .22s}
   .vk.menu-open .vk-burger .vb-caret{transform:rotate(180deg)}
-  .vk-tabs{max-height:0;overflow:hidden;opacity:0;gap:8px;margin-top:0;transition:max-height .28s ease,opacity .18s,margin .2s}
-  .vk.menu-open .vk-tabs{max-height:85vh;overflow:auto;opacity:1;margin-top:4px}
-  .vk-tab{font-size:17px;padding:16px;white-space:normal}
+  /* лента разделов: листается пальцем, кнопки « » помогают */
+  .vk-burger{display:none!important}
+  .vk-rib{position:relative;margin-inline:-4px}
+  .vk-tabs{flex-direction:row;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:4px 4px 6px;scroll-padding-inline:48px}
+  .vk-tabs::-webkit-scrollbar{display:none}
+  .vk-tab{flex:none;width:auto;white-space:nowrap;font-size:16px;padding:12px 16px;gap:8px;scroll-snap-align:start;border-color:var(--line);background:rgba(20,13,37,.6)}
   .vk-tab.on::before{display:none}
+  .vk-tab.vk-adm{margin-top:0}
+  .rib-btn{position:absolute;top:4px;bottom:6px;z-index:2;width:46px;display:flex;align-items:center;justify-content:center;font:800 26px/1 var(--body);color:var(--fg);border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .rib-btn[hidden]{display:none}
+  .rib-next{right:0;border-radius:0 14px 14px 0;background:linear-gradient(90deg,rgba(11,7,22,0),rgba(11,7,22,.92) 45%);justify-content:flex-end;padding-right:8px;color:var(--pink);text-shadow:0 0 10px var(--pink)}
+  .rib-prev{left:0;border-radius:14px 0 0 14px;background:linear-gradient(270deg,rgba(11,7,22,0),rgba(11,7,22,.92) 45%);justify-content:flex-start;padding-left:8px;color:var(--cyan);text-shadow:0 0 10px var(--cyan)}
+  .rib-next::after{content:"";position:absolute;right:4px;top:50%;width:34px;height:34px;margin-top:-17px;border-radius:50%;border:1.6px solid var(--pink);box-shadow:0 0 12px rgba(255,62,165,.5);pointer-events:none}
+  .rib-prev::after{content:"";position:absolute;left:4px;top:50%;width:34px;height:34px;margin-top:-17px;border-radius:50%;border:1.6px solid var(--cyan);box-shadow:0 0 12px rgba(44,241,255,.45);pointer-events:none}
+  .rib-next{padding-right:16px}.rib-prev{padding-left:16px}
 }
 </style>
 </head>
@@ -1248,7 +1259,11 @@ body[class*="season-"] .vk-tab.on{border-color:var(--sa);box-shadow:0 0 22px col
       </div>
       <button type="button" class="vk-burger" id="vkBurger" aria-expanded="false" aria-controls="vkNav"><span class="vb-ic" aria-hidden="true">☰</span><span class="vb-label">Меню</span><span class="vb-caret" aria-hidden="true">▾</span></button>
       <div class="vk-sep" aria-hidden="true"></div>
-      <nav class="vk-tabs" id="vkNav" aria-label="Разделы сайта"></nav>
+      <div class="vk-rib" id="vkRib">
+        <button type="button" class="rib-btn rib-prev" id="ribPrev" aria-label="Листать разделы назад" hidden>«</button>
+        <nav class="vk-tabs" id="vkNav" aria-label="Разделы сайта"></nav>
+        <button type="button" class="rib-btn rib-next" id="ribNext" aria-label="Листать разделы дальше" hidden>»</button>
+      </div>
     </aside>
     <div class="vk-main">
 
@@ -2947,11 +2962,24 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
     window.addEventListener('scroll',pin,{passive:true}); window.addEventListener('resize',fit);
     setInterval(fit,1500);
   }
+  /* ---- мобильная лента разделов ---- */
+  var rib=document.getElementById('vkRib'), rp=document.getElementById('ribPrev'), rn=document.getElementById('ribNext');
+  function ribMode(){ return nav && getComputedStyle(nav).flexDirection==='row'; }
+  function ribUpd(){ if(!rp||!rn) return; if(!ribMode()){ rp.hidden=rn.hidden=true; return; }
+    var max=nav.scrollWidth-nav.clientWidth; rp.hidden=nav.scrollLeft<8; rn.hidden=nav.scrollLeft>max-8; }
+  function ribGo(d){ var step=Math.max(140,nav.clientWidth*.7); try{nav.scrollBy({left:d*step,behavior:'smooth'});}catch(e){nav.scrollLeft+=d*step;} }
+  function ribTo(k){ if(!ribMode()||!btns[k]) return; var b=btns[k], l=b.offsetLeft-nav.offsetLeft-(nav.clientWidth-b.offsetWidth)/2;
+    try{nav.scrollTo({left:Math.max(0,l),behavior:'smooth'});}catch(e){nav.scrollLeft=l;} setTimeout(ribUpd,400); }
+  if(nav&&rp&&rn){ rp.onclick=function(){ribGo(-1);}; rn.onclick=function(){ribGo(1);};
+    nav.addEventListener('scroll',ribUpd,{passive:true}); window.addEventListener('resize',ribUpd);
+    if(window.ResizeObserver){ try{ new ResizeObserver(ribUpd).observe(nav); }catch(e){} }
+    if(window.MutationObserver){ new MutationObserver(function(){setTimeout(ribUpd,50);}).observe(nav,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden','style']}); }
+    setTimeout(ribUpd,300); }
   function show(k){
     if(k==='admin'){var ifr=main.querySelector('.adm-frame'); if(ifr){admFit(ifr); if(!ifr.getAttribute('src')&&ifr.getAttribute('data-src'))ifr.setAttribute('src',ifr.getAttribute('data-src'));}}
     panels.forEach(function(p){ p.classList.toggle('on',p.getAttribute('data-panel')===k); });
     Object.keys(btns).forEach(function(x){ var on=x===k; btns[x].classList.toggle('on',on); btns[x].setAttribute('aria-current',on?'page':'false'); });
-    burgerLabel(k); menuOpen(false);
+    burgerLabel(k); menuOpen(false); ribTo(k);
     if((k==='ach'||k==='hub')&&window.achSyncNow) window.achSyncNow();
     try{document.querySelector('.vk').scrollIntoView({block:'start',behavior:'smooth'});}catch(e){}
   }
@@ -3191,7 +3219,7 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
 (function(){
   var API=(typeof ADMIN_API==='string')?ADMIN_API.trim():'';
   var box=document.getElementById('achBox'); if(!box) return;
-  var UNIT={days:'дн. входа',pets:'поглаживаний',feeds:'кормлений',xp:'опыта котика',streak:'стримов подряд',balance:'мур-монеток'};
+  var UNIT={days:'дн. входа',pets:'поглаживаний',feeds:'кормлений',xp:'опыта котика',streak:'стримов подряд',balance:'мур-монеток',orders:'выполн. заказов',donSum:'₽ донатов'};
   var data=null;
   function cu(){try{return JSON.parse(localStorage.getItem('twUser')||'null');}catch(e){return null;}}
   function E(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
@@ -3209,9 +3237,14 @@ document.querySelectorAll('[data-copy]').forEach(window.bindCopy);
       var ok=have.indexOf(a.id)>=0, c=E('div','ach '+(ok?'got':'lock'));
       c.appendChild(E('span','ae',a.e)); c.appendChild(E('b',null,a.n)); c.appendChild(E('small',null,a.d)); c.appendChild(E('span','ar','🪙 +'+fmt(a.r||0)));
       if(!ok&&st){
-        var cur=Math.min(st[a.stat]||0,a.need), p=E('div','ap');
-        p.appendChild(E('span',null,a.stat==='top'?'пока не в топ-5':(fmt(cur)+' / '+fmt(a.need)+' '+(UNIT[a.stat]||''))));
-        var bar=E('i'); bar.style.setProperty('--p',Math.round(cur/a.need*100)+'%'); p.appendChild(bar); c.appendChild(p);
+        var cur=Math.min(st[a.stat]||0,a.need), p=E('div','ap'), txt, pct=cur/a.need;
+        if(a.stat==='top') txt='пока не в топ-5';
+        else if(a.stat==='rank'){ var rk=st.rank||0; txt=rk?('сейчас '+rk+'-е место, нужно топ-'+a.need):('пока не в топ-'+a.need); pct=rk&&rk>a.need?Math.max(.05,a.need/rk):0; }
+        else if(a.stat==='donated') { txt='донатов с этим ником пока нет'; pct=0; }
+        else if(a.stat==='manual') { txt='выдаёт хозяйка канала'; pct=0; }
+        else txt=fmt(cur)+' / '+fmt(a.need)+' '+(UNIT[a.stat]||'');
+        p.appendChild(E('span',null,txt));
+        var bar=E('i'); bar.style.setProperty('--p',Math.round(Math.min(1,pct)*100)+'%'); p.appendChild(bar); c.appendChild(p);
       }
       c.setAttribute('aria-label',a.n+': '+a.d+(ok?' — получено':' — ещё не получено'));
       g.appendChild(c);
